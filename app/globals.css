@@ -1,0 +1,15 @@
+/* globals.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Define your font-family utility classes */
+
+.font-title {
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+.font-text {
+  font-family: var(--font-opensans), sans-serif;
+}
