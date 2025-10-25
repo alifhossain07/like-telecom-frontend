@@ -8,7 +8,6 @@ import {
   FaCcMastercard,
   FaCcAmex,
   FaCcPaypal,
-  FaCcDiscover,
 } from "react-icons/fa";
 
 
