@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 // Import the fonts from next/font/google
 import { Montserrat, Open_Sans } from "next/font/google";
 import Header from "./Components/Shared/Header";
+import Footer from "./Components/Shared/Footer";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="font-text">
         <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );

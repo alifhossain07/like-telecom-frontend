@@ -4,6 +4,7 @@ import DisplayPhones from "./Components/Home/DisplayPhones";
 import FlashSale from "./Components/Home/FlashSale";
 import Hero from "./Components/Home/Hero";
 import NewArrival from "./Components/Home/NewArrival";
+import Newsletter from "./Components/Home/Newsletter";
 import ShopFavTech from "./Components/Home/ShopFavTech";
 import SmartPhoneBrands from "./Components/Home/SmartPhoneBrands";
 
@@ -18,6 +19,7 @@ export default function Home() {
       <ShopFavTech/>
       <SmartPhoneBrands/>
       <Authentic />
+      <Newsletter />
     </div>
   );
 }

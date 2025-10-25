@@ -4,7 +4,7 @@ import { FaHeart, FaShoppingCart, FaStar } from "react-icons/fa";
 import Image from "next/image";
 const NewArrival = () => {
     return (
-        <div className="w-10/12 mx-auto pt-10 pb-24">
+        <div className="w-10/12 mx-auto  pb-24">
               {/* Header */}
               <div className="flex justify-between items-center py-8">
                 <div>
