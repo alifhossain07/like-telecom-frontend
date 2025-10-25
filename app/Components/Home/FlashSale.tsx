@@ -111,6 +111,28 @@ const FlashSale = () => {
           ))}
         </div>
       </div>
+
+      <div className="flex items-center justify-center space-x-2 mt-8">
+      {/* Back Button */}
+      <button className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition">
+        <span>&lt;</span> Back
+      </button>
+
+      {/* Page 1 */}
+      <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition">
+        1
+      </button>
+
+      {/* Active Page */}
+      <button className="px-4 py-2 border border-gray-900 bg-black text-white rounded-md">
+        2
+      </button>
+
+      {/* Next Button */}
+      <button className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition">
+        Next <span>&gt;</span>
+      </button>
+    </div>
     </div>
   );
 };
