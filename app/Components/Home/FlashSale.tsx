@@ -9,28 +9,32 @@ const FlashSale = () => {
   return (
     <div className="w-10/12 mx-auto pt-10 pb-24">
       {/* Header */}
-      <div className="flex justify-between items-center py-8">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Flash Sale</h1>
-          <p className="text-lg text-gray-600">
-            Explore brand-new products crafted for style, quality, and innovation.
-          </p>
-        </div>
-        <button className="bg-orange-500 flex items-center gap-2 text-white px-6 py-3 rounded-xl font-semibold text-lg hover:bg-orange-600 transition">
-          See More <FiChevronRight className="text-xl" />
-        </button>
-      </div>
+    <div className="flex justify-between items-center py-6 md:py-8 w-full">
+  <div className=" w-7/12 ">
+    <h1 className="text-2xl sm:text-2xl md:text-4xl font-bold mb-1 md:mb-2">
+      Flash Sale
+    </h1>
+    <p className="text-xs sm:text-sm md:text-lg text-gray-600 max-w-md">
+      Explore brand-new products crafted for style, quality, and innovation.
+    </p>
+  </div>
+
+  <button className="bg-orange-500 text-xs sm:text-sm md:text-lg flex items-center gap-2 text-white px-3 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:bg-orange-600 transition whitespace-nowrap">
+    See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+  </button>
+</div>
+
 
       {/* Flash Sale Grid */}
-      <div className="flex items-stretch justify-between gap-6">
+      <div className="flex flex-col md:flex-row items-stretch justify-between gap-6">
         {/* Deal of the Day (Full Height Orange Card) */}
-        <div className="flex flex-col justify-center items-center bg-orange-500 text-white rounded-2xl p-8 text-center w-96 min-h-full">
+        <div className="flex flex-col justify-center items-center bg-orange-500 text-white rounded-2xl p-8 text-center md:w-96 min-h-full">
           <div className="space-y-5 ">
             <p className="text-sm font-medium opacity-90 ">
               Only One Week Offer’s
             </p>
-            <h1 className="text-2xl font-bold ">Deal Of The Day</h1>
-            <p className="text-lg  ">
+            <h1 className="md:text-2xl text-xl font-bold ">Deal Of The Day</h1>
+            <p className="md:text-lg  ">
               Explore brand-new products crafted for style, quality, and innovation.
             </p>
           </div>
@@ -45,7 +49,7 @@ const FlashSale = () => {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-white text-orange-500 rounded-lg py-5 px-10 flex flex-col items-center justify-center w-14"
+                className="bg-white text-orange-500 rounded-lg py-5 md:px-10 flex flex-col items-center justify-center w-14"
               >
                 <span className="text-2xl font-bold leading-none">{item.value}</span>
                 <span className="text-[16px] font-medium mt-1">{item.label}</span>
@@ -83,7 +87,7 @@ const FlashSale = () => {
               </div>
 
               {/* Product Info */}
-              <h3 className="mt-3 text-gray-800 font-semibold text-xl">
+              <h3 className="mt-3 text-gray-800 font-semibold text-lg md:text-xl">
                 iPhone Series 16 Pro Max
               </h3>
 
@@ -96,10 +100,10 @@ const FlashSale = () => {
               {/* Price & Cart */}
               <div className="mt-2 flex items-center justify-between">
                 <div>
-                  <span className="text-orange-600 font-bold text-2xl block">
+                  <span className="text-orange-600 font-bold text-xl md:text-2xl block">
                     ৳1,00,500
                   </span>
-                  <span className="text-gray-400 line-through text-lg">
+                  <span className="text-gray-400 line-through text-md md:text-lg">
                     ৳1,10,900
                   </span>
                 </div>

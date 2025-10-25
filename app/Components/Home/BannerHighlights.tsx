@@ -43,7 +43,7 @@ const BannerHighlights = () => {
                     className="object-contain w-full h-full"
                   />
                 </div>
-                <h1 className="font-bold text-xl text-gray-800 mt-3">
+                <h1 className="font-bold text-sm md:text-xl text-gray-800 mt-3">
                   {item.label}
                 </h1>
               </div>

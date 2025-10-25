@@ -6,17 +6,21 @@ const ShopFavTech = () => {
     return (
         <div className="w-10/12 mx-auto  pb-24">
                       {/* Header */}
-                      <div className="flex justify-between items-center py-8">
-                        <div>
-                          <h1 className="text-4xl font-bold mb-2">Shop Your Favourite Tech Today!</h1>
-                          <p className="text-lg text-gray-600">
-                            Fresh Designs, Faster Speed, Smarter Features
+                      <div className="flex justify-between items-center py-6 md:py-8 w-full">
+                        <div className=" w-7/12 ">
+                          <h1 className="text-2xl sm:text-2xl md:text-4xl font-bold mb-1 md:mb-2">
+                            Shop Your Favourite Tech Today
+                          </h1>
+                          <p className="text-xs sm:text-sm md:text-lg text-gray-600 max-w-md">
+                            Explore brand-new products crafted for style, quality, and innovation.
                           </p>
                         </div>
-                        <button className="bg-orange-500 flex items-center gap-2 text-white px-6 py-3 rounded-xl font-semibold text-lg hover:bg-orange-600 transition">
-                          See More <FiChevronRight className="text-xl" />
+                      
+                        <button className="bg-orange-500 text-xs sm:text-sm md:text-lg flex items-center gap-2 text-white px-3 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:bg-orange-600 transition whitespace-nowrap">
+                          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
                         </button>
                       </div>
+                      
                 
                       {/* Flash Sale Grid */}
                       <div className="flex items-stretch justify-between gap-6">
@@ -51,7 +55,7 @@ const ShopFavTech = () => {
                               </div>
                 
                               {/* Product Info */}
-                              <h3 className="mt-3 text-gray-800 font-semibold text-xl">
+                              <h3 className="mt-3 text-gray-800 font-semibold text-lg md:text-xl">
                                 iPhone Series 16 Pro Max
                               </h3>
                 
@@ -64,10 +68,10 @@ const ShopFavTech = () => {
                               {/* Price & Cart */}
                               <div className="mt-2 flex items-center justify-between">
                                 <div>
-                                  <span className="text-orange-600 font-bold text-2xl block">
+                                  <span className="text-orange-600 font-bold text-xl md:text-2xl block">
                                     ৳1,00,500
                                   </span>
-                                  <span className="text-gray-400 line-through text-lg">
+                                  <span className="text-gray-400 line-through text-md md:text-lg">
                                     ৳1,10,900
                                   </span>
                                 </div>
@@ -96,15 +100,15 @@ const ShopFavTech = () => {
                         2
                       </button>
 
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition">
+                      <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100  transition">
                         3
                       </button>
 
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition">
+                      <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 hidden md:block transition">
                         4
                       </button>
 
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition">
+                      <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 hidden md:block transition">
                         5
                       </button>
                 
