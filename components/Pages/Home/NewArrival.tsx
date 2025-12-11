@@ -17,7 +17,7 @@ interface Product {
 }
 
 const VISIBLE_CONFIG = {
-  xl: 6,
+  xl: 5,
   lg: 4,
   md: 3,
   sm: 2,
@@ -76,8 +76,8 @@ const NewArrival = () => {
     <div className="w-11/12 mx-auto pb-[56px]">
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-7">
-        <div>
-          <h1 className="xl:text-4xl text-2xl font-semibold">
+        <div className="text-center mx-auto">
+          <h1 className="xl:text-4xl text-2xl font-medium">
             New Arrival Products
           </h1>
           <p className="text-gray-600 text-sm xl:text-lg">
@@ -85,7 +85,7 @@ const NewArrival = () => {
           </p>
         </div>
 
-        <button className="hidden md:flex bg-black text-white px-4 py-2 rounded-xl items-center">
+        <button className="hidden md:flex bg-[#EB6420] text-white px-4 py-2 rounded-xl items-center">
           See More <FiChevronRight />
         </button>
       </div>

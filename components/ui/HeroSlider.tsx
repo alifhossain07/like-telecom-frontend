@@ -60,8 +60,8 @@ const HeroSlider = () => {
     setCurrent((prev) => (prev === sliders.length - 1 ? 0 : prev + 1));
 
   return (
-    <div className="w-11/12 mx-auto pt-16 pb-[16px]">
-      <div className="flex gap-3 md:gap-5 overflow-hidden w-full justify-center h-[350px] md:h-[500px] lg:h-[600px] xl:h-[450px]">
+    <div className="w-11/12 mx-auto pt-32 xl:pt-16 pb-[16px]">
+      <div className="flex gap-3 md:gap-5 overflow-hidden w-full justify-center h-[250px] md:h-[500px] lg:h-[600px] xl:h-[450px]">
         {/* LEFT SIDE IMAGE */}
         <div className="hidden md:block flex-[3] relative rounded-md overflow-hidden">
           {loading ? (

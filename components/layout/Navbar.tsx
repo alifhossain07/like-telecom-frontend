@@ -85,7 +85,7 @@ type Category = {
 const Navbar = () => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [hoveredSubcategory, setHoveredSubcategory] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -106,7 +106,7 @@ const Navbar = () => {
   const suggestTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showDesktopLogout, setShowDesktopLogout] = useState(false);
   const desktopSearchRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  // const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
@@ -123,10 +123,10 @@ const Navbar = () => {
 
   // ✅ SIMPLE LINKS (NOT CATEGORIES)
   const simplePages = [
-    { name: "About Us", href: "/about" },
-    { name: "Our Blog", href: "/blog" },
-    { name: "Contact Us", href: "/contact" },
-    { name: "Authentication", href: "/auth" },
+    { name: "About Us", href: "/" },
+    { name: "Our Blog", href: "/" },
+    { name: "Contact Us", href: "/" },
+    { name: "Authentication", href: "/" },
   ];
 
   useEffect(() => {
@@ -199,9 +199,9 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
+      // if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      //   setOpen(false);
+      // }
       if (submenuRef.current && !submenuRef.current.contains(event.target as Node)) {
         setHoveredCategory(null);
         setHoveredSubcategory(null);
@@ -439,12 +439,12 @@ const Navbar = () => {
               )}
             </div>
 
-            <Link href="/offers"
+            <button 
               className="flex items-center gap-1 text-white px-5 mr-5 py-2 rounded-xl text-sm"
               style={{ background: "linear-gradient(to bottom, #FFD522, #FF6B01)" }}
             >
               <FiGift className="text-base mr-1 animate-pulseScaleColor" /> Offers
-            </Link>
+            </button>
 
             {/* LANGUAGE DROPDOWN */}
             {/* <div className="relative inline-block" ref={dropdownRef}>
@@ -520,13 +520,13 @@ const Navbar = () => {
               </div>
             ) : (
               <button className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-1 text-sm">
-                <Link href="/login" className="flex items-center gap-2">
+                {/* <Link href="/login" className="flex items-center gap-2"> */}
                   <FiUser className="text-2xl" />
                   <div>
                     <h1 className="text-base">Login</h1>
 
                   </div>
-                </Link>
+                {/* </Link> */}
               </button>
             )}
           </div>
@@ -745,10 +745,11 @@ const Navbar = () => {
           Home
         </Link>
 
-        <Link href="/offers" className="flex flex-col items-center text-sm">
-          <FiGift className="text-2xl" />
-          Offers
-        </Link>
+        {/* <Link href="/offers" className="flex flex-col items-center text-sm"> */}
+        <div className="flex flex-col items-center text-sm"> <FiGift className="text-2xl" />
+          Offers</div>
+         
+        {/* </Link> */}
 
         <button
           onClick={() => setCartOpen(true)}
@@ -765,10 +766,12 @@ const Navbar = () => {
           Cart
         </button>
 
-        <Link href="/login" className="flex flex-col items-center text-sm">
+        {/* <Link href="/login" className="flex flex-col items-center text-sm"> */}
+        <div className="flex flex-col items-center text-sm">
           <FiUser className="text-2xl" />
           Profile
-        </Link>
+          </div>
+        {/* </Link> */}
       </div>
 
       {/* ========= MOBILE SIDEBAR ========= */}
@@ -786,7 +789,7 @@ const Navbar = () => {
               }`}
           >
             <div className="flex justify-between items-center px-5 py-4 border-b">
-              <Image src="/images/sannailogo.png" width={120} height={120} alt="Logo" />
+              <Image src="/images/likelogo.png" width={120} height={120} alt="Logo" />
               <button className="text-3xl text-orange-500" onClick={handleCloseMenu}>
                 <FiX />
               </button>
