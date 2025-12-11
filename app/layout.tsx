@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
@@ -10,8 +10,6 @@ import { Toaster } from "react-hot-toast";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
-// import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
-// import GTM from "@/components/layout/GTM";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -19,76 +17,74 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-type BusinessSetting = {
+interface BusinessSetting {
   key: string;
-  value: string | null;
-};
-
-type InfoRouteResponse = {
-  success?: boolean;
-  settings?: BusinessSetting[];
-};
+  value: string;
+}
 
 async function getBusinessSettings(): Promise<BusinessSetting[] | null> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/info`,
-      { cache: "no-store" }
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/info`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      }
     );
 
     if (!res.ok) return null;
 
-    const json: InfoRouteResponse = await res.json();
-    if (!json.success || !json.settings) return null;
-
-    return json.settings;
-  } catch {
+    const data = await res.json();
+    return data.settings;
+  } catch (error) {
+    console.error("Error fetching business settings:", error);
     return null;
   }
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const fallbackTitle = "Like Telecom";
-  const fallbackDescription = "A Project By Techdyno BD LTD";
-
   const settings = await getBusinessSettings();
+
   if (!settings) {
     return {
-      title: fallbackTitle,
-      description: fallbackDescription,
+      title: "Like Telecom",
+      description: "Best Mobile Shop",
     };
   }
 
-  const getMetaValue = (key: string): string | undefined => {
-    const item = settings.find((s) => s.key === key);
-    if (!item || item.value == null) return undefined;
-    return item.value;
-  };
-
-  const title =
-    getMetaValue("meta_title") ||
-    getMetaValue("website_name") ||
-    fallbackTitle;
-
-  const description =
-    getMetaValue("meta_description") || fallbackDescription;
+  const websiteName =
+    settings.find((s) => s.key === "website_name")?.value ||
+    "Like Telecom";
+  const metaTitle =
+    settings.find((s) => s.key === "meta_title")?.value || websiteName;
+  const metaDescription =
+    settings.find((s) => s.key === "meta_description")?.value || "";
+  const siteIcon =
+    settings.find((s) => s.key === "site_icon")?.value;
 
   return {
-    title,
-    description,
+    title: {
+      default: metaTitle,
+      template: `%s | ${websiteName}`,
+    },
+    description: metaDescription,
+    icons: {
+      icon: siteIcon || "/favicon.ico",
+    },
   };
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <body className={`${poppins.variable} antialiased`}>
-        {/* <GoogleAnalytics id="G-S4ED028867" /> */}
-        {/* <GTM /> */}
         <AuthProvider>
           <CartProvider>
             <Navbar />
