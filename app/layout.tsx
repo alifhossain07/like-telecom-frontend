@@ -48,7 +48,7 @@ async function getBusinessSettings(): Promise<BusinessSetting[] | null> {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const fallbackTitle = "Sannai Technology";
+  const fallbackTitle = "Like Telecom";
   const fallbackDescription = "A Project By Techdyno BD LTD";
 
   const settings = await getBusinessSettings();
