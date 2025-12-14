@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import ProductCard from "@/components/ui/ProductCard";
-import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 
 interface Product {
   id: number;
@@ -16,21 +15,22 @@ interface Product {
   slug: string;
 }
 
-const VISIBLE_CONFIG = {
-  xl: 5,
-  lg: 4,
-  md: 3,
-  sm: 2,
-  xs: 1,
-};
-
 const NewArrival = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(6);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [page, setPage] = useState(1);
+  const [isMobile, setIsMobile] = useState(true);
 
-  // Fetch products
+  // Check screen size
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const PRODUCTS_PER_PAGE = isMobile ? 6 : 5;
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -47,103 +47,59 @@ const NewArrival = () => {
     load();
   }, []);
 
-  // Calculate visible count based on window size
-  useEffect(() => {
-    const updateVisible = () => {
-      const w = window.innerWidth;
-
-      if (w >= 1280) setVisibleCount(VISIBLE_CONFIG.xl);
-      else if (w >= 1024) setVisibleCount(VISIBLE_CONFIG.lg);
-      else if (w >= 768) setVisibleCount(VISIBLE_CONFIG.md);
-      else if (w >= 480) setVisibleCount(VISIBLE_CONFIG.sm);
-      else setVisibleCount(VISIBLE_CONFIG.xs);
-    };
-
-    updateVisible();
-    window.addEventListener("resize", updateVisible);
-    return () => window.removeEventListener("resize", updateVisible);
-  }, []);
-
-  const maxIndex = Math.max(0, products.length - visibleCount);
-
-  const handleNext = () =>
-    setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
-
-  const handlePrev = () =>
-    setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = products.slice(
+    (page - 1) * PRODUCTS_PER_PAGE,
+    page * PRODUCTS_PER_PAGE
+  );
 
   return (
-    <div className="w-11/12 mx-auto pb-[56px]">
+    <div className="w-11/12 mx-auto mb-[56px] pb-4 pt-4 p-2 sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-7">
-        <div className="text-center mx-auto">
-          <h1 className="xl:text-4xl text-2xl font-medium">
-            New Arrival Products
-          </h1>
-          <p className="text-gray-600 text-sm xl:text-lg">
-            Discover our latest arrivals
-          </p>
+      <div className="flex items-center justify-between mb-7">
+        {/* Mobile Header */}
+        <div className="flex items-center sm:hidden w-full justify-between">
+          <h1 className="text-2xl font-medium">New Arrival</h1>
+          <button className="bg-[#EB6420] text-white px-4 text-[12px] py-2 rounded-xl">
+            See More
+          </button>
         </div>
 
-        <button className="hidden md:flex bg-[#EB6420] text-white px-4 py-2 rounded-xl items-center">
-          See More <FiChevronRight />
-        </button>
+        {/* Desktop Header */}
+        <div className="hidden sm:flex flex-col items-center w-full">
+          <h1 className="text-4xl font-medium">New Arrival Products</h1>
+          <p className="text-gray-600 text-lg mt-2">Discover our latest arrivals</p>
+        </div>
       </div>
 
-      {/* LOADING SKELETON */}
-      {loading ? (
-        <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
+      {/* PRODUCT GRID */}
+      <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+        {loading
+          ? Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => (
+              <div
+                key={i}
+                className="w-full h-60 bg-gray-200 animate-pulse rounded-xl"
+              />
+            ))
+          : paginatedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+      </div>
+
+      {/* Pagination - desktop only */}
+      {!loading && !isMobile && products.length > PRODUCTS_PER_PAGE && (
+        <div className="hidden sm:flex justify-center mt-6 gap-2">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
               key={i}
-              className="w-full h-60 bg-gray-200 animate-pulse rounded-xl"
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="relative">
-          {/* SLIDER VIEWPORT */}
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{
-                transform: `translateX(-${
-                  (currentIndex * 100) / visibleCount
-                }%)`,
-              }}
+              onClick={() => setPage(i + 1)}
+              className={`px-3 py-1 rounded-md ${
+                page === i + 1 ? "bg-[#EB6420] text-white" : "bg-gray-200"
+              }`}
             >
-              {products.map((p) => (
-                <div
-                  key={p.id}
-                  className="px-2 flex-shrink-0"
-                  style={{ width: `${100 / visibleCount}%` }}
-                >
-                  <ProductCard product={p} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ARROWS */}
-          {products.length > visibleCount && (
-            <>
-              <button
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                className="absolute xl:-left-6 -left-3 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full disabled:opacity-40"
-              >
-                <FiChevronLeft className="text-xl" />
-              </button>
-
-              <button
-                onClick={handleNext}
-                disabled={currentIndex === maxIndex}
-                className="absolute xl:-right-6 -right-3 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full disabled:opacity-40"
-              >
-                <FiChevronRight className="text-xl" />
-              </button>
-            </>
-          )}
+              {i + 1}
+            </button>
+          ))}
         </div>
       )}
     </div>

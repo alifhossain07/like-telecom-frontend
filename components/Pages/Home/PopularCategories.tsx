@@ -10,8 +10,6 @@ type Category = {
   name: string;
   slug: string;
   icon: string;
-  banner: string;
-  cover_image: string;
 };
 
 const PopularCategories = () => {
@@ -37,38 +35,48 @@ const PopularCategories = () => {
 
   return (
     <div className="pb-16">
-      <div className="w-10/12 mx-auto">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-12 md:gap-44 justify-items-center">
-          {loading
-            ? Array.from({ length: 7 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-44 sm:w-48 md:w-52 lg:w-56 rounded-2xl border border-gray-200 bg-white shadow-sm p-4 flex flex-col items-center animate-pulse"
-                >
-                  <div className="w-full h-48 sm:h-52 bg-gray-200 rounded-xl" />
-                  <div className="mt-3 w-24 h-6 bg-gray-200 rounded-xl" />
+      <div className="w-11/12 mx-auto">
+
+        {/* GRID */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 md:gap-6">
+
+          {/* LOADING */}
+          {loading &&
+            Array.from({ length: 7 }).map((_, i) => (
+              <div
+                key={i}
+                className="w-full border border-gray-200 bg-white rounded-xl p-3 animate-pulse"
+              >
+                <div className="w-full h-32 bg-gray-200 rounded-lg" />
+                <div className="mt-3 h-5 bg-gray-200 rounded-md" />
+              </div>
+            ))}
+
+          {/* DATA */}
+          {!loading &&
+            categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/products/${cat.slug}`}
+                className="w-full border border-gray-200 bg-white rounded-xl p-2 flex flex-col items-center transition hover:shadow-md"
+              >
+                {/* IMAGE (SAFE) */}
+                <div className="w-full h-24 xl:h-40 flex items-center justify-center bg-gray-100 rounded-lg">
+                  <Image
+                    src={cat.icon || "/images/placeholder.png"}
+                    alt={cat.name}
+                    width={120}
+                    height={120}
+                    className="object-contain"
+                  />
                 </div>
-              ))
-            : categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/products/${cat.slug}`}
-                  className="w-44 sm:w-48 md:w-52 lg:w-56 rounded-xl border border-gray-200 bg-white shadow-sm p-2 flex flex-col items-center transition-transform duration-200 hover:scale-105"
-                >
-                  <div className="w-full h-48 sm:h-52 flex justify-center items-center bg-gray-100 rounded-xl overflow-hidden">
-                    <Image
-                      src={cat.icon || "/images/placeholder.png"}
-                      alt={cat.name}
-                      width={250}
-                      height={250}
-                      className="object-contain"
-                    />
-                  </div>
-                  <p className="mt-3 w-full text-center bg-gray-100 rounded-xl px-6 py-2 text-sm sm:text-base font-semibold text-gray-800">
-                    {cat.name}
-                  </p>
-                </Link>
-              ))}
+
+                {/* TITLE */}
+                <p className="mt-3 w-full text-center bg-gray-100 rounded-lg px-2 py-2 xl:text-sm text-[9px] font-semibold text-gray-800">
+                  {cat.name}
+                </p>
+              </Link>
+            ))}
         </div>
       </div>
     </div>

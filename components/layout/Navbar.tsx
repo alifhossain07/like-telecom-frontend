@@ -253,7 +253,7 @@ const Navbar = () => {
       {/* ========= HEADER ========= */}
       <header className="fixed top-0 left-0 w-full bg-white z-50 shadow-md">
         {/* TOP BAR */}
-         <div className="py-3 shadow-md border-b border-gray-100 bg-white">
+         <div className="py-3 hidden md:block shadow-md border-b border-gray-100 bg-white">
         <div className="w-11/12 mx-auto flex flex-col md:flex-row justify-between gap-3 md:gap-0">
           {/* Left - Info Links */}
           <div className="flex flex-wrap justify-center md:justify-start font-semibold text-green-800 gap-4 text-sm">
@@ -279,7 +279,7 @@ const Navbar = () => {
       </div>
 
         {/* MIDDLE LOGO + SEARCH */}
-        <div className="w-11/12 mx-auto py-5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="w-11/12 mx-auto py-1 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex justify-between w-full md:w-full lg:w-auto items-center">
             <button className="text-2xl text-orange-500 lg:hidden" onClick={() => setMenuOpen(true)}>
               <FiMenu />

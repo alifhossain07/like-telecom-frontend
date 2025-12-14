@@ -155,7 +155,7 @@ const FlashSale = () => {
 
           {/* Right: Product Grid */}
           <div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center items-center min-h-[300px]">
-            <div className="grid grid-cols-1 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
               {products.slice(0, 6).map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

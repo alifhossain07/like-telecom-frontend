@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FiChevronRight } from "react-icons/fi";
+
 import ProductCard from "@/components/ui/ProductCard";
 
 // ----- Product Interface -----
@@ -27,14 +27,23 @@ interface Product {
 const FeatureProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [itemsToShow, setItemsToShow] = useState(6);
+  const [isMobile, setIsMobile] = useState(true);
+
+
+  // ----- Detect screen size -----
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // ----- Fetch Products -----
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axios.get<Product[]>("/api/products/featureproducts");
-        setProducts(res.data); // API already returns the correct structure
+        setProducts(res.data);
       } catch (err) {
         console.error("Failed to fetch featured products:", err);
       } finally {
@@ -45,13 +54,12 @@ const FeatureProducts: React.FC = () => {
     fetchProducts();
   }, []);
 
-  // ----- Responsive Item Count -----
-  useEffect(() => {
-    const handleResize = () => setItemsToShow(window.innerWidth >= 1280 ? 5 : 5);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // ----- Pagination logic -----
+  const PRODUCTS_PER_PAGE = isMobile ? 6 : 5;
+  const MAX_DESKTOP_PRODUCTS = 10;
+  const paginatedProducts = isMobile
+    ? products.slice(0, PRODUCTS_PER_PAGE)
+    : products.slice(0, MAX_DESKTOP_PRODUCTS);
 
   // ----- Skeleton Card -----
   const SkeletonCard: React.FC = () => (
@@ -69,32 +77,45 @@ const FeatureProducts: React.FC = () => {
       </div>
     </div>
   );
-// This was Feature Products
+
   return (
-    <div className="w-11/12 mx-auto pb-[56px]">
+    <div className="w-11/12 mx-auto mb-[56px] pt-4 pb-4 p-2 sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
-        <div className="w-full text-center mx-auto sm:w-7/12">
-          <h1 className="text-2xl sm:text-2xl md:text-4xl font-medium mb-1 md:mb-2">
-          Recommended For You
-          </h1>
-          <p className="text-xs sm:text-sm md:text-lg text-gray-600">
+      <div className="flex items-center justify-between mb-7">
+        {/* Mobile Header */}
+        <div className="flex items-center sm:hidden w-full justify-between">
+          <h1 className="text-2xl w-1/2 font-medium">Recommended For You</h1>
+          <button className="bg-[#EB6420] text-white px-4 text-[12px] py-2 rounded-xl">
+            See More
+          </button>
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden sm:flex flex-col items-center w-full">
+          <h1 className="text-4xl font-medium">Recommended For You</h1>
+          <p className="text-gray-600 text-lg mt-2">
             Discover Our Latest Arrivals Designed to Inspire and Impress
           </p>
         </div>
-        <button className="bg-[#EB6420] hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 transition duration-300">
-          See More <FiChevronRight className="text-sm md:text-xl" />
-        </button>
       </div>
 
       {/* Product Grid */}
-      <div className="flex justify-center">
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-6 xl:gap-4 justify-items-center w-[98%] sm:w-full">
-          {loading
-            ? Array.from({ length: itemsToShow }).map((_, i) => <SkeletonCard key={i} />)
-            : products.slice(0, itemsToShow).map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
+      <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-5 justify-items-center">
+        {loading
+          ? Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))
+          : paginatedProducts.map((p) => <ProductCard key={p.id} product={p} />)}
       </div>
+
+      {/* See More button - desktop only */}
+      {!loading && !isMobile && products.length > MAX_DESKTOP_PRODUCTS && (
+        <div className="flex justify-center mt-6">
+          <button className="bg-[#EB6420] text-white px-6 py-3 rounded-xl hover:bg-gray-200 hover:text-black transition duration-300">
+            See More
+          </button>
+        </div>
+      )}
     </div>
   );
 };

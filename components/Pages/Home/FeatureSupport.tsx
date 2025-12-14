@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   FiHeadphones,
   FiPackage,
@@ -11,45 +10,55 @@ import {
 
 const FeatureSupport = () => {
   return (
-    <div className=" w-11/12 mx-auto">
-      {/* Feature Support */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 md:gap-6 pb-7 text-center">
-        <div className="bg-gray-200 py-8 md:py-12 flex flex-col items-center justify-center rounded-lg">
-          <FiHeadphones className="text-4xl md:text-5xl mb-2" />
-          <span className="text-sm md:text-lg font-semibold">
+    <div className="w-11/12 mx-auto">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-6 pb-7 text-center justify-items-center md:justify-items-stretch">
+
+        {/* ITEM */}
+        <div className="bg-orange-100 w-[88px] aspect-square 
+                        md:w-full md:aspect-[5/4] 
+                        rounded-full md:rounded-lg 
+                        flex flex-col items-center justify-center">
+          <FiHeadphones className="text-xl md:text-[clamp(24px,2.5vw,44px)] mb-1 md:mb-2" />
+          <span className="text-[9px] md:text-[clamp(12px,1vw,18px)] font-semibold leading-tight">
             Online Support
           </span>
         </div>
-        <div className="bg-gray-200 py-8 md:py-12 flex flex-col items-center justify-center rounded-lg">
-          <FiPackage className="text-4xl md:text-5xl mb-2" />
-          <span className="text-sm md:text-lg font-semibold">
+
+        <div className="bg-orange-100 w-[88px] aspect-square md:w-full md:aspect-[5/4] rounded-full md:rounded-lg flex flex-col items-center justify-center">
+          <FiPackage className="text-xl md:text-[clamp(24px,2.5vw,44px)] mb-1 md:mb-2" />
+          <span className="text-[9px] md:text-[clamp(12px,1vw,18px)] font-semibold leading-tight">
             Official Product
           </span>
         </div>
-        <div className="bg-gray-200 py-8 md:py-12 flex flex-col items-center justify-center rounded-lg">
-          <FiTruck className="text-4xl md:text-5xl mb-2" />
-          <span className="text-sm md:text-lg font-semibold">
-            Fastest Delivery
+
+        <div className="bg-orange-100 w-[88px] aspect-square md:w-full md:aspect-[5/4] rounded-full md:rounded-lg flex flex-col items-center justify-center">
+          <FiTruck className="text-xl md:text-[clamp(24px,2.5vw,44px)] mb-1 md:mb-2" />
+          <span className="text-[9px] md:text-[clamp(12px,1vw,18px)] font-semibold leading-tight">
+            Fast Delivery
           </span>
         </div>
-        <div className="bg-gray-200 py-8 md:py-12 flex flex-col items-center justify-center rounded-lg">
-          <FiShield className="text-4xl md:text-5xl mb-2" />
-          <span className="text-sm md:text-lg font-semibold">
+
+        <div className="bg-orange-100 w-[88px] aspect-square md:w-full md:aspect-[5/4] rounded-full md:rounded-lg flex flex-col items-center justify-center">
+          <FiShield className="text-xl md:text-[clamp(24px,2.5vw,44px)] mb-1 md:mb-2" />
+          <span className="text-[9px] md:text-[clamp(12px,1vw,18px)] font-semibold leading-tight">
             Secure Payment
           </span>
         </div>
-        <div className="bg-gray-200 py-8 md:py-12 flex flex-col items-center justify-center rounded-lg">
-          <FiCheckCircle className="text-4xl md:text-5xl mb-2" />
-          <span className="text-sm md:text-lg font-semibold">
+
+        <div className="bg-orange-100 w-[88px] aspect-square md:w-full md:aspect-[5/4] rounded-full md:rounded-lg flex flex-col items-center justify-center">
+          <FiCheckCircle className="text-xl md:text-[clamp(24px,2.5vw,44px)] mb-1 md:mb-2" />
+          <span className="text-[9px] md:text-[clamp(12px,1vw,18px)] font-semibold leading-tight">
             Genuine Product
           </span>
         </div>
-        <div className="bg-gray-200 py-8 md:py-12 flex flex-col items-center justify-center rounded-lg">
-          <FiAward className="text-4xl md:text-5xl mb-2" />
-          <span className="text-sm md:text-lg font-semibold">
+
+        <div className="bg-orange-100 w-[88px] aspect-square md:w-full md:aspect-[5/4] rounded-full md:rounded-lg flex flex-col items-center justify-center">
+          <FiAward className="text-xl md:text-[clamp(24px,2.5vw,44px)] mb-1 md:mb-2" />
+          <span className="text-[9px] md:text-[clamp(12px,1vw,18px)] font-semibold leading-tight">
             ISO Certified
           </span>
         </div>
+
       </div>
     </div>
   );
