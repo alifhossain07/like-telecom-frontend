@@ -30,63 +30,96 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <>
       <div className="bg-white border border-gray-200 rounded-md shadow-lg hover:shadow-md transition relative flex flex-col justify-between w-full max-w-sm mx-auto">
-        {/* Discount + Wishlist */}
-        <div className="flex justify-between items-center p-2">
-          <span className="bg-green-100 text-green-600 text-xs font-semibold px-2 py-1 rounded-lg">
-            {product.discount}
-          </span>
-          <button className="text-red-400 bg-red-100 p-2 rounded-lg hover:text-red-500 transition">
-            <FaHeart size={14} />
-          </button>
-        </div>
 
-        {/* Product Image */}
+        {/* ---------- IMAGE ---------- */}
         <Link
           href={`/${product.slug}`}
-          className="flex justify-center items-center bg-gray-50 rounded-xl overflow-hidden mx-2"
+          className="relative flex justify-center items-center bg-gray-50 rounded-xl overflow-hidden mx-2 mt-2"
         >
-          <div className="w-full aspect-[5/4] relative">
+          <div
+            className="
+              w-full relative
+              aspect-[1/1]        /* mobile: compact square */
+              sm:aspect-[4/3]     /* tablet */
+              md:aspect-[5/4]     /* desktop */
+            "
+          >
             <Image
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain"
+              className="object-contain sm:scale-95 md:scale-100"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
+
+            {/* Discount Badge */}
+            <span
+              className="
+                absolute top-1 left-1
+                bg-green-100 text-green-600
+                text-[8px] sm:text-xs md:text-sm
+                font-semibold
+                px-1.5 py-0.5 sm:px-2 sm:py-1
+                rounded-md
+              "
+            >
+              {product.discount}
+            </span>
+
+            {/* Wishlist */}
+            <button
+              className="
+                absolute top-1 right-1
+                text-red-400 bg-red-100
+                p-1 sm:p-1.5 md:p-2
+                rounded-md
+                hover:text-red-500 transition
+              "
+            >
+              <FaHeart className="w-2 h-2 sm:w-3 sm:h-3" />
+            </button>
           </div>
         </Link>
 
-        {/* Title */}
+        {/* ---------- TITLE ---------- */}
         <Link href={`/${product.slug}`}>
-          <h3 className="mt-3 mx-2 text-gray-800 font-medium text-base sm:text-sm md:text-lg  xl:text-xl 2xl:text-xl line-clamp-3">
+          <h3 className="mt-3 mx-2 text-gray-800 font-medium text-[14px] sm:text-sm md:text-lg xl:text-[18px] line-clamp-2">
             {product.name}
           </h3>
         </Link>
 
-        {/* Rating */}
-        <div className="flex items-center text-sm text-gray-500 mt-1 mx-2">
-          <FaStar className="text-yellow-400 mr-1" /> ({product.rating})
+        {/* ---------- PRICE ---------- */}
+        <div className="flex flex-col px-2 py-1 gap-1">
+          <span className="text-orange-600 font-bold text-lg sm:text-base md:text-xl lg:text-2xl">
+            ৳{product.price}
+          </span>
+          <span className="text-gray-400 line-through text-xs sm:text-sm md:text-md">
+            ৳{product.oldPrice}
+          </span>
         </div>
 
-        {/* Price + Add to Cart */}
-        <div className="mt-4 flex items-center justify-between mx-2 mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-orange-600 font-bold text-lg sm:text-base md:text-xl lg:text-2xl">
-              ৳{product.price}
-            </span>
-            <span className="text-gray-400 line-through text-sm sm:text-xs md:text-md lg:text-lg">
-              ৳{product.oldPrice}
-            </span>
+        {/* ---------- FOOTER ---------- */}
+        <div className="flex items-center justify-between mx-2 mb-2">
+          <div className="flex items-center text-xs sm:text-sm text-gray-500">
+            <FaStar className="text-yellow-400 mr-1" />
+            ({product.rating})
           </div>
+
           <button
             onClick={() => setOptionsOpen(true)}
-            className="bg-black text-white p-2 sm:p-1 md:p-2 lg:p-3 rounded-md hover:bg-gray-800 transition"
+            className="
+              bg-black text-white
+              p-2 sm:p-1.5 md:p-2.5
+              rounded-md
+              hover:bg-gray-800 transition
+            "
           >
-            <FaCartPlus size={20} />
+            <FaCartPlus size={18} />
           </button>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* ---------- MODAL ---------- */}
       <ProductOptionsModal
         slug={product.slug}
         open={optionsOpen}

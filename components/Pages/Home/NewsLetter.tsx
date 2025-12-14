@@ -1,25 +1,18 @@
 "use client";
 
 import Loader from "@/components/ui/Loader";
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { FiChevronDown } from "react-icons/fi";
-
-type BottomBannerIcon = {
-  photo: string;
-  link: string | null;
-};
 
 type HomeBottomBanner = {
   image: string;
   title: string;
-  subtitle: string;
-  icons: BottomBannerIcon[];
 };
 
 const NewsLetter = () => {
-  const [open, setOpen] = useState(false);
-  const [infoRows, setInfoRows] = useState<{ title: string; paragraph: string }[]>([]);
+  const [data, setData] = useState<HomeBottomBanner | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // -------- FORMAT TITLE --------
   const formatTitle = (title: string) => {
     return title
       .replace(/\*(.*?)\*/g, (_, text) => {
@@ -27,166 +20,115 @@ const NewsLetter = () => {
       })
       .replace(/\n/g, "<br/>");
   };
-  const [data, setData] = useState<HomeBottomBanner | null>(null);
-  const [loading, setLoading] = useState(true);
 
+  // -------- FETCH BANNER ONLY --------
   useEffect(() => {
     const fetchBottomBanner = async () => {
       try {
+        console.log("📡 Fetching /api/banners ...");
+
         const res = await fetch("/api/banners", { cache: "no-store" });
         const json = await res.json();
+
+        // 🔍 FULL SERVER RESPONSE
+        console.log("✅ Full API response:", json);
+
+        // 🔍 HOME BOTTOM BANNER DATA
+        console.log("🖼️ homeBottomBanner:", json.homeBottomBanner);
+
+        // 🔍 INDIVIDUAL FIELDS
+        console.log("🖼️ Banner Image:", json.homeBottomBanner?.image);
+        console.log("📝 Banner Title:", json.homeBottomBanner?.title);
+
         setData(json.homeBottomBanner);
       } catch (error) {
-        console.error("Failed to load bottom banner:", error);
+        console.error("❌ Failed to load newsletter banner:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const fetchBottomInfo = async () => {
-      try {
-        const res = await fetch("/api/home-info-seo", { cache: "no-store" });
-        const json = await res.json();
-        if (json.success) setInfoRows(json.rows);
-      } catch (error) {
-        console.error("Failed to load bottom info:", error);
-      }
-    };
-
-    Promise.all([fetchBottomBanner(), fetchBottomInfo()]).finally(() => setLoading(false));
+    fetchBottomBanner();
   }, []);
 
-  // ---- Skeleton Loader ----
-  const SkeletonLoader = () => (
-    <div className="w-11/12 mx-auto space-y-6 animate-pulse">
-      {/* Main Section */}
-      <div className="relative rounded-md overflow-hidden flex flex-col xl:flex-row items-center xl:items-center justify-center xl:justify-start xl:h-[650px] h-[400px] bg-gray-200">
-        <div className="w-11/12 xl:w-1/2 space-y-4 xl:space-y-6 px-4 sm:px-6 md:pl-12 xl:pl-20 2xl:pl-28 py-10 xl:py-0 flex flex-col items-center md:items-start">
-          <div className="h-10 md:h-16 w-3/4 bg-gray-300 rounded"></div>
-          <div className="h-6 md:h-8 w-1/2 bg-gray-300 rounded"></div>
-          <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mt-4">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="w-[130px] h-[45px] bg-gray-300 rounded-md" />
-            ))}
-          </div>
-        </div>
-      </div>
+  // -------- LOG WHEN STATE CHANGES --------
+  useEffect(() => {
+    if (data) {
+      console.log("📦 Data stored in state:", data);
+    }
+  }, [data]);
 
-      {/* Bottom Text Section */}
-      <div className="mt-10 bg-orange-500 p-8 flex justify-between items-center flex-wrap gap-4 cursor-pointer select-none">
-        <div className="h-6 xl:h-10 w-3/4 bg-gray-300 rounded"></div>
-        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-      </div>
-
-      {/* Dropdown Content */}
-      <div className="overflow-hidden transition-all duration-500 max-h-[2000px] opacity-100 mt-4">
-        <div className="p-6 bg-white rounded-md shadow-md space-y-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="space-y-2">
-              <div className="h-6 w-1/2 bg-gray-300 rounded"></div>
-              <div className="h-4 w-full bg-gray-200 rounded"></div>
-              <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  if (loading) return <SkeletonLoader />;
-
-  if (!data)
+  // -------- LOADING --------
+  if (loading) {
     return (
-      <div className="w-full h-[40vh] flex items-center justify-center">
+      <div className="w-11/12 mx-auto h-[300px] flex items-center justify-center bg-gray-100 rounded-md">
         <Loader />
       </div>
     );
+  }
+
+  if (!data) {
+    console.warn("⚠️ No banner data available");
+    return null;
+  }
 
   return (
     <div className="w-11/12 mx-auto">
-      {/* Main Section */}
       <div
         className="
           relative rounded-md overflow-hidden
-          flex flex-col xl:flex-row
-          items-center xl:items-center
-          justify-center xl:justify-start
-          xl:h-[650px] h-auto
-          text-center md:text-left
-          bg-cover bg-center xl:bg-right
+          bg-cover bg-center
+          flex items-center justify-center
+          min-h-[280px] md:min-h-[350px] xl:min-h-[420px]
+          px-6
         "
-        style={{
-          backgroundImage: `url(${data.image})`,
-        }}
+        style={{ backgroundImage: `url(${data.image})` }}
       >
-        {/* Left Content */}
-        <div
-          className="
-            text-white
-            w-11/12 xl:w-1/2
-            space-y-4 xl:space-y-6
-            px-4 sm:px-6 md:pl-12 xl:pl-20 2xl:pl-28
-            py-10 xl:py-0
-            flex flex-col items-center md:items-start
-          "
-        >
-          {/* Dynamic Title */}
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+
+        {/* CONTENT */}
+        <div className="relative z-10 text-center text-white max-w-2xl w-full space-y-6">
+          {/* Title */}
           <h2
-            className="text-2xl md:text-2xl md:w-6/12 xl:w-full xl:text-4xl 2xl:text-5xl
-  tracking-wide xl:tracking-widest leading-[2.3rem] xl:leading-[3.6rem]
-  2xl:leading-normal drop-shadow-md"
+            className="
+              text-2xl md:text-3xl xl:text-4xl
+              font-semibold leading-tight
+            "
             dangerouslySetInnerHTML={{ __html: formatTitle(data.title) }}
           />
 
-          {/* Dynamic Subtitle */}
-          <p className="text-gray-100 text-sm sm:text-base xl:text-lg">{data.subtitle}</p>
+          {/* Newsletter Form */}
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="flex flex-col sm:flex-row gap-3 justify-center"
+          >
+            <input
+              type="email"
+              placeholder="Enter your email"
+              required
+              className="
+                w-full sm:w-[320px]
+                px-4 py-3
+                rounded-md
+                text-gray-800
+                focus:outline-none
+              "
+            />
 
-          {/* Store Buttons */}
-          <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mt-4">
-            {data.icons?.map((icon, index) => (
-              <a key={index} href={icon.link ?? "#"} target="_blank" rel="noopener noreferrer">
-                <Image
-                  src={icon.photo}
-                  alt={`Icon-${index}`}
-                  width={130}
-                  height={45}
-                  className="cursor-pointer hover:scale-105 transition-transform rounded-md"
-                />
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Text Section */}
-      <div
-        onClick={() => setOpen(!open)}
-        className="mt-10 bg-orange-500 p-8 flex justify-between items-center flex-wrap gap-4 md:text-center xl:text-left cursor-pointer select-none"
-      >
-        <h1 className="xl:text-3xl text-lg text-white tracking-wider flex-1">
-          Sannai Technology - Trusted Retail Mobile Accessories Shop in Bangladesh
-        </h1>
-
-        <FiChevronDown
-          className={`text-white font-bold text-4xl mx-auto xl:mx-0 transition-transform duration-300 ${
-            open ? "rotate-180" : "rotate-0"
-          }`}
-        />
-      </div>
-
-      {/* DROPDOWN CONTENT */}
-      <div
-        className={`overflow-hidden transition-all duration-500 ${
-          open ? "max-h-[2000px] opacity-100 mt-4" : "max-h-0 opacity-0"
-        }`}
-      >
-        <div className="p-6 bg-white rounded-md shadow-md">
-          <div className="space-y-10">
-            {infoRows.map((row, index) => (
-              <div key={index}>
-                <h1 className="text-xl font-bold mb-2">{row.title}</h1>
-                <p className="text-gray-700 leading-relaxed">{row.paragraph}</p>
-              </div>
-            ))}
-          </div>
+            <button
+              type="submit"
+              className="
+                bg-orange-500 hover:bg-orange-600
+                text-white font-semibold
+                px-6 py-3
+                rounded-md
+                transition
+              "
+            >
+              Subscribe
+            </button>
+          </form>
         </div>
       </div>
     </div>

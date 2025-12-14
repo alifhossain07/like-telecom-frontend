@@ -161,8 +161,8 @@ const FlashSale = () => {
               ))}
             </div>
 
-            <div className="hidden xl:grid grid-cols-4 gap-4 w-full justify-items-center">
-              {products.slice(0, 4).map((p) => (
+            <div className="hidden xl:grid grid-cols-5 gap-4 w-full justify-items-center">
+              {products.slice(0, 5).map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>

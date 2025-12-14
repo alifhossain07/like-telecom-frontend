@@ -376,7 +376,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={() => handleSearchSubmit(searchTerm)}
-                className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white text-black p-2 rounded-md"
+                className="absolute top-1/2 right-1 transform -translate-y-1/2 bg-white text-black p-2  rounded-md"
               >
                 <FiSearch />
               </button>

@@ -117,7 +117,7 @@ const BannerHighlights = () => {
                           alt={item.name}
                           width={450}
                           height={450}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full bg-gray-100 object-contain"
                         />
                       </div>
                       <h1 className="font-bold text-xs sm:text-sm md:text-xl text-gray-800 mt-3 text-center">

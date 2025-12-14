@@ -29,7 +29,7 @@ const NewArrival = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const PRODUCTS_PER_PAGE = isMobile ? 6 : 5;
+  const PRODUCTS_PER_PAGE = isMobile ? 6 : 6;
 
   useEffect(() => {
     const load = async () => {
@@ -73,7 +73,7 @@ const NewArrival = () => {
       </div>
 
       {/* PRODUCT GRID */}
-      <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         {loading
           ? Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => (
               <div

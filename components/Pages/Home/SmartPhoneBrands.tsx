@@ -15,12 +15,12 @@ const SmartPhoneBrands = () => {
   ];
 
   return (
-    <div className=" w-11/12  p-10 flex flex-col md:flex-row mx-auto items-center bg-gray-200 rounded-2xl">
-      <div className=" py-10 md:w-1/2 px-4">
-        <h1 className="text-2xl text-center md:text-3xl md:text-left md:w-8/12 font-bold text-gray-800 mb-4">
+    <div className=" w-11/12 py-3  xl:p-10 flex flex-col md:flex-row mx-auto xl:items-center bg-gray-200 rounded-2xl">
+      <div className=" py-5 md:w-1/2 px-4">
+        <h1 className="text-xl  md:text-3xl md:text-left md:w-8/12 font-bold text-gray-800 mb-4">
           Discover The Latest Smartphones From Leading Brands
         </h1>
-        <p className="text-gray-600 text-center md:text-left  mb-6 leading-relaxed">
+        <p className="text-gray-600 text-justify   mb-6 leading-relaxed">
           Stay Connected With Innovation! Explore Our Newest Collection of
           Smartphones From Top Global Brands — Built For Performance, Style,
           And Smart Living. Find the Perfect Match For Your Lifestyle and
