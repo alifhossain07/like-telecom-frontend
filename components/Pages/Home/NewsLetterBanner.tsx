@@ -63,12 +63,12 @@ const NewsletterBanner: React.FC = () => {
         style={{
           backgroundImage: `url(${data.image})`,
           backgroundSize: "contain",
-          backgroundPosition: "right bottom",
+          backgroundPosition: "center bottom",
           backgroundRepeat: "no-repeat"
         }}
       >
         {/* Overlay (keeps text readable) */}
-        <div className="absolute inset-0 bg-black/30 rounded-xl" />
+       
 
         {/* Left Side */}
         <div className="relative z-10 flex flex-col items-start gap-5 max-w-lg text-center md:text-left">
