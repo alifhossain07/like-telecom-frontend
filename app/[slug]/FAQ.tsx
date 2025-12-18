@@ -12,7 +12,7 @@ type FAQProps = {
 
 const FAQ: React.FC<FAQProps> = ({ faqs }) => {
   const faqLeft = {
-    title: "Frequently Asked Questions",
+    title: "Why Choose Like Telecom ?",
   };
 
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
@@ -26,7 +26,7 @@ const FAQ: React.FC<FAQProps> = ({ faqs }) => {
   };
 
   return (
-    <section className="w-full py-10">
+    <section className="w-full bg-white p-4 mt-10 py-6">
       <h2 className="md:text-2xl text-xl font-semibold mb-4">
         - {faqLeft.title}
       </h2>
@@ -105,4 +105,31 @@ const FAQ: React.FC<FAQProps> = ({ faqs }) => {
   );
 };
 
-export default FAQ;
+// Static FAQ data for demo
+const staticFAQs: FAQItem[] = [
+  {
+    question: "What plans does Like Telecom offer?",
+    answer:
+      "Like Telecom offers a variety of flexible plans including prepaid, postpaid, and high-speed internet packages to suit different needs.",
+  },
+  {
+    question: "Is customer support available 24/7?",
+    answer:
+      "Yes, our dedicated customer support team is available 24/7 via phone, chat, and email to assist you with any inquiries or technical issues.",
+  },
+  {
+    question: "Does Like Telecom provide coverage nationwide?",
+    answer:
+      "Absolutely! Like Telecom ensures reliable network coverage across the country, including urban and rural areas.",
+  },
+  {
+    question: "Are there any hidden charges?",
+    answer:
+      "No, we pride ourselves on transparency. All charges, fees, and taxes are clearly communicated in your plan details.",
+  },
+];
+
+// Default export with static FAQs
+const FAQWithStatic: React.FC = () => <FAQ faqs={staticFAQs} />;
+
+export default FAQWithStatic;
