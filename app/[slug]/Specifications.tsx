@@ -113,7 +113,7 @@ export default function Specifications() {
   };
 
   return (
-    <div className="w-full max-w-[1140px] mx-auto space-y-4 bg-white p-6 rounded-xl">
+    <div className="w-6/12  md:w-full max-w-[1140px] md:mx-auto space-y-4 bg-white p-6 rounded-xl">
 
         <h1 className="text-2xl font-semibold">Specifications</h1>
       {specs.map((section, index) => {
@@ -143,22 +143,24 @@ export default function Specifications() {
                 isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
               }`}
             >
-              <div className="">
-                <table className="w-full border-t border-gray-200">
-                  <tbody>
-                    {section.rows.map((row, i) => (
-                      <tr key={i} className="border-b last:border-b-0">
-                        <td className="w-[20%] px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50">
-                          {row.label}
-                        </td>
-                        <td className="px-4  py-3 text-sm text-gray-600">
-                          {row.value}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <div
+  className={`overflow-hidden transition-all duration-500 ease-in-out ${
+    isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+  }`}
+>
+  <table className="w-full border-t border-gray-200">
+    <tbody>
+      {section.rows.map((row, i) => (
+        <tr key={i} className="border-b last:border-b-0">
+          <td className="w-[20%] px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50">
+            {row.label}
+          </td>
+          <td className="px-4 py-3 text-sm text-gray-600">{row.value}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
             </div>
           </div>
         );

@@ -26,7 +26,7 @@ const FAQ: React.FC<FAQProps> = ({ faqs }) => {
   };
 
   return (
-    <section className="w-full bg-white p-4 mt-10 py-6">
+    <section className="w-6/12 md:w-full bg-white p-4 mt-10 py-6">
       <h2 className="md:text-2xl text-xl font-semibold mb-4">
         - {faqLeft.title}
       </h2>
