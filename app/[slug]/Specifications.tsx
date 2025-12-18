@@ -143,15 +143,15 @@ export default function Specifications() {
                 isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
               }`}
             >
-              <div className="overflow-hidden">
+              <div className="">
                 <table className="w-full border-t border-gray-200">
                   <tbody>
                     {section.rows.map((row, i) => (
                       <tr key={i} className="border-b last:border-b-0">
-                        <td className="w-[35%] px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50">
+                        <td className="w-[20%] px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50">
                           {row.label}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
+                        <td className="px-4  py-3 text-sm text-gray-600">
                           {row.value}
                         </td>
                       </tr>
