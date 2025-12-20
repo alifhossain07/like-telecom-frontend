@@ -290,18 +290,19 @@ const Navbar = () => {
                 width={120}
                 height={120}
                 alt="Logo"
+                className="xl:w-40 xl:h-20 w-32 h-16 "
               />
             </Link>
 
             <div className="flex lg:hidden items-center text-orange-500 gap-4">
               {/* SEARCH ICON */}
               <button onClick={() => setShowMobileSearch(!showMobileSearch)}>
-                <IoSearch className="text-3xl" />
+                <IoSearch className="text-2xl" />
               </button>
 
              {/* CART ICON */}
 <button onClick={() => setCartOpen(true)} className="relative">
-  <IoCartOutline className="text-3xl" />
+  <IoCartOutline className="text-2xl" />
   {cart.length > 0 && (
     <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] leading-none px-1 py-1 rounded-full border border-white">
       {cart.length.toString().padStart(2, "0")}
@@ -467,10 +468,10 @@ const Navbar = () => {
 
             {/* CART */}
             <button  className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
-                <span className="text-base mt-2">Exclusive Sales</span>
+                <span className="text-base ">Exclusive Sales</span>
             </button>
 <button  className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
-                <span className="text-base mt-2">Corporate</span>
+                <span className="text-base ">Corporate</span>
             </button>
           <button onClick={() => setCartOpen(true)} className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
               <FiShoppingCart className="text-2xl" />
@@ -739,14 +740,14 @@ const Navbar = () => {
       <div className="pt-[70px] xl:pt-[150px]"></div>
 
       {/* ========= MOBILE BOTTOM NAV ========= */}
-      <div className="bg-orange-500 fixed bottom-0 left-0 w-full flex justify-around items-center py-3 text-white lg:hidden z-50">
+      <div className="bg-orange-400 rounded-t-2xl   fixed bottom-0 left-0 w-full flex justify-around items-center py-2 text-white lg:hidden z-50">
         <Link href="/" className="flex flex-col items-center text-sm">
-          <FiHome className="text-2xl" />
+          <FiHome className="text-xl" />
           Home
         </Link>
 
         {/* <Link href="/offers" className="flex flex-col items-center text-sm"> */}
-        <div className="flex flex-col items-center text-sm"> <FiGift className="text-2xl" />
+        <div className="flex flex-col items-center text-sm"> <FiGift className="text-xl" />
           Offers</div>
          
         {/* </Link> */}
@@ -756,7 +757,7 @@ const Navbar = () => {
           className="flex flex-col items-center text-sm"
         >
           <span className="relative">
-            <FiShoppingCart className="text-2xl" />
+            <FiShoppingCart className="text-xl" />
             {cart.length > 0 && (
               <span className="absolute -top-2 -right-2 bg-white text-black text-[9px] leading-none px-1 py-1 rounded-full border border-white">
                 {cart.length.toString().padStart(2, "0")}
@@ -766,9 +767,14 @@ const Navbar = () => {
           Cart
         </button>
 
+         <button className=" flex flex-col items-center text-sm text-white lg:hidden" onClick={() => setMenuOpen(true)}>
+              <FiMenu className="text-xl" />
+              Menu
+            </button>
+
         {/* <Link href="/login" className="flex flex-col items-center text-sm"> */}
         <div className="flex flex-col items-center text-sm">
-          <FiUser className="text-2xl" />
+          <FiUser className="text-xl" />
           Profile
           </div>
         {/* </Link> */}

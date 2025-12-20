@@ -89,19 +89,19 @@ export default function ProductPage() {
 
   return (
     <div className="bg-[#f5f5f5]">
-      <div className="w-11/12 mx-auto  py-8">
+      <div className="w-11/12 mx-auto py-4 md:py-8">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 justify-center">
           {/* Left Column - Product Images */}
          <div className="w-full max-w-[550px] mx-auto">
-  <div className="w-full max-h-[673px] h-full bg-white rounded-lg border border-gray-200 shadow-sm p-4 flex flex-col">
+  <div className="w-full max-h-[460px] xl:max-h-[673px] h-full bg-white rounded-lg border border-gray-200 shadow-sm p-4 flex flex-col">
     {/* Main Product Image */}
     <div className="relative mb-4 bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center aspect-[3/4]">
       {/* Warranty Badge */}
       <div className="absolute top-4 left-4 z-10">
         <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-2">
           <div className="flex items-center gap-2">
-            <div className="text-3xl font-bold">1</div>
-            <div className="text-xs font-semibold leading-tight">
+            <div className="md:text-3xl text-base font-bold">1</div>
+            <div className="md:text-xs text-[8px] font-semibold leading-tight">
               YEAR<br />WARRANTY
             </div>
           </div>
@@ -158,8 +158,21 @@ export default function ProductPage() {
           <div className="w-full max-w-[550px] mx-auto">
             <div className="w-full h-auto bg-white rounded-lg border border-gray-200 shadow-sm p-6 flex flex-col overflow-hidden">
               {/* Product Title */}
-              <h1 className="text-[24px] font-bold text-gray-900 mb-2">{productData.title}</h1>
+              <h1 className="md:text-[24px] text-[20px] font-bold text-gray-900 mb-2">{productData.title}</h1>
+              {/* Pricing Information */}
+              <div className="">
+                <div className="flex items-baseline gap-3 mb-2 flex-wrap">
+                  <span className="md:text-[26px] text-[22px] font-bold text-orange-600">{productData.price.current}</span>
+                  <span className="text-[16px] text-gray-400 line-through">{productData.price.original}</span>
 
+                  <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
+                    {productData.price.discount}% Off
+                  </span>
+                  <span className="px-3 py-1 bg-[#FFEFCC] text-[#FFB20B] text-sm font-semibold rounded-2xl">
+                    Earn {productData.price.points}-Points
+                  </span>
+                </div>
+              </div>
               {/* Selected Variants */}
               <div className="flex gap-2 rounded-md bg-gray-100 mb-4 flex-wrap">
                 <span className="px-3 py-1  text-gray-700 text-sm  font-base">
@@ -192,20 +205,7 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Price Information */}
-              <div className="">
-                <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                  <span className="text-[26px] font-bold text-orange-600">{productData.price.current}</span>
-                  <span className="text-[16px] text-gray-400 line-through">{productData.price.original}</span>
-
-                  <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
-                    {productData.price.discount}% Off
-                  </span>
-                  <span className="px-3 py-1 bg-[#FFEFCC] text-[#FFB20B] text-sm font-semibold rounded-2xl">
-                    Earn {productData.price.points}-Points
-                  </span>
-                </div>
-              </div>
+              
 
               {/* Storage Options */}
               <div className="mb-3 flex items-center bg-[#f4f4f4] p-2">
@@ -216,8 +216,8 @@ export default function ProductPage() {
                       key={storage.value}
                       onClick={() => setSelectedStorage(storage.value)}
                       className={`px-4 py-1 rounded text-[12px] font-base transition ${selectedStorage === storage.value
-                          ? 'bg-[#E5E5E5] text-gray-900'
-                          : 'bg-gray-900 text-white hover:bg-gray-800'
+                          ? ' bg-gray-900 text-white'
+                          : 'bg-[#E5E5E5] text-black hover:bg-gray-800'
                         }`}
                     >
                       {storage.label}
@@ -296,7 +296,7 @@ export default function ProductPage() {
 
                   </div>
 
-                  <span className="text-sm text-[#B3D9C5] font-bold">
+                  <span className="md:text-sm text-[12px] text-[#B3D9C5] font-bold">
                     Call For Online Order ({productData.phoneNumber})
                   </span>
                 </div>
