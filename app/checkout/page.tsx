@@ -9,7 +9,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React from "react";
 import { useRouter } from "next/navigation";
-
+import { FaMoneyBillWave } from "react-icons/fa";
 // ------------------------- Types -------------------------
 interface CartItem {
   id: string | number;
@@ -27,13 +27,16 @@ interface CheckoutFormData {
   mobile: string;
   email?: string;
   address: string;
-  shipping: "inside" | "outside" | "free";
+  // shipping removed, now handled by deliveryMethod
   payment: "online" | "cod";
   agreeTerms: boolean;
   promoCode?: string;
   areaId?: number | null;
   areaName?: string;
   areaCountryId?: number | null;
+  deliveryMethod: "inside" | "outside" | "shop_pickup";
+  pickupStore?: string;
+  upazilaName?: string;
 }
 
 interface CouponData {
@@ -58,9 +61,16 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
   areaId: yup.number().typeError("Area is required").required("Area is required"),
   areaName: yup.string().optional(),
   areaCountryId: yup.number().nullable().optional(),
-  shipping: yup
-    .mixed<CheckoutFormData["shipping"]>()
-    .required("Shipping method is required"),
+  deliveryMethod: yup
+    .mixed<CheckoutFormData["deliveryMethod"]>()
+    .oneOf(["inside", "outside", "shop_pickup"], "Select a delivery method")
+    .required("Delivery method is required"),
+  pickupStore: yup.string().when("deliveryMethod", {
+    is: "shop_pickup",
+    then: (schema) => schema.required("Pickup store is required"),
+    otherwise: (schema) => schema.optional(),
+  }),
+  upazilaName: yup.string().optional(),
   payment: yup
     .mixed<CheckoutFormData["payment"]>()
     .required("Payment method is required"),
@@ -108,13 +118,15 @@ const CheckoutPage: React.FC = () => {
       mobile: "",
       email: "",
       address: "",
-      shipping: "inside",
+      deliveryMethod: "inside",
       payment: "cod",
       agreeTerms: true,
       promoCode: "",
       areaId: null,
       areaName: "",
       areaCountryId: null,
+      pickupStore: "",
+      upazilaName: "",
     },
   });
 
@@ -187,16 +199,16 @@ const CheckoutPage: React.FC = () => {
     setValue("areaId", opt.id, { shouldValidate: true });
     setValue("areaName", opt.name);
     setValue("areaCountryId", opt.country_id);
-    // Auto set shipping based on country_id
+    // Auto set delivery method based on country_id
     if (opt.country_id === 1) {
-      setValue("shipping", "inside", { shouldValidate: true });
+      setValue("deliveryMethod", "inside", { shouldValidate: true });
     } else {
-      setValue("shipping", "outside", { shouldValidate: true });
+      setValue("deliveryMethod", "outside", { shouldValidate: true });
     }
     setAreaOpen(false);
   };
 
-  const shippingMethod = watch("shipping");
+  const deliveryMethod = watch("deliveryMethod");
   // Dynamic shipping config
   const [shippingConfig, setShippingConfig] = React.useState<{
     shipping_cost_inside_dhaka: number;
@@ -231,13 +243,14 @@ const CheckoutPage: React.FC = () => {
   const freeMin = shippingConfig?.free_shipping_min_amount ?? 0;
   const currencySymbol = shippingConfig?.currency_symbol ?? "৳";
 
+
   let deliveryCharge = 0;
-  if (shippingMethod === "inside") deliveryCharge = insideDhaka;
-  else if (shippingMethod === "outside") deliveryCharge = outsideDhaka;
-  else if (shippingMethod === "free") deliveryCharge = 0;
+  if (deliveryMethod === "inside") deliveryCharge = insideDhaka;
+  else if (deliveryMethod === "outside") deliveryCharge = outsideDhaka;
+  else if (deliveryMethod === "shop_pickup") deliveryCharge = 0;
 
   const merchandiseTotal = subtotal - discount;
-  if (freeMin > 0 && merchandiseTotal >= freeMin) {
+  if (freeMin > 0 && merchandiseTotal >= freeMin && deliveryMethod !== "shop_pickup") {
     deliveryCharge = 0;
   }
 
@@ -358,9 +371,6 @@ const CheckoutPage: React.FC = () => {
     if (data.payment === "cod") {
       submitOrder(data);
     } else {
-      // Online payment flow is disabled for now.
-      // setPaymentData(data);
-      // setShowPaymentModal(true);
       toast.error("Online payment is coming soon. Please use Cash On Delivery.");
     }
   };
@@ -375,8 +385,9 @@ const CheckoutPage: React.FC = () => {
     const composedAddress = [data.address?.trim(), (data.areaName || "").trim()]
       .filter(Boolean)
       .join(", ");
-    const shipping_zone =
-      data.shipping === "inside" ? "insideDhaka" : data.shipping === "outside" ? "outsideDhaka" : null;
+    let shipping_zone = null;
+    if (data.deliveryMethod === "inside") shipping_zone = "insideDhaka";
+    else if (data.deliveryMethod === "outside") shipping_zone = "outsideDhaka";
     const payload = {
       customer: {
         name: data.name,
@@ -397,20 +408,17 @@ const CheckoutPage: React.FC = () => {
         referral_code: null,
       })),
       shipping_method:
-        data.shipping === "inside" || data.shipping === "outside"
+        data.deliveryMethod === "inside" || data.deliveryMethod === "outside"
           ? "home_delivery"
           : "pickup_point",
       shipping_zone,
       shipping_charge: effectiveDelivery,
-      // Online payment mapping disabled for now
-      // payment_method: data.payment === "cod" ? "cash_on_delivery" : selectedPaymentMethod.toLowerCase(),
-      // payment_number: data.payment === "cod" ? null : paymentNumber || null,
       payment_method: "cash_on_delivery",
       payment_number: null,
       promo_code: appliedPromo || null,
       coupon_data: couponData || null, // Real coupon data from API
       note: "",
-      pickup_point_id: null,
+      pickup_point_id: data.deliveryMethod === "shop_pickup" ? data.pickupStore || null : null,
       carrier_id: null,
     };
 
@@ -459,12 +467,10 @@ window.dataLayer.push({
 });
 
             // Persist minimal order summary for order-complete page
-            const shippingMethodLabel =
-              data.shipping === "inside"
-                ? "Inside Dhaka – Home Delivery"
-                : data.shipping === "outside"
-                ? "Outside Dhaka – Home Delivery"
-                : "Free Shipping / Pickup Point";
+            let shippingMethodLabel = "";
+            if (data.deliveryMethod === "inside") shippingMethodLabel = "Inside Dhaka – Home Delivery";
+            else if (data.deliveryMethod === "outside") shippingMethodLabel = "Outside Dhaka – Home Delivery";
+            else if (data.deliveryMethod === "shop_pickup") shippingMethodLabel = "Shop Pickup";
 
             const orderSummary = {
               orderId: transactionId || null,
@@ -481,7 +487,7 @@ window.dataLayer.push({
                 price: item.price,
               })),
               shipping: {
-                method: data.shipping,
+                method: data.deliveryMethod,
                 methodLabel: shippingMethodLabel,
                 charge: effectiveDelivery,
               },
@@ -649,7 +655,20 @@ window.dataLayer.push({
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
               
               {/* District */}
-              <div className="mb-2">
+              <div className="mb-2 gap-4 flex">
+                <div className="flex-1">
+    <label>Upazila/Thana</label>
+    <input
+      type="text"
+      placeholder="Enter upazila/thana"
+      className="border p-2 rounded w-full mb-1"
+      {...register("upazilaName")}
+    />
+    {errors.upazilaName && (
+      <p className="text-red-500 text-sm">{String(errors.upazilaName.message)}</p>
+    )}
+  </div>
+<div className="flex-1">
                 <label>District*</label>
                 <div className="relative">
                   <input
@@ -695,6 +714,7 @@ window.dataLayer.push({
                 {errors.areaId && (
                   <p className="text-red-500 text-sm">{String(errors.areaId.message)}</p>
                 )}
+                </div>
               </div>
               
               <label>Address*</label>
@@ -710,7 +730,7 @@ window.dataLayer.push({
 
           {/* Payment Method */}
           <div className="border rounded-md p-4 bg-white shadow-sm">
-  <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
+  <h2 className="text-lg font-semibold mb-4">Select a Payment Method</h2>
 
   <Controller
     name="payment"
@@ -723,7 +743,7 @@ window.dataLayer.push({
           {...field}
           className="w-full border rounded-md p-2 text-lg cursor-pointer"
         >
-          <option value="cod">Cash On Delivery</option>
+          <option value="cod"> <FaMoneyBillWave className="inline mr-2" /> Cash On Delivery</option>
           {/* <option value="online">Online Payment</option> */}
         </select>
 
@@ -746,8 +766,39 @@ window.dataLayer.push({
       </>
     )}
   />
+          <div className="flex flex-col md:flex-row gap-4 mt-4 mb-4">
+            <div className="flex-1">
+              <label className="block mb-1 font-medium">Select a delivery method*</label>
+              <select
+                className="border p-2 rounded w-full cursor-pointer"
+                {...register("deliveryMethod")}
+              >
+                <option value="inside">Inside Dhaka – Home Delivery ({currencySymbol} {insideDhaka.toLocaleString()})</option>
+                <option value="outside">Outside Dhaka – Home Delivery ({currencySymbol} {outsideDhaka.toLocaleString()})</option>
+                <option value="shop_pickup">Shop Pickup (No Delivery Charge)</option>
+              </select>
+              {errors.deliveryMethod && (
+                <p className="text-red-500 text-sm">{errors.deliveryMethod.message}</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <label className="block mb-1 font-medium">Choose a pickup store*</label>
+              <select
+                className="border p-2 rounded w-full cursor-pointer"
+                {...register("pickupStore")}
+                disabled={watch("deliveryMethod") !== "shop_pickup"}
+              >
+                <option value="">Select Store</option>
+                <option value="store_1">Store 1</option>
+                <option value="store_2">Store 2</option>
+                <option value="store_3">Store 3</option>
+              </select>
+              {errors.pickupStore && (
+                <p className="text-red-500 text-sm">{errors.pickupStore.message}</p>
+              )}
+            </div>
           </div>
-  <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+<label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
     <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
     <span className="flex-1">
       I have read & agree to the{" "}
@@ -758,53 +809,11 @@ window.dataLayer.push({
   {errors.agreeTerms && (
     <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
   )}
+          </div>
+  
         {/* Shipping Method */}
 
-          {/* Shipping Method */}
-          <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-4">Shipping Method</h2>
-            {/* <p className="text-xs text-gray-500 mb-2">Auto-selected based on Area. Changes are disabled.</p> */}
-            <Controller
-              name="shipping"
-              control={control}
-              render={({ field }) => (
-                <div className="flex flex-col space-y-4 md:text-lg xl:text-base 2xl:text-lg text-base mt-8">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      value="inside"
-                      checked={field.value === "inside"}
-                      onChange={() => field.onChange("inside")}
-                      disabled
-                    />
-                    {`Inside Dhaka - 2/4 Days ${currencySymbol} ${insideDhaka.toLocaleString()}`}
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      value="outside"
-                      checked={field.value === "outside"}
-                      onChange={() => field.onChange("outside")}
-                      disabled
-                    />
-                    {`Outside Dhaka - 4/6 Days ( Advanced First ) ${currencySymbol} ${outsideDhaka.toLocaleString()}`}
-                  </label>
-                  {/* <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      value="free"
-                      checked={field.value === "free"}
-                      onChange={() => field.onChange("free")}
-                    />
-                    Free Shipping ( Upto ৳ 2000 )
-                  </label> */}
-                  {errors.shipping && (
-                    <p className="text-red-500 text-sm">{errors.shipping.message}</p>
-                  )}
-                </div>
-              )}
-            />
-          </div>
+          {/* Shipping Method removed, now handled by delivery method dropdown */}
         </div>
 
         
@@ -814,19 +823,26 @@ window.dataLayer.push({
 
           {/* Promo Code */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-3">Promo Code</h2>
+            {/* <button className="bg-orange-500 text-white px-4 py-2 mb-4">Validate GP Star</button> */}
+            <h1 className="text-2xl mb-4 font-semibold">Promo Code</h1>
             <input
               type="text"
               className="border p-2 rounded w-full flex-1"
               {...register("promoCode")}
-              placeholder="Enter promo code"
+              placeholder="Coupon Code"
             />
+            {/* <input
+              type="text"
+              className="border p-2 mt-4 rounded w-full flex-1"
+              {...register("promoCode")}
+              placeholder="Enter Points Here "
+            /> */}
             <div className="cursor-pointer flex justify-end items-center">
               <button
                 type="button"
                 onClick={handleApplyPromo}
                 disabled={isValidatingPromo}
-                className="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-300 duration-300 mt-2 disabled:opacity-50"
+                className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-300 duration-300 mt-2 disabled:opacity-50"
               >
                 {isValidatingPromo ? "Applying..." : "Apply"}
               </button>

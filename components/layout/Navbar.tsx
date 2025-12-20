@@ -521,13 +521,13 @@ const Navbar = () => {
               </div>
             ) : (
               <button className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-1 text-sm">
-                {/* <Link href="/login" className="flex items-center gap-2"> */}
+                <Link href="/profile" className="flex items-center gap-2">
                   <FiUser className="text-2xl" />
-                  <div>
+                  {/* <div> */}
                     <h1 className="text-base">Login</h1>
 
-                  </div>
-                {/* </Link> */}
+                  {/* </div> */}
+                </Link>
               </button>
             )}
           </div>
@@ -773,11 +773,11 @@ const Navbar = () => {
             </button>
 
         {/* <Link href="/login" className="flex flex-col items-center text-sm"> */}
-        <div className="flex flex-col items-center text-sm">
+        <Link href="/profile"className="flex flex-col items-center text-sm">
           <FiUser className="text-xl" />
           Profile
-          </div>
-        {/* </Link> */}
+          {/* </div> */}
+        </Link>
       </div>
 
       {/* ========= MOBILE SIDEBAR ========= */}
