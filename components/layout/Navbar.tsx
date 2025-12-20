@@ -318,7 +318,7 @@ const Navbar = () => {
           {/* DESKTOP BUTTONS */}
           <div className="hidden lg:flex items-center gap-3">
             {/* SEARCH */}
-            <div ref={desktopSearchRef} className="relative w-full md:w-96 2xl:w-[550px] mr-6">
+            <div ref={desktopSearchRef} className="relative w-full md:w-96 xl:w-[280px] 2xl:w-[550px] mr-6">
               <input
                 type="text"
                 value={searchTerm}
@@ -467,17 +467,17 @@ const Navbar = () => {
             </div> */}
 
             {/* CART */}
-            <button  className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
-                <span className="text-base ">Exclusive Sales</span>
+            <button  className="bg-[#eaeaea] px-6 py-1 h-[40px] rounded-md flex items-center  text-sm">
+                <span className="2xl:text-base text-[14px] ">Exclusive Sales</span>
             </button>
 <button  className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
-                <span className="text-base ">Corporate</span>
+                <span className="2xl:text-base text-[14px] ">Corporate</span>
             </button>
-          <button onClick={() => setCartOpen(true)} className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
+          <button onClick={() => setCartOpen(true)} className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center 2xl:gap-3 gap-1 text-sm">
               <FiShoppingCart className="text-2xl" />
               <div>
                
-                <span className="text-base mt-2">*{cart.length.toString().padStart(2, "0")} Items</span>
+                <span className="2xl:text-base text-[14px] mt-2">*{cart.length.toString().padStart(2, "0")} Items</span>
               </div>
             </button>
 
@@ -524,7 +524,7 @@ const Navbar = () => {
                 <Link href="/profile" className="flex items-center gap-2">
                   <FiUser className="text-2xl" />
                   {/* <div> */}
-                    <h1 className="text-base">Login</h1>
+                    <h1 className="2xl:text-base text-[14px]">Login</h1>
 
                   {/* </div> */}
                 </Link>
