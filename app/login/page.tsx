@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebookF } from "react-icons/fa";
+
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
@@ -12,8 +12,7 @@ const Page = () => {
   const { login, loading } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({
-    login_by: "phone" as "phone" | "email",
-    email: "",
+    phone: "",
     password: "",
   });
 
@@ -22,12 +21,11 @@ const Page = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-   const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login({
-        login_by: form.login_by,
-        email: form.email,
+        phone: form.phone,
         password: form.password,
       });
       toast.success("Logged in successfully");
@@ -39,14 +37,14 @@ const Page = () => {
     }
   };
   return (
-    <div className="flex items-center justify-center py-12 md:py-20  px-4">
-      <div className="w-full sm:w-11/12 xl:w-10/12 md:w-[95%] lg:w-8/12 bg-white shadow-2xl rounded-3xl flex flex-col md:flex-row overflow-hidden border border-gray-200">
+    <div className="flex items-center justify-center pt-8 md:pt-14 pb-12 md:pb-20  px-4">
+      <div className="w-full sm:w-11/12 xl:w-10/12 md:w-[95%] max-w-[1440px] lg:w-8/12 bg-white shadow-2xl rounded-3xl flex flex-col md:flex-row overflow-hidden border border-gray-200">
         {/* Left Section */}
         <div className="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-10">
           <div className="w-full md:w-11/12 2xl:w-9/12 sm:w-[80%]">
             <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-1 text-center 2xl:text-3xl 2xl:mb-4 md:text-left">
-              Welcome To{" "}
-              <span className="text-[#FF6B01]">Sannai Technology!</span>
+              Sign In{" "}
+              
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mb-8 text-center md:text-left">
               Signup/login to enjoy the feature of Revolute
@@ -54,19 +52,19 @@ const Page = () => {
             <div className="w-10/12 md:w-full xl:w-9/12  mx-auto md:mx-0">
               {/* Form */}
               <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
-                {/* Name Field */}
+                {/* Phone Field */}
                 <div className="relative">
                   <label
-                    htmlFor="name"
+                    htmlFor="phone"
                     className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
                   >
-                    Login with mobile number/e-mail
+                    Mobile Number
                   </label>
                   <input
                     type="text"
-                    id="email"
-                    name="email"
-                    value={form.email}
+                    id="phone"
+                    name="phone"
+                    value={form.phone}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
                   />
@@ -104,15 +102,10 @@ const Page = () => {
                   disabled={loading}
                   className="w-full bg-[#FF6B01] text-white py-2 sm:py-3 rounded-md font-semibold hover:bg-orange-600 transition text-sm sm:text-base disabled:opacity-60"
                 >
-                  {loading ? "Logging in..." : "Login"}
+                  {loading ? "Logging in..." : "Sign In"}
                 </button>
 
-                <p className="mt-3 text-xs sm:text-sm text-center text-gray-500">
-                  Don&apos;t have an account?{" "}
-                  <Link href="/registration" className="text-[#FF6B01] font-medium hover:underline">
-                    Sign In
-                  </Link>
-                </p>
+               
               </form>
 
               {/* Divider */}
@@ -131,12 +124,14 @@ const Page = () => {
                   </span>
                 </button>
 
-                <button className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 w-full hover:bg-gray-100 transition text-sm sm:text-base">
-                  <FaFacebookF className="text-[#1877F2]" />
-                  <span className="text-gray-700">
-                    Sign up / Login with Facebook
-                  </span>
-                </button>
+                 <p className="mt-5 text-xs sm:text-sm text-center text-gray-500">
+                  Don&apos;t have an account?{" "}
+                  <Link href="/registration" className="text-[#FF6B01] font-medium hover:underline">
+                    Create One
+                  </Link>
+                </p>
+
+                
               </div>
             </div>
           </div>
@@ -145,7 +140,7 @@ const Page = () => {
         {/* Right Section - Image */}
         <div className="hidden md:block w-full md:w-1/2 bg-[#FF6B01]/10">
           <Image
-            src="/images/loginImage.webp"
+            src="/images/iphone161.png"
             alt="Login Banner"
             width={500}
             height={500}

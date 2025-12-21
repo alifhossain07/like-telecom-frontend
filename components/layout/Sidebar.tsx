@@ -3,10 +3,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   HiOutlineUser, HiOutlineShoppingBag, HiOutlineLocationMarker, 
-  HiOutlineLockClosed, HiOutlineHeart, HiOutlineStar, 
-  HiOutlineTicket, HiOutlineChatAlt2, HiOutlineUserGroup 
+  HiOutlineLockClosed, HiOutlineHeart, HiOutlineTicket, HiOutlineChatAlt2 
 } from "react-icons/hi";
 import { MdOutlineEdit } from "react-icons/md";
+import Image from "next/image";
+
 
 const menuItems = [
   { name: "Profile", href: "/profile", icon: <HiOutlineUser size={22} /> },
@@ -21,14 +22,18 @@ const menuItems = [
 export default function Sidebar() {
   const pathname = usePathname();
 
+
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       {/* User Info Header - Hidden or simplified on mobile to save space */}
       <div className="flex flex-row lg:flex-col items-center p-4 lg:py-8 border-b lg:border-none border-gray-50">
         <div className="relative">
-          <img 
+          <Image 
             src="images/avatar.png" 
             alt="Avatar" 
+            width={500}
+            height={500}
             className="rounded-full w-12 h-12 lg:w-24 lg:h-24 object-cover border-2 border-gray-100" 
           />
           <button className="absolute bottom-0 right-0 bg-white shadow-md p-1 rounded-full border border-gray-200 lg:p-1.5">

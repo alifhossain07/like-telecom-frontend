@@ -18,9 +18,9 @@ export interface AuthResponse {
   user: User;
 }
 
+
 export async function signup(payload: {
   name: string;
-  register_by: "phone" | "email";
   email_or_phone: string;
   password: string;
   password_confirmation: string;
@@ -28,21 +28,31 @@ export async function signup(payload: {
   const res = await fetch("/api/auth/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      name: payload.name,
+      register_by: "phone",
+      email_or_phone: payload.email_or_phone,
+      password: payload.password,
+      password_confirmation: payload.password_confirmation,
+    }),
   });
   if (!res.ok) throw new Error("Signup failed");
   return res.json();
 }
 
+
 export async function login(payload: {
-  login_by: "phone" | "email";
-  email: string;
+  phone: string;
   password: string;
 }): Promise<AuthResponse> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      login_by: "phone",
+      email: payload.phone,
+      password: payload.password,
+    }),
   });
   if (!res.ok) throw new Error("Login failed");
   return res.json();

@@ -6,7 +6,7 @@ import { LuCopy } from "react-icons/lu";
 export default function OrderDetailsPage() {
   const orderId = "131025011449";
 
-  const handleCopy = (id) => {
+  const handleCopy = (id: string) => {
     navigator.clipboard.writeText(id);
     alert("Order ID copied to clipboard!");
   };

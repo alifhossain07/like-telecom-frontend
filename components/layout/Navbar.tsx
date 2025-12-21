@@ -521,7 +521,7 @@ const Navbar = () => {
               </div>
             ) : (
               <button className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-1 text-sm">
-                <Link href="/profile" className="flex items-center gap-2">
+                <Link href="/login" className="flex items-center gap-2">
                   <FiUser className="text-2xl" />
                   {/* <div> */}
                     <h1 className="2xl:text-base text-[14px]">Login</h1>
