@@ -20,7 +20,9 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "sannai_auth_token";
+const STORAGE_KEY = "like_auth_token";
+const SESSION_TIMESTAMP_KEY = "like_auth_token_time";
+const SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -30,28 +32,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Rehydrate from localStorage on mount
   useEffect(() => {
     const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-    if (!stored) {
+    const storedTime = typeof window !== "undefined" ? localStorage.getItem(SESSION_TIMESTAMP_KEY) : null;
+    if (!stored || !storedTime) {
       setLoading(false);
       return;
     }
 
-    const token = stored;
-    setAccessToken(token);
+    const now = Date.now();
+    const sessionStart = parseInt(storedTime, 10);
+    if (isNaN(sessionStart) || now - sessionStart > SESSION_DURATION_MS) {
+      // Session expired
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(SESSION_TIMESTAMP_KEY);
+      setAccessToken(null);
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
-    fetchProfile(token)
+    setAccessToken(stored);
+    fetchProfile(stored)
       .then((res) => {
         if (res.result) {
           setUser(res.user);
         } else {
           localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(SESSION_TIMESTAMP_KEY);
           setAccessToken(null);
         }
       })
       .catch(() => {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(SESSION_TIMESTAMP_KEY);
         setAccessToken(null);
       })
       .finally(() => setLoading(false));
+
+    // Set up auto-logout timer
+    const timeout = setTimeout(() => {
+      logout();
+    }, SESSION_DURATION_MS - (now - sessionStart));
+    return () => clearTimeout(timeout);
   }, []);
 
 
@@ -63,6 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setAccessToken(res.access_token);
       setUser(res.user);
       localStorage.setItem(STORAGE_KEY, res.access_token);
+      localStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
     } finally {
       setLoading(false);
     }
@@ -81,6 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setAccessToken(res.access_token);
       setUser(res.user);
       localStorage.setItem(STORAGE_KEY, res.access_token);
+      localStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
     } finally {
       setLoading(false);
     }
@@ -91,6 +114,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setAccessToken(null);
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(SESSION_TIMESTAMP_KEY);
     }
   };
 

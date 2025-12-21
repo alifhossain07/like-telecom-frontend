@@ -499,24 +499,32 @@ const Navbar = () => {
                 </button>
 
                 {showDesktopLogout && (
-                  <button
-                    onClick={() => setShowLogoutConfirm(true)}
+                  <div
                     className="
           absolute right-0 mt-1
           w-full
-          text-sm text-red-500
-          border border-red-400
           bg-white
-          px-3 py-2 rounded-md
           shadow-lg
           transform origin-top
           animate-[fadeInDown_0.18s_ease-out]
-          hover:bg-red-50 hover:shadow-xl
-          transition
+          rounded-md
+          overflow-hidden
         "
                   >
-                    Logout
-                  </button>
+                    <Link
+                      href="/profile"
+                      className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200"
+                      onClick={() => setShowDesktopLogout(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => setShowLogoutConfirm(true)}
+                      className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 border-none bg-transparent"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 )}
               </div>
             ) : (

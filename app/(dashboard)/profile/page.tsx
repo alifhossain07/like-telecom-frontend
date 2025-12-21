@@ -1,9 +1,15 @@
+
+"use client";
+import { useAuth } from '@/app/context/AuthContext';
 import React from 'react';
 
+
 export default function ProfilePage() {
+  const { user } = useAuth();
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h1 className="text-[26px] font-semi text-gray-800 mb-8">My Account Information</h1>
+      <h1 className="text-[26px] font-semi text-gray-800 mb-8">Welcome, {user ? user.name : 'User'}!</h1>
+      <h2 className="text-lg text-gray-600 mb-6">My Account Information</h2>
 
       <form className="space-y-5">
         {/* Full Name */}
