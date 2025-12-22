@@ -146,12 +146,42 @@ body {
 }
 
 /* Titles/Headings */
-.dynamic-content-renderer h3 {
-  font-size: 1.25rem;
+.dynamic-content-renderer h1,
+.dynamic-content-renderer h2,
+.dynamic-content-renderer h3,
+.dynamic-content-renderer h4,
+.dynamic-content-renderer h5,
+.dynamic-content-renderer h6 {
   font-weight: 700;
   color: #000;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid #000000 !important; 
+}
+
+.dynamic-content-renderer h1 {
+  font-size: 2rem;
+}
+
+.dynamic-content-renderer h2 {
+  font-size: 1.75rem;
+}
+
+.dynamic-content-renderer h3 {
+  font-size: 1.25rem;
+}
+
+.dynamic-content-renderer h4 {
+  font-size: 1.125rem;
+}
+
+.dynamic-content-renderer h5 {
+  font-size: 1rem;
+}
+
+.dynamic-content-renderer h6 {
+  font-size: 0.875rem;
 }
 
 /* Paragraphs */

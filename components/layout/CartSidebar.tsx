@@ -20,6 +20,9 @@ interface CartItem {
   qty: number;
   variant?: string;
   variantImage?: string;
+  variantColor?: string;
+  variantStorage?: string;
+  variantRegion?: string;
 }
 
 export default function CartSidebar({ externalOpen, setExternalOpen }: CartSidebarProps) {
@@ -32,14 +35,25 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
   const typedCart: CartItem[] = cart;
 
-  // Auto-select all items by default if there are products
-  const hasAutoSelected = useRef(false);
+  // Auto-select all items by default whenever cart changes
   useEffect(() => {
-    if (!hasAutoSelected.current && typedCart.length > 0) {
-      setSelectedItems(typedCart.map((item) => item.id));
-      hasAutoSelected.current = true;
+    if (typedCart.length > 0) {
+      const allItemIds = typedCart.map((item) => item.id);
+      setSelectedItems((prev) => {
+        // Check if there are any items not selected
+        const missingItems = allItemIds.filter(id => !prev.includes(id));
+        if (missingItems.length > 0) {
+          // Add missing items to selection
+          return [...new Set([...prev, ...missingItems])];
+        }
+        return prev;
+      });
+    } else {
+      // If cart is empty, clear selections
+      setSelectedItems([]);
     }
-  }, [typedCart.length, setSelectedItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typedCart.length, typedCart.map(item => item.id).join(',')]);
 
   const toggleSelect = (id: string | number) => {
     setSelectedItems(prev =>
@@ -160,8 +174,9 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           {item.name}
         </h3>
 
+        {/* Display variant in same format as checkout */}
         {item.variant && (
-          <p className="text-xs text-gray-500 line-clamp-1">
+          <p className="text-xs text-gray-500 mt-1">
             {item.variant}
           </p>
         )}

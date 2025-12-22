@@ -45,14 +45,12 @@ export async function POST(req: NextRequest) {
               id: Number(item.id),
               qty: Number(item.qty),
               variant: item.variant ?? null,
-              variation: item.variation ?? null,
               referral_code: item.referral_code ?? null,
             }))
           : null,
 
       shipping_method: data.shipping_method,
       shipping_zone: data.shipping_zone || null,
-      shipping_charge: Number(data.shipping_charge) || 0,
       payment_method: data.payment_method || null,
       payment_number: data.payment_number || null,
       promo_code: data.promo_code || null,

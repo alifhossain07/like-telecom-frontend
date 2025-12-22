@@ -105,31 +105,4 @@ const FAQ: React.FC<FAQProps> = ({ faqs }) => {
   );
 };
 
-// Static FAQ data for demo
-const staticFAQs: FAQItem[] = [
-  {
-    question: "What plans does Like Telecom offer?",
-    answer:
-      "Like Telecom offers a variety of flexible plans including prepaid, postpaid, and high-speed internet packages to suit different needs.",
-  },
-  {
-    question: "Is customer support available 24/7?",
-    answer:
-      "Yes, our dedicated customer support team is available 24/7 via phone, chat, and email to assist you with any inquiries or technical issues.",
-  },
-  {
-    question: "Does Like Telecom provide coverage nationwide?",
-    answer:
-      "Absolutely! Like Telecom ensures reliable network coverage across the country, including urban and rural areas.",
-  },
-  {
-    question: "Are there any hidden charges?",
-    answer:
-      "No, we pride ourselves on transparency. All charges, fees, and taxes are clearly communicated in your plan details.",
-  },
-];
-
-// Default export with static FAQs
-const FAQWithStatic: React.FC = () => <FAQ faqs={staticFAQs} />;
-
-export default FAQWithStatic;
+export default FAQ;

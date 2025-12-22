@@ -11,8 +11,11 @@ export type CartItem = {
   oldPrice: number;
   img: string;
   qty: number;
-  variant?: string;          // NEW
+  variant?: string;          // Full variant string like "Amethyst-128GB-USA"
   variantImage?: string;
+  variantColor?: string;     // Selected color (hex code)
+  variantStorage?: string;  // Selected storage
+  variantRegion?: string;   // Selected region
 };
 
 type CartContextType = {
@@ -61,14 +64,36 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [selectedItems]);
 
   const addToCart = (item: CartItem) => {
-    // Check if already in cart, increase qty
-    const exists = cart.find((i) => i.id === item.id);
+    // Create unique key: id + variant (treat different variants as separate items)
+    const itemKey = item.variant ? `${item.id}-${item.variant}` : `${item.id}`;
+    
+    // Check if the exact same product with same variant already exists
+    const exists = cart.find((i) => {
+      const existingKey = i.variant ? `${i.id}-${i.variant}` : `${i.id}`;
+      return existingKey === itemKey;
+    });
+    
     if (exists) {
+      // Same product + same variant: increase quantity
       setCart((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + item.qty } : i))
+        prev.map((i) => {
+          const existingKey = i.variant ? `${i.id}-${i.variant}` : `${i.id}`;
+          return existingKey === itemKey ? { ...i, qty: i.qty + item.qty } : i;
+        })
       );
     } else {
-      setCart((prev) => [...prev, item]);
+      // Different variant or new product: add as new item
+      setCart((prev) => {
+        const newCart = [...prev, item];
+        // Auto-select the newly added item (use item.id to match CartSidebar logic)
+        setSelectedItems((prevSelected) => {
+          if (!prevSelected.includes(item.id)) {
+            return [...prevSelected, item.id];
+          }
+          return prevSelected;
+        });
+        return newCart;
+      });
     }
 
     toast.success("Product added to cart!", {

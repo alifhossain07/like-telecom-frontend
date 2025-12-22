@@ -10,7 +10,7 @@ export default function OrderComplete() {
   const [loading, setLoading] = useState(true);
   const [orderIdState, setOrderIdState] = useState<string | null>(null);
   const [customer, setCustomer] = useState<{ name: string; mobile: string; address?: string } | null>(null);
-  const [items, setItems] = useState<Array<{ id: string | number; name: string; qty: number; price: number }>>([]);
+  const [items, setItems] = useState<Array<{ id: string | number; name: string; qty: number; price: number; variant?: string | null }>>([]);
   const [totals, setTotals] = useState<{
     subtotal: number;
     discount: number;
@@ -40,6 +40,13 @@ export default function OrderComplete() {
           });
         }
         if (Array.isArray(parsed?.items)) {
+          // Debug: log items to check variant data
+          console.log("Order items loaded:", parsed.items);
+          parsed.items.forEach((item: any, idx: number) => {
+            if (item.variant) {
+              console.log(`Item ${idx + 1} (${item.name}) has variant:`, item.variant);
+            }
+          });
           setItems(parsed.items);
         }
         if (parsed?.totals) {
@@ -124,11 +131,16 @@ export default function OrderComplete() {
                     <div className="space-y-3">
                       {items.map((it, idx) => (
                         <div key={idx} className="flex justify-between items-center text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0">
-                          <div className="flex gap-2 items-center">
-                             <span className="bg-orange-100 text-orange-600 font-bold px-2 py-0.5 rounded text-xs">
-                               {it.qty}x
-                             </span>
-                             <span className="font-medium text-gray-700">{it.name}</span>
+                          <div className="flex flex-col gap-1 flex-1">
+                            <div className="flex gap-2 items-center">
+                              <span className="bg-orange-100 text-orange-600 font-bold px-2 py-0.5 rounded text-xs">
+                                {it.qty}x
+                              </span>
+                              <span className="font-medium text-gray-700">{it.name}</span>
+                            </div>
+                            {it.variant && it.variant.trim() !== "" && (
+                              <p className="text-xs text-gray-500 ml-7">{it.variant}</p>
+                            )}
                           </div>
                           <span className="font-semibold text-gray-900">৳{(it.price * it.qty).toLocaleString()}</span>
                         </div>

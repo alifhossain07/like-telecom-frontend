@@ -31,12 +31,12 @@ interface CheckoutFormData {
   payment: "online" | "cod";
   agreeTerms: boolean;
   promoCode?: string;
-  areaId?: number | null;
-  areaName?: string;
-  areaCountryId?: number | null;
+  districtId?: number | null;
+  districtName?: string;
+  stateId?: number | null;
+  stateName?: string;
   deliveryMethod: "inside" | "outside" | "shop_pickup";
   pickupStore?: string;
-  upazilaName?: string;
 }
 
 interface CouponData {
@@ -49,6 +49,16 @@ interface CouponData {
   expiry_date?: string;
 }
 
+interface PickupStore {
+  id: number;
+  staff_id: number | null;
+  name: string;
+  address: string;
+  phone: string;
+  pick_up_status: number;
+  cash_on_pickup_status: number | null;
+}
+
 // ------------------------- Yup Schema -------------------------
 const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
   name: yup.string().required("Name is required"),
@@ -58,9 +68,10 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
     .required("Mobile number is required"),
   email: yup.string().email("Invalid email").optional(),
   address: yup.string().required("Address is required"),
-  areaId: yup.number().typeError("Area is required").required("Area is required"),
-  areaName: yup.string().optional(),
-  areaCountryId: yup.number().nullable().optional(),
+  districtId: yup.number().typeError("District is required").required("District is required"),
+  districtName: yup.string().optional(),
+  stateId: yup.number().typeError("Upazila/Thana is required").required("Upazila/Thana is required"),
+  stateName: yup.string().optional(),
   deliveryMethod: yup
     .mixed<CheckoutFormData["deliveryMethod"]>()
     .oneOf(["inside", "outside", "shop_pickup"], "Select a delivery method")
@@ -70,7 +81,6 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
     then: (schema) => schema.required("Pickup store is required"),
     otherwise: (schema) => schema.optional(),
   }),
-  upazilaName: yup.string().optional(),
   payment: yup
     .mixed<CheckoutFormData["payment"]>()
     .required("Payment method is required"),
@@ -122,93 +132,239 @@ const CheckoutPage: React.FC = () => {
       payment: "cod",
       agreeTerms: true,
       promoCode: "",
-      areaId: null,
-      areaName: "",
-      areaCountryId: null,
+      districtId: null,
+      districtName: "",
+      stateId: null,
+      stateName: "",
       pickupStore: "",
-      upazilaName: "",
     },
   });
 
-  // ------------------------- Areas (Autocomplete) -------------------------
-  type AreaOption = { id: number; country_id: number; name: string };
-  const [areas, setAreas] = React.useState<AreaOption[]>([]);
-  const [suggestions, setSuggestions] = React.useState<AreaOption[]>([]);
-  const [areaQuery, setAreaQuery] = React.useState<string>("");
-  const [areasLoading, setAreasLoading] = React.useState<boolean>(false);
-  const [suggestLoading, setSuggestLoading] = React.useState<boolean>(false);
-  const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
-  const debounceRef = React.useRef<number | undefined>(undefined);
-  const localFiltered = React.useMemo(() => {
-    const q = areaQuery.trim().toLowerCase();
-    if (!q) return areas;
-    return areas.filter((a) => a.name.toLowerCase().includes(q));
-  }, [areaQuery, areas]);
+  // ------------------------- Districts & States (Two-step selection) -------------------------
+  type DistrictOption = { id: number; name: string; code: string; status: number };
+  type StateOption = { id: number; country_id: number; name: string };
+  
+  // Districts state
+  const [districts, setDistricts] = React.useState<DistrictOption[]>([]);
+  const [districtQuery, setDistrictQuery] = React.useState<string>("");
+  const [districtsLoading, setDistrictsLoading] = React.useState<boolean>(false);
+  const [districtOpen, setDistrictOpen] = React.useState<boolean>(false);
+  const districtDebounceRef = React.useRef<number | undefined>(undefined);
+  
+  // States/Upazilas state
+  const [states, setStates] = React.useState<StateOption[]>([]);
+  const [stateQuery, setStateQuery] = React.useState<string>("");
+  const [statesLoading, setStatesLoading] = React.useState<boolean>(false);
+  const [stateOpen, setStateOpen] = React.useState<boolean>(false);
+  const stateDebounceRef = React.useRef<number | undefined>(undefined);
+  
+  const selectedDistrictId = watch("districtId");
 
+  // Filter districts locally
+  const filteredDistricts = React.useMemo(() => {
+    const q = districtQuery.trim().toLowerCase();
+    if (!q) return districts;
+    return districts.filter((d) => d.name.toLowerCase().includes(q));
+  }, [districtQuery, districts]);
+
+  // Filter states locally
+  const filteredStates = React.useMemo(() => {
+    const q = stateQuery.trim().toLowerCase();
+    if (!q) return states;
+    return states.filter((s) => s.name.toLowerCase().includes(q));
+  }, [stateQuery, states]);
+
+  // Load districts on mount - fetches from /api/countries which calls like.test/api/v2/countries
   React.useEffect(() => {
     let cancelled = false;
-    const loadAreas = async () => {
+    const loadDistricts = async () => {
       try {
-        setAreasLoading(true);
-        const res = await fetch("/api/areas", { cache: "no-store" });
-        if (!res.ok) return;
+        setDistrictsLoading(true);
+        const res = await fetch("/api/countries", { cache: "no-store" });
+        if (!res.ok) {
+          console.error("Failed to fetch districts:", res.status, res.statusText);
+          if (!cancelled) {
+            setDistricts([]);
+          }
+          return;
+        }
         const json = await res.json();
-        const list: AreaOption[] = Array.isArray(json?.data) ? json.data : [];
-        if (!cancelled) setAreas(list);
-      } catch {
-        // ignore
+        // API returns {data: [...], success: true, status: 200}
+        // Extract the data array which contains all districts
+        const list: DistrictOption[] = Array.isArray(json?.data) 
+          ? json.data 
+          : Array.isArray(json) 
+          ? json 
+          : [];
+        if (!cancelled) {
+          setDistricts(list);
+          console.log(`✅ Districts loaded successfully: ${list.length} districts from API`);
+          if (list.length > 0) {
+            console.log("Sample districts:", list.slice(0, 5).map(d => d.name));
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error loading districts:", error);
+        if (!cancelled) {
+          setDistricts([]);
+        }
       } finally {
-        setAreasLoading(false);
+        if (!cancelled) setDistrictsLoading(false);
       }
     };
-    loadAreas();
+    loadDistricts();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const runSuggestionFetch = React.useCallback(async (q: string) => {
-    if (!q) {
-      setSuggestions([]);
+  // Load states when district is selected
+  React.useEffect(() => {
+    if (!selectedDistrictId) {
+      setStates([]);
+      setValue("stateId", null);
+      setValue("stateName", "");
+      setStateQuery("");
+      return;
+    }
+
+    let cancelled = false;
+    const loadStates = async () => {
+      try {
+        setStatesLoading(true);
+        const res = await fetch(`/api/states-by-country/${selectedDistrictId}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list: StateOption[] = Array.isArray(json?.data) ? json.data : [];
+        if (!cancelled) setStates(list);
+      } catch {
+        // ignore
+      } finally {
+        setStatesLoading(false);
+      }
+    };
+    loadStates();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDistrictId, setValue]);
+
+  // Fetch state suggestions with debounce
+  const fetchStateSuggestions = React.useCallback(async (districtId: number, q: string) => {
+    if (!q || !districtId) {
       return;
     }
     try {
-      setSuggestLoading(true);
-      const res = await fetch(`/api/areas?name=${encodeURIComponent(q)}`, { cache: "no-store" });
+      setStatesLoading(true);
+      const res = await fetch(`/api/states-by-country/${districtId}?name=${encodeURIComponent(q)}`, { cache: "no-store" });
       if (!res.ok) return;
       const json = await res.json();
-      const list: AreaOption[] = Array.isArray(json?.data) ? json.data : [];
-      setSuggestions(list);
+      const list: StateOption[] = Array.isArray(json?.data) ? json.data : [];
+      setStates(list);
     } catch {
       // ignore
     } finally {
-      setSuggestLoading(false);
+      setStatesLoading(false);
     }
   }, []);
 
-  const handleAreaInputChange = (val: string) => {
-    setAreaQuery(val);
-    setAreaOpen(true);
-    // Debounce suggestions
-    if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    debounceRef.current = window.setTimeout(() => runSuggestionFetch(val.trim()), 250);
+  const handleDistrictInputChange = (val: string) => {
+    setDistrictQuery(val);
+    setDistrictOpen(true);
   };
 
-  const handleSelectArea = (opt: AreaOption) => {
-    setAreaQuery(opt.name);
-    setValue("areaId", opt.id, { shouldValidate: true });
-    setValue("areaName", opt.name);
-    setValue("areaCountryId", opt.country_id);
-    // Auto set delivery method based on country_id
-    if (opt.country_id === 1) {
-      setValue("deliveryMethod", "inside", { shouldValidate: true });
-    } else {
-      setValue("deliveryMethod", "outside", { shouldValidate: true });
+  const handleDistrictFocus = () => {
+    setDistrictOpen(true);
+    // When clicking on field, clear query to show all districts (unless a district is already selected)
+    if (!selectedDistrictId) {
+      setDistrictQuery("");
     }
-    setAreaOpen(false);
+  };
+
+  const handleSelectDistrict = (district: DistrictOption) => {
+    setDistrictQuery(district.name);
+    setValue("districtId", district.id, { shouldValidate: true });
+    setValue("districtName", district.name);
+    // Reset state when district changes
+    setValue("stateId", null);
+    setValue("stateName", "");
+    setStateQuery("");
+    setDistrictOpen(false);
+  };
+
+  const handleStateInputChange = (val: string) => {
+    setStateQuery(val);
+    setStateOpen(true);
+    // Debounce suggestions
+    if (stateDebounceRef.current) window.clearTimeout(stateDebounceRef.current);
+    if (selectedDistrictId) {
+      stateDebounceRef.current = window.setTimeout(() => fetchStateSuggestions(selectedDistrictId, val.trim()), 250);
+    }
+  };
+
+  const handleSelectState = (state: StateOption) => {
+    setStateQuery(state.name);
+    setValue("stateId", state.id, { shouldValidate: true });
+    setValue("stateName", state.name);
+    setStateOpen(false);
   };
 
   const deliveryMethod = watch("deliveryMethod");
+  
+  // ------------------------- Pickup Stores -------------------------
+  const [pickupStores, setPickupStores] = React.useState<PickupStore[]>([]);
+  const [pickupStoresLoading, setPickupStoresLoading] = React.useState<boolean>(false);
+  const [pickupStoreOpen, setPickupStoreOpen] = React.useState<boolean>(false);
+  const selectedPickupStoreId = watch("pickupStore");
+
+  // Load pickup stores when shop_pickup is selected
+  React.useEffect(() => {
+    if (deliveryMethod !== "shop_pickup") {
+      setPickupStores([]);
+      setValue("pickupStore", "");
+      setPickupStoreOpen(false);
+      return;
+    }
+
+    let cancelled = false;
+    const loadPickupStores = async () => {
+      try {
+        setPickupStoresLoading(true);
+        const res = await fetch("/api/pickup-list", { cache: "no-store" });
+        if (!res.ok) {
+          console.error("Failed to fetch pickup stores:", res.status, res.statusText);
+          if (!cancelled) {
+            setPickupStores([]);
+          }
+          return;
+        }
+        const json = await res.json();
+        // API returns {data: [...], success: true, status: 200}
+        const list: PickupStore[] = Array.isArray(json?.data) ? json.data : [];
+        if (!cancelled) {
+          setPickupStores(list);
+          console.log(`✅ Pickup stores loaded: ${list.length} stores`);
+        }
+      } catch (error) {
+        console.error("❌ Error loading pickup stores:", error);
+        if (!cancelled) {
+          setPickupStores([]);
+        }
+      } finally {
+        if (!cancelled) setPickupStoresLoading(false);
+      }
+    };
+    loadPickupStores();
+    return () => {
+      cancelled = true;
+    };
+  }, [deliveryMethod, setValue]);
+
+  const handleSelectPickupStore = (store: PickupStore) => {
+    setValue("pickupStore", String(store.id), { shouldValidate: true });
+    setPickupStoreOpen(false);
+  };
+
   // Dynamic shipping config
   const [shippingConfig, setShippingConfig] = React.useState<{
     shipping_cost_inside_dhaka: number;
@@ -382,9 +538,12 @@ const CheckoutPage: React.FC = () => {
     }
 
     // Build payload exactly like backend expects
-    const composedAddress = [data.address?.trim(), (data.areaName || "").trim()]
-      .filter(Boolean)
-      .join(", ");
+    const addressParts = [
+      data.address?.trim(),
+      data.stateName?.trim(),
+      data.districtName?.trim()
+    ].filter(Boolean);
+    const composedAddress = addressParts.join(", ");
     let shipping_zone = null;
     if (data.deliveryMethod === "inside") shipping_zone = "insideDhaka";
     else if (data.deliveryMethod === "outside") shipping_zone = "outsideDhaka";
@@ -394,31 +553,28 @@ const CheckoutPage: React.FC = () => {
         mobile: data.mobile,
         email: data.email || null,
         address: composedAddress,
-        country_id: null,
-        state_id: null,
+        country_id: data.districtId ?? null,
+        state_id: data.stateId ?? null,
         city_id: null,
-        area_id: data.areaId ?? null,
+        area_id: null,
         postal_code: null,
       },
       items: selectedCart.map((item) => ({
         id: Number(item.id),
         qty: Number(item.qty),
-        variant:  item.variant || null,
-        variation: item.variant || null,
+        variant: item.variant || null,
         referral_code: null,
       })),
       shipping_method:
         data.deliveryMethod === "inside" || data.deliveryMethod === "outside"
           ? "home_delivery"
           : "pickup_point",
-      shipping_zone,
-      shipping_charge: effectiveDelivery,
-      payment_method: "cash_on_delivery",
+      shipping_zone: data.deliveryMethod === "shop_pickup" ? null : shipping_zone,
+      payment_method: "Cash on Delivery",
       payment_number: null,
       promo_code: appliedPromo || null,
-      coupon_data: couponData || null, // Real coupon data from API
       note: "",
-      pickup_point_id: data.deliveryMethod === "shop_pickup" ? data.pickupStore || null : null,
+      pickup_point_id: data.deliveryMethod === "shop_pickup" ? (data.pickupStore ? Number(data.pickupStore) : null) : null,
       carrier_id: null,
     };
 
@@ -480,12 +636,20 @@ window.dataLayer.push({
                 email: data.email || "",
                 address: composedAddress,
               },
-              items: selectedCart.map((item) => ({
-                id: item.id,
-                name: item.name,
-                qty: item.qty,
-                price: item.price,
-              })),
+              items: selectedCart.map((item) => {
+                const itemData = {
+                  id: item.id,
+                  name: item.name,
+                  qty: item.qty,
+                  price: item.price,
+                  variant: item.variant || null,
+                };
+                // Debug: log variant info
+                if (item.variant) {
+                  console.log(`Item ${item.name} has variant:`, item.variant);
+                }
+                return itemData;
+              }),
               shipping: {
                 method: data.deliveryMethod,
                 methodLabel: shippingMethodLabel,
@@ -654,66 +818,97 @@ window.dataLayer.push({
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
               
-              {/* District */}
-              <div className="mb-2 gap-4 flex">
+              {/* District & State Selection */}
+              <div className="mb-2 gap-4 flex flex-row">
                 <div className="flex-1">
-    <label>Upazila/Thana</label>
-    <input
-      type="text"
-      placeholder="Enter upazila/thana"
-      className="border p-2 rounded w-full mb-1"
-      {...register("upazilaName")}
-    />
-    {errors.upazilaName && (
-      <p className="text-red-500 text-sm">{String(errors.upazilaName.message)}</p>
-    )}
-  </div>
-<div className="flex-1">
-                <label>District*</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Select or search area"
-                    className="border p-2 rounded w-full mb-1"
-                    value={areaQuery}
-                    onChange={(e) => handleAreaInputChange(e.target.value)}
-                    onFocus={() => setAreaOpen(true)}
-                    onBlur={() => setTimeout(() => setAreaOpen(false), 150)}
-                  />
-                  {/* Hidden fields for RHF */}
-                  <input type="hidden" {...register("areaId")} />
-                  <input type="hidden" {...register("areaName")} />
-                  <input type="hidden" {...register("areaCountryId")} />
+                  <label>District*</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Select or search district"
+                      className="border p-2 rounded w-full mb-1"
+                      value={districtQuery}
+                      onChange={(e) => handleDistrictInputChange(e.target.value)}
+                      onFocus={handleDistrictFocus}
+                      onBlur={() => setTimeout(() => setDistrictOpen(false), 150)}
+                    />
+                    {/* Hidden fields for RHF */}
+                    <input type="hidden" {...register("districtId")} />
+                    <input type="hidden" {...register("districtName")} />
 
-                  {areaOpen && (
-                    <div className="absolute z-20 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
-                      {(areasLoading || suggestLoading) && (
-                        <div className="p-2 text-sm text-gray-500">Loading...</div>
-                      )}
-                      {(() => {
-                        const q = areaQuery.trim();
-                        const list = q ? (suggestions.length > 0 ? suggestions : localFiltered) : areas;
-                        if (!areasLoading && !suggestLoading && list.length === 0) {
-                          return <div className="p-2 text-sm text-gray-500">No areas found</div>;
-                        }
-                        return list.map((opt) => (
-                          <button
-                            type="button"
-                            key={opt.id}
-                            className="w-full text-left px-3 py-2 hover:bg-orange-50"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => handleSelectArea(opt)}
-                          >
-                            <span className="font-medium text-gray-800">{opt.name}</span>
-                          </button>
-                        ));
-                      })()}
-                    </div>
+                    {districtOpen && (
+                      <div className="absolute z-20 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
+                        {districtsLoading ? (
+                          <div className="p-2 text-sm text-gray-500">Loading districts...</div>
+                        ) : districts.length === 0 ? (
+                          <div className="p-2 text-sm text-gray-500">No districts available. Please try again.</div>
+                        ) : filteredDistricts.length === 0 ? (
+                          <div className="p-2 text-sm text-gray-500">
+                            No districts found matching "{districtQuery}"
+                          </div>
+                        ) : (
+                          filteredDistricts.map((district) => (
+                            <button
+                              type="button"
+                              key={district.id}
+                              className="w-full text-left px-3 py-2 hover:bg-orange-50"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => handleSelectDistrict(district)}
+                            >
+                              <span className="font-medium text-gray-800">{district.name}</span>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {errors.districtId && (
+                    <p className="text-red-500 text-sm">{String(errors.districtId.message)}</p>
                   )}
                 </div>
-                {errors.areaId && (
-                  <p className="text-red-500 text-sm">{String(errors.areaId.message)}</p>
-                )}
+                
+                <div className="flex-1">
+                  <label>Upazila/Thana*</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder={selectedDistrictId ? "Select or search upazila/thana" : "Select district first"}
+                      className="border p-2 rounded w-full mb-1 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      value={stateQuery}
+                      onChange={(e) => handleStateInputChange(e.target.value)}
+                      onFocus={() => selectedDistrictId && setStateOpen(true)}
+                      onBlur={() => setTimeout(() => setStateOpen(false), 150)}
+                      disabled={!selectedDistrictId}
+                    />
+                    {/* Hidden fields for RHF */}
+                    <input type="hidden" {...register("stateId")} />
+                    <input type="hidden" {...register("stateName")} />
+
+                    {stateOpen && selectedDistrictId && (
+                      <div className="absolute z-20 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
+                        {statesLoading && (
+                          <div className="p-2 text-sm text-gray-500">Loading...</div>
+                        )}
+                        {!statesLoading && filteredStates.length === 0 && (
+                          <div className="p-2 text-sm text-gray-500">No upazilas/thanas found</div>
+                        )}
+                        {!statesLoading && filteredStates.map((state) => (
+                          <button
+                            type="button"
+                            key={state.id}
+                            className="w-full text-left px-3 py-2 hover:bg-orange-50"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleSelectState(state)}
+                          >
+                            <span className="font-medium text-gray-800">{state.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {errors.stateId && (
+                    <p className="text-red-500 text-sm">{String(errors.stateId.message)}</p>
+                  )}
                 </div>
               </div>
               
@@ -783,16 +978,48 @@ window.dataLayer.push({
             </div>
             <div className="flex-1">
               <label className="block mb-1 font-medium">Choose a pickup store*</label>
-              <select
-                className="border p-2 rounded w-full cursor-pointer"
-                {...register("pickupStore")}
-                disabled={watch("deliveryMethod") !== "shop_pickup"}
-              >
-                <option value="">Select Store</option>
-                <option value="store_1">Store 1</option>
-                <option value="store_2">Store 2</option>
-                <option value="store_3">Store 3</option>
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={deliveryMethod === "shop_pickup" ? "Select pickup store" : "Select delivery method first"}
+                  className="border p-2 rounded w-full mb-1 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  value={selectedPickupStoreId ? pickupStores.find(s => String(s.id) === selectedPickupStoreId)?.name || "" : ""}
+                  onFocus={() => deliveryMethod === "shop_pickup" && setPickupStoreOpen(true)}
+                  onBlur={() => setTimeout(() => setPickupStoreOpen(false), 150)}
+                  readOnly
+                  disabled={deliveryMethod !== "shop_pickup"}
+                />
+                {/* Hidden field for RHF */}
+                <input type="hidden" {...register("pickupStore")} />
+
+                {pickupStoreOpen && deliveryMethod === "shop_pickup" && (
+                  <div className="absolute z-20 w-full max-h-64 overflow-auto bg-white border rounded shadow mt-1">
+                    {pickupStoresLoading ? (
+                      <div className="p-2 text-sm text-gray-500">Loading stores...</div>
+                    ) : pickupStores.length === 0 ? (
+                      <div className="p-2 text-sm text-gray-500">No pickup stores available</div>
+                    ) : (
+                      pickupStores.map((store) => (
+                        <button
+                          type="button"
+                          key={store.id}
+                          className="w-full text-left px-3 py-2 hover:bg-orange-50 border-b last:border-b-0 transition-colors"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handleSelectPickupStore(store)}
+                        >
+                          <div className="text-xs text-gray-700 truncate">
+                            <span className="font-semibold">{store.name}</span>
+                            <span className="mx-1">-</span>
+                            <span>{store.address}</span>
+                            <span className="mx-1">-</span>
+                            <span className="truncate">{store.phone}</span>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
               {errors.pickupStore && (
                 <p className="text-red-500 text-sm">{errors.pickupStore.message}</p>
               )}

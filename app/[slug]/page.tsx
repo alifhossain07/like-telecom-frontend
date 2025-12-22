@@ -1,268 +1,120 @@
-'use client'
-
-import { useState } from 'react'
 import Image from "next/image";
 import {
-  FaEye, FaShoppingBag, FaStar, FaRegStar, FaStarHalfAlt, FaBalanceScale, FaHeart,
+  FaStar, FaRegStar, FaStarHalfAlt, FaBalanceScale, FaHeart,
   FaCreditCard, FaShieldAlt, FaTruck, FaFacebookF, FaInstagram, FaTwitter, FaYoutube
 } from "react-icons/fa";
-import { MdArrowRightAlt, MdStars } from "react-icons/md";
+import { MdStars } from "react-icons/md";
 import Specifications from "./Specifications";
 import ProductList from "./ProductList";
 import FAQ from "./FAQ";
 import ProductDetails from "./ProductDetails";
 import PriceTable from "./PriceTable";
-// Data structure - can be replaced with API calls later
-const productData = {
-  title: 'iPhone Series 13 pro max',
-  variants: {
-    color: 'Midnight',
-    region: 'International',
-    storage: '128-GB',
-  },
-  specifications: [
-    'Display: 6.1" Super Retina XDR OLED',
-    'Processor: Apple A15 Bionic',
-    'Battery: 3240 mAh, fast & wireless charging',
-    'Camera: Dual 12 MP, night mode, Cinematic video',
-    'Others: 5G, IP68 water-resistant, MagSafe',
-  ],
-  status: 'Available',
-  sku: 'iPhone-13-saq',
-  price: {
-    current: '৳1,00,500',
-    original: '৳1,00,900',
-    discount: 30,
-    points: 200,
-  },
-  storageOptions: [
-    { value: '128GB', label: '128GB' },
-    { value: '256GB', label: '256GB' },
-  ],
-  colorOptions: [
-    { name: 'Orange', value: 'orange', hex: '#FF6B35' },
-    { name: 'Black', value: 'black', hex: '#000000' },
-    { name: 'Purple', value: 'purple', hex: '#8B5CF6' },
-    { name: 'Grey', value: 'grey', hex: '#9CA3AF' },
-    { name: 'Light Orange', value: 'light-orange', hex: '#FCD34D' },
-    { name: 'Light Green', value: 'light-green', hex: '#86EFAC' },
-    { name: 'Light Blue', value: 'light-blue', hex: '#60A5FA' },
-  ],
-  regionOptions: [
-    { value: 'Usa', label: 'Usa' },
-    { value: 'China', label: 'China' },
-    { value: 'International', label: 'International' },
-  ],
-  warranty: {
-    text: '1 Year Apple International Warranty',
-    link: 'Check Your Product Warranty Policy',
-  },
-  delivery: {
-    text: 'Standard Delivery (48-72 H)',
-    link: 'Check Estimated Shipping Time',
-  },
-  viewing: 105,
-  sold: {
-    count: 20,
-    days: 4,
-  },
-  rating: {
-    value: 4.2,
-    reviews: 100,
-  },
-  phoneNumber: '09678-664664',
+import ProductVariants from "./ProductVariants";
+
+// Data fetching logic
+import { notFound } from 'next/navigation';
+import ImageGallery from "@/components/ui/ImageGallery";
+interface PageParams {
+  params: { slug: string }
 }
+type FeaturedSpec = {
+  text: string;
+  icon: string;
+};
 
-export default function ProductPage() {
-  const [selectedStorage, setSelectedStorage] = useState('128GB')
-  const [selectedColor, setSelectedColor] = useState('orange')
-  const [selectedRegion, setSelectedRegion] = useState('International')
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+export default async function ProductPage({ params }: PageParams) {
+  const { slug } = params;
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/products/${slug}`, {
+    cache: 'no-store',
+  });
+  if (!res.ok) return notFound();
+  const product = await res.json();
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1)
-  const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1))
 
-  // Calculate filled stars
-  const fullStars = Math.floor(productData.rating.value)
-  const hasHalfStar = productData.rating.value % 1 >= 0.5
 
+  const rating = product.rating; // e.g. 4.2
+const ratingCount = product.rating_count; // e.g. 123
+
+  // Helper function to determine category slug from product
+  const getCategorySlug = (product: any): string | undefined => {
+    // First, try to get from product.category?.slug if available
+    if (product.category?.slug) {
+      return product.category.slug;
+    }
+    
+    // Use tags array if available (e.g., ["iphone"] -> "iphone")
+    if (product.tags && Array.isArray(product.tags) && product.tags.length > 0) {
+      return product.tags[0]; // Use first tag as category slug
+    }
+    
+    // If brand is Apple or product name contains iPhone, try common iPhone category slugs
+    if (product.brand?.name?.toLowerCase().includes('apple') || 
+        product.name?.toLowerCase().includes('iphone')) {
+      // Try common iPhone category slugs
+      return 'iphone'; // Use 'iphone' as category slug
+    }
+    
+    // Try to infer from brand slug if available
+    if (product.brand?.slug) {
+      return product.brand.slug;
+    }
+    
+    return undefined;
+  };
+
+  const categorySlug = getCategorySlug(product);
+
+  // You can now use 'product' to make the UI dynamic as needed
+
+  // The rest of the code is your original UI layout
+  // ...existing code...
+  // (Paste your original UI code here, using the fetched 'product' as needed)
   return (
     <div className="bg-[#f5f5f5]">
       <div className="w-11/12 mx-auto py-4 md:py-8">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 justify-center">
           {/* Left Column - Product Images */}
-         <div className="w-full max-w-[550px] mx-auto">
-  <div className="w-full max-h-[460px] xl:max-h-[673px] h-full bg-white rounded-lg border border-gray-200 shadow-sm p-4 flex flex-col">
-    {/* Main Product Image */}
-    <div className="relative mb-4 bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center aspect-[3/4]">
-      {/* Warranty Badge */}
-      <div className="absolute top-4 left-4 z-10">
-        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-2">
-          <div className="flex items-center gap-2">
-            <div className="md:text-3xl text-base font-bold">1</div>
-            <div className="md:text-xs text-[8px] font-semibold leading-tight">
-              YEAR<br />WARRANTY
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Main Image */}
-      <Image
-        src="/images/iphone13.webp"
-        alt="iPhone 13"
-        fill
-        className="object-contain"
-      />
-    </div>
-
-    {/* Thumbnail Carousel */}
-    <div className="relative">
-      <button className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 rounded-full p-2 shadow-md hover:bg-gray-50">
-        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-
-      <div className="flex gap-2 overflow-x-auto px-8 scrollbar-hide">
-        {[1, 2, 3, 4].map((i) => (
-  <button
-    key={i}
-    onClick={() => setSelectedImageIndex(i - 1)}
-    // Added 'relative' to the class list below
-    className={`relative flex-shrink-0 w-20 h-20 rounded-lg border-2 overflow-hidden ${
-      selectedImageIndex === i - 1 ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'
-    }`}
-  >
-    <Image
-      src="/images/iphone13.webp"
-      alt={`Thumbnail ${i}`}
-      fill
-      className="object-contain p-1" // Added a little padding so it doesn't touch the borders
-    />
-  </button>
-))}
-      </div>
-
-      <button className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 rounded-full p-2 shadow-md hover:bg-gray-50">
-        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
-
+          <ImageGallery photos={product.photos} />
+         
           {/* Middle Column - Product Details & Options */}
           <div className="w-full max-w-[550px] mx-auto">
             <div className="w-full h-auto bg-white rounded-lg border border-gray-200 shadow-sm p-6 flex flex-col overflow-hidden">
               {/* Product Title */}
-              <h1 className="md:text-[24px] text-[20px] font-bold text-gray-900 mb-2">{productData.title}</h1>
+              <h1 className="md:text-[24px] text-[20px] font-bold text-gray-900 mb-2">{product.name}</h1>
               {/* Pricing Information */}
               <div className="">
                 <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                  <span className="md:text-[26px] text-[22px] font-bold text-orange-600">{productData.price.current}</span>
-                  <span className="text-[16px] text-gray-400 line-through">{productData.price.original}</span>
+                  <span className="md:text-[26px] text-[22px] font-bold text-orange-600">{product.main_price}</span>
+                  <span className="text-[16px] text-gray-400 line-through">{product.stroked_price}</span>
 
                   <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
-                    {productData.price.discount}% Off
+                    {product.discount} off
                   </span>
-                  <span className="px-3 py-1 bg-[#FFEFCC] text-[#FFB20B] text-sm font-semibold rounded-2xl">
-                    Earn {productData.price.points}-Points
-                  </span>
+                  {/* <span className="px-3 py-1 bg-[#FFEFCC] text-[#FFB20B] text-sm font-semibold rounded-2xl">
+                    Earn 200-Points
+                  </span> */}
                 </div>
               </div>
-              {/* Selected Variants */}
-              <div className="flex gap-2 rounded-md bg-gray-100 mb-4 flex-wrap">
-                <span className="px-3 py-1  text-gray-700 text-sm  font-base">
-                  {productData.variants.color}
-                </span>
-                <span className="px-3 py-1 border-l-2 border-gray-300 pl-2  text-gray-700 text-sm font-base">
-                  {productData.variants.region}
-                </span>
-                <span className="px-3 py-1  border-l-2 border-gray-300 pl-2 text-gray-700 text-sm  font-base">
-                  {productData.variants.storage}
-                </span>
-              </div>
+              {/* Product Variants - Color, Storage, Region */}
+              <ProductVariants
+                choiceOptions={product.choice_options || []}
+                colors={product.colors || []}
+                otherFeatures={product.other_features}
+                currentStock={product.current_stock}
+                sku={product.model_number || "iPhone-13-saq"}
+              />
 
-              {/* Key Specifications */}
-              <ul className="list-disc list-inside leading-tight space-y-1 mb-4 text-sm text-gray-700">
-                {productData.specifications.map((spec, index) => (
-                  <li key={index}>{spec}</li>
-                ))}
-              </ul>
-
-              {/* Status and SKU */}
-              <div className="flex bg-gray-100 p-2 rounded-md items-center gap-4 mb-4 text-sm">
-                <div>
-                  <span className="text-gray-600">Status: </span>
-                  <span className="text-green-600 font-semibold">{productData.status}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600 border-l-2 border-gray-300 pl-2">SKU: </span>
-                  <span className="text-gray-700 font-medium">{productData.sku}</span>
-                </div>
-              </div>
-
-              
-
-              {/* Storage Options */}
-              <div className="mb-3 flex items-center bg-[#f4f4f4] p-2">
-                <div className="block text-sm font-medium text-gray-700 mr-3 ">Storage : </div >
-                <div className="flex gap-2">
-                  {productData.storageOptions.map((storage) => (
-                    <button
-                      key={storage.value}
-                      onClick={() => setSelectedStorage(storage.value)}
-                      className={`px-4 py-1 rounded text-[12px] font-base transition ${selectedStorage === storage.value
-                          ? ' bg-gray-900 text-white'
-                          : 'bg-[#E5E5E5] text-black hover:bg-gray-800'
-                        }`}
-                    >
-                      {storage.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Color Options */}
-              <div className=" flex bg-[#f4f4f4] items-center p-2 mb-3">
-                <div className=" text-sm font-medium text-gray-700 mr-5">Color: </div>
-                <div className="flex gap-3">
-                  {productData.colorOptions.map((color) => (
-                    <button
-                      key={color.value}
-                      onClick={() => setSelectedColor(color.value)}
-                      className={`w-[24px] h-[24px] rounded-md  border-2 transition ${selectedColor === color.value
-                          ? 'border-gray-900 scale-110'
-                          : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                      style={{ backgroundColor: color.hex }}
-                      title={color.name}
-                    />
-                  ))}
-                </div>
-              </div>
 
               {/* Region Options */}
-              <div className="flex bg-[#f4f4f4] items-center p-2 mb-3">
+              {/* <div className="flex bg-[#f4f4f4] items-center p-2 mb-3">
                 <div className=" text-sm font-medium text-gray-700 mr-5 ">Region: </div>
                 <div className="flex flex-wrap gap-2">
-                  {productData.regionOptions.map((region) => (
-                    <button
-                      key={region.value}
-                      onClick={() => setSelectedRegion(region.value)}
-                      className={`px-4 py-1 rounded text-[12px] font-medium transition ${selectedRegion === region.value
-                          ? 'bg-gray-900 text-white'
-                          : 'bg-[#E5E5E5] text-gray-700 hover:bg-gray-300'
-                        }`}
-                    >
-                      {region.label}
-                    </button>
-                  ))}
+                  <button className="px-4 py-1 rounded text-[12px] font-medium transition bg-gray-900 text-white">International</button>
+                  <button className="px-4 py-1 rounded text-[12px] font-medium transition bg-[#E5E5E5] text-gray-700 hover:bg-gray-300">Usa</button>
+                  <button className="px-4 py-1 rounded text-[12px] font-medium transition bg-[#E5E5E5] text-gray-700 hover:bg-gray-300">China</button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Quantity Selector */}
               <div className="mb-4 flex items-center ">
@@ -271,33 +123,22 @@ export default function ProductPage() {
                   <div className="flex items-center w-[90px] bg-[#f4f4f4] h-[38px] border border-gray-300 rounded overflow-hidden">
 
                     {/* Minus */}
-                    <button
-                      onClick={decrementQuantity}
-                      className="w-[42px] h-[13px] text-xs md:text-lg md:w-[42px] md:h-[20px] bg-orange-500 rounded-full text-white hover:text-black ml-1 flex items-center justify-center  font-semibold  hover:bg-gray-100 transition"
-                    >
+                    <button className="w-[42px] h-[13px] text-xs md:text-lg md:w-[42px] md:h-[20px] bg-orange-500 rounded-full text-white hover:text-black ml-1 flex items-center justify-center  font-semibold  hover:bg-gray-100 transition">
                       −
                     </button>
 
                     {/* Quantity */}
-                    <input
-                      type="text"
-                      value={quantity}
-                      readOnly
-                      className="w-full h-full bg-[#f4f4f4] text-center text-sm font-medium text-gray-800 focus:outline-none"
-                    />
+                    <input type="text" value={1} readOnly className="w-full h-full bg-[#f4f4f4] text-center text-sm font-medium text-gray-800 focus:outline-none" />
 
                     {/* Plus */}
-                    <button
-                      onClick={incrementQuantity}
-                      className="w-[42px] h-[13px] text-xs md:text-lg md:w-[42px] md:h-[20px] rounded-full text-white flex bg-orange-500 items-center justify-center  font-semibold  hover:text-black mr-1 hover:bg-gray-100 transition"
-                    >
+                    <button className="w-[42px] h-[13px] text-xs md:text-lg md:w-[42px] md:h-[20px] rounded-full text-white flex bg-orange-500 items-center justify-center  font-semibold  hover:text-black mr-1 hover:bg-gray-100 transition">
                       +
                     </button>
 
                   </div>
 
                   <span className="md:text-sm text-[12px] text-[#B3D9C5] font-bold">
-                    Call For Online Order ({productData.phoneNumber})
+                    Call For Online Order (09678-664664)
                   </span>
                 </div>
               </div>
@@ -338,67 +179,54 @@ export default function ProductPage() {
 
           {/* Right Column - Additional Information */}
           <div className="w-full max-w-[550px] mx-auto">
-            <div className="w-full max-h-[773px] bg-white rounded-lg border border-gray-200 shadow-sm p-6 flex flex-col justify-between">
+            <div className="w-full space-y-6 max-h-[773px] bg-white rounded-lg border border-gray-200 shadow-sm p-6 flex flex-col justify-between">
               {/* Warranty Details */}
-              <div className="bg-[#F4F4F4] p-2 flex flex-col mb-3 gap-2">
-                <div className="flex gap-1 "><FaShieldAlt className="w-5 h-5 text-black" /> <p className="text-sm font-medium text-gray-700 mb-1">{productData.warranty.text}</p></div>
-                
-                <div className="flex gap-2">
-                  <MdArrowRightAlt className="text-orange-500" /> 
-                  <a href="#" className="text-sm  text-orange-500 hover:underline">
-                  {productData.warranty.link}
-                  </a>
-                </div>
-              </div>
-
-              {/* Delivery Information */}
-              <div className="bg-[#F4F4F4] p-2 flex flex-col  items-start gap-2 mb-3">
-              <div className="flex  gap-1 " >
- <FaTruck className="w-5 h-5 text-black" />
-  <p className="text-sm text-gray-700 font-medium mb-1">{productData.delivery.text}</p>
-              </div>
-               
-                <div className="flex gap-2">
-         <MdArrowRightAlt className="text-orange-500" /> 
-                  <a href="#" className="text-sm text-orange-500 hover:underline">
-                    {productData.delivery.link}
-                  </a>
-                </div>
-              </div>
 
               {/* Viewer Count */}
-              <div className="flex font-medium items-center gap-2 mb-3 text-sm bg-[#F4F4F4] p-4 text-gray-700">
-                <FaEye className="w-5 h-5 text-black" />
-                <span>{productData.viewing} People are viewing this product</span>
-              </div>
-
-              {/* Units Sold */}
-              <div className="flex font-medium bg-[#F4F4F4] p-4 mb-3 items-center gap-2 text-sm text-gray-700">
-                <FaShoppingBag className="w-5 h-5 text-black" />
-                <span>{productData.sold.count} units of this variants sold in the last {productData.sold.days} days</span>
-              </div>
+              {product.featured_specs?.map((item: FeaturedSpec, index: number) => (
+  <div
+    key={index}
+    className="flex font-medium items-center gap-2 text-sm bg-[#F4F4F4] p-4 text-gray-700 "
+  >
+    <Image
+      src={item.icon}
+      alt=""
+      width={500}
+      height={500}
+      className="w-5 h-5 object-contain"
+    />
+    <span>{item.text}</span>
+  </div>
+))}
 
               {/* Rating and Reviews */}
-              <div className="flex items-center p-4 mb-3 bg-[#f4f4f4] gap-2 ">
+              <div className="flex items-center p-4 mb-3 bg-[#f4f4f4] gap-2">
+  <div className="flex items-center font-medium text-sm text-gray-700 mr-3">
+    <MdStars className="w-5 h-5 text-black mr-2" />
+    Rating:
+  </div>
 
-                <div className="flex items-center font-medium text-sm  text-gray-700 mr-3 "><MdStars className="w-5 h-5 text-black mr-2" /> Rating:  </div>
+  <div className="flex">
+    {[1, 2, 3, 4, 5].map((star) => {
+      if (rating >= star) {
+        // full star
+        return <FaStar key={star} className="w-5 h-5 text-orange-500" />;
+      }
 
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => {
-                    if (star <= fullStars) {
-                      return <FaStar key={star} className="w-5 h-5 text-orange-500" />
-                    } else if (star === fullStars + 1 && hasHalfStar) {
-                      return <FaStarHalfAlt key={star} className="w-5 h-5 text-orange-500" />
-                    } else {
-                      return <FaRegStar key={star} className="w-5 h-5 text-gray-300" />
-                    }
-                  })}
-                </div>
+      if (rating >= star - 0.5) {
+        // half star
+        return <FaStarHalfAlt key={star} className="w-5 h-5 text-orange-500" />;
+      }
 
-                <span className="text-sm text-gray-700">
-                  ({productData.rating.value}) / {productData.rating.reviews}+ Reviews
-                </span>
-              </div>
+      // empty star
+      return <FaRegStar key={star} className="w-5 h-5 text-gray-300" />;
+    })}
+  </div>
+
+  <span className="text-sm text-gray-700">
+    ({rating.toFixed(1)}) / {ratingCount > 0 ? `${ratingCount}+ Reviews` : "No reviews"}
+  </span>
+</div>
 
               {/* Secondary Action Buttons */}
               <div className="flex gap-2 mb-3">
@@ -459,75 +287,30 @@ export default function ProductPage() {
       {/* Specifications Section */}
      <div className="w-11/12 mx-auto gap-8 flex justify-between  pb-4">
       <div className="w-[59.375vw] max-w-[1140px] min-w-[700px] ">
-       <Specifications />
-       <FAQ />
+       <Specifications specifications={product.specifications || []} />
+       <FAQ faqs={product.faqs || []} />
        </div>
 
   <div className="w-[28.645vw] max-w-[550px] rounded-xl  min-w-[320px] ">
     <ProductList
-       relatedProducts={[
-    {
-      id: 1,
-      name: "Nokia 230 Series Model (2024)",
-      price: 1500,
-      oldPrice: 1800,
-      discount: 20,
-      image: "/images/nokia.png",
-      available: true,
-    },
-    {
-      id: 2,
-      name: "Nokia 230 Series Model (2024)",
-      price: 1500,
-      oldPrice: 1800,
-      discount: 20,
-      image: "/images/nokia.png",
-      available: true,
-    },
-    {
-      id: 3,
-      name: "Nokia 230 Series Model (2024)",
-      price: 1500,
-      oldPrice: 1800,
-      discount: 20,
-      image: "/images/nokia.png",
-      available: true,
-    },
-  ]}
-  recentlyViewed={[
-    {
-      id: 4,
-      name: "Nokia 230 Series Model (2024)",
-      price: 1500,
-      oldPrice: 1800,
-      discount: 20,
-      image: "/images/nokia.png",
-      available: true,
-    },
-    {
-      id: 5,
-      name: "Nokia 230 Series Model (2024)",
-      price: 1500,
-      oldPrice: 1800,
-      discount: 20,
-      image: "/images/nokia.png",
-      available: true,
-    },
-  ]}
-/>
+       relatedProducts={product.frequently_bought_products || []}
+       recentlyViewed={product.recentlyViewed || []}
+    />
   </div>
 </div>
 {/* Product Details */}
 <div className="bg-white w-11/12 mx-auto p-8">
 <div>
-  <ProductDetails />
+  <ProductDetails description={product.description || ''} />
 </div>
 <div className="">
-      {/* Using defaults */}
-      <PriceTable />
-
-      {/* Or passing custom data later */}
-      {/* <PriceTable categoryName="Samsung" data={samsungData} /> */}
+      <PriceTable
+        categoryName={product.brand?.name || product.name}
+        categorySlug={categorySlug}
+        location="Bangladesh"
+        year={new Date().getFullYear()}
+        data={product.priceTableData || []}
+      />
     </div>
     </div>
    
