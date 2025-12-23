@@ -1,17 +1,104 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   FaFacebookF,
   FaInstagram,
   FaYoutube,
-  FaTiktok,
-  FaCcVisa,
-  FaCcMastercard,
-  FaCcAmex,
-  FaCcPaypal,
+  FaTwitter,
 } from "react-icons/fa";
+import Image from "next/image";
+import Link from "next/link";
 
+interface FooterData {
+  footer_logo?: string;
+  about_us_description?: string;
+  frontend_copyright_text?: string;
+  app_store_link?: string | null;
+  play_store_link?: string | null;
+  show_social_links?: string;
+  facebook_link?: string;
+  twitter_link?: string;
+  instagram_link?: string;
+  youtube_link?: string;
+  widget_one?: string;
+  widget_one_labels?: string;
+  widget_one_links?: string;
+  widget_two?: string;
+  widget_two_labels?: string;
+  widget_two_links?: string;
+  helpline_number?: string;
+  contact_address?: string;
+  payment_method_images?: string;
+  contact_email?: string;
+}
 
 const Footer = () => {
+  const [footerData, setFooterData] = useState<FooterData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFooterData = async () => {
+      try {
+        const response = await fetch("/api/footer");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setFooterData(result.data);
+        }
+      } catch (error) {
+        console.error("Error fetching footer data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFooterData();
+  }, []);
+
+  // Parse JSON strings safely
+  const parseJsonString = (str: string | undefined): string[] => {
+    if (!str) return [];
+    try {
+      return JSON.parse(str);
+    } catch {
+      return [];
+    }
+  };
+
+  // Parse HTML content safely
+  const parseHtml = (html: string | undefined): string => {
+    if (!html) return "";
+    // Remove HTML tags and decode entities
+    return html
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .trim();
+  };
+
+  if (loading) {
+    return (
+      <footer className="bg-black text-white pt-20 pb-6">
+        <div className="w-10/12 mx-auto text-center py-10">
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </footer>
+    );
+  }
+
+  if (!footerData) {
+    return null;
+  }
+
+  const widgetOneLabels = parseJsonString(footerData.widget_one_labels);
+  const widgetOneLinks = parseJsonString(footerData.widget_one_links);
+  const widgetTwoLabels = parseJsonString(footerData.widget_two_labels);
+  const widgetTwoLinks = parseJsonString(footerData.widget_two_links);
+  const showSocialLinks = footerData.show_social_links === "on";
+
   return (
     <footer className="bg-black text-white pt-20 pb-6">
       {/* Outer Wrapper */}
@@ -19,107 +106,190 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* LEFT SECTION (4/12) */}
           <div className="md:col-span-4">
-            <h2 className="text-2xl font-semibold italic mb-2">
-              Like Telecom Ltd
-            </h2>
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">
-              Like Telecom is one of the most popular tech retailers in
-              Bangladesh, offering high-quality smartphones, Apple products,
-              gadgets, and accessories at the best prices. Visit our showrooms
-              in Bashundhara City and Jamuna Future Park for the best deals!
-            </p>
+            {/* Logo */}
+            {footerData.footer_logo && (
+              <div className="mb-4">
+                <Image
+                  src={footerData.footer_logo}
+                  alt="Footer Logo"
+                  width={150}
+                  height={50}
+                  className="object-contain"
+                />
+              </div>
+            )}
+
+            {/* About Description */}
+            {footerData.about_us_description && (
+              <p
+                className="text-gray-400 text-sm leading-relaxed mb-4"
+                dangerouslySetInnerHTML={{
+                  __html: footerData.about_us_description,
+                }}
+              />
+            )}
 
             {/* Social Icons */}
-            <div className="flex items-center gap-3 mb-4">
-              <a
-                href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
-              >
-                <FaTiktok className="text-white text-sm" />
-              </a>
-              <a
-                href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
-              >
-                <FaInstagram className="text-white text-sm" />
-              </a>
-              <a
-                href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
-              >
-                <FaYoutube className="text-white text-sm" />
-              </a>
-              <a
-                href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
-              >
-                <FaFacebookF className="text-white text-sm" />
-              </a>
-            </div>
+            {showSocialLinks && (
+              <div className="flex items-center gap-3 mb-4">
+                {footerData.facebook_link && (
+                  <a
+                    href={footerData.facebook_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                  >
+                    <FaFacebookF className="text-white text-sm" />
+                  </a>
+                )}
+                {footerData.instagram_link && (
+                  <a
+                    href={footerData.instagram_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                  >
+                    <FaInstagram className="text-white text-sm" />
+                  </a>
+                )}
+                {footerData.youtube_link && (
+                  <a
+                    href={footerData.youtube_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                  >
+                    <FaYoutube className="text-white text-sm" />
+                  </a>
+                )}
+                {footerData.twitter_link && (
+                  <a
+                    href={footerData.twitter_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                  >
+                    <FaTwitter className="text-white text-sm" />
+                  </a>
+                )}
+              </div>
+            )}
 
-            {/* Payment Icons */}
-            <div className="flex gap-4 items-center">
-<p className="text-sm font-medium mb-2">Pay With</p>
-            <div className="flex items-center gap-4 text-3xl ">
-              <FaCcVisa className="text-blue-400 transition" />
-              <FaCcMastercard className="text-red-500 transition" />
-              <FaCcAmex className="text-blue-300 transition" />
-              <FaCcPaypal className="text-blue-500 transition" />
-           
-            </div>
-            </div>
-            
+            {/* Payment Method Image */}
+            {footerData.payment_method_images && (
+              <div className="flex flex-row items-center gap-2">
+                <p className="text-sm font-medium mb-2">Pay With</p>
+                <div className="relative h-12 w-48">
+                  <Image
+                    src={footerData.payment_method_images}
+                    alt="Payment Methods"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* RIGHT SECTION (8/12) */}
           <div className="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* About Us */}
+            {/* About Us - Static */}
             <div>
               <h3 className="text-md font-semibold mb-3">About Us</h3>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li>Regarding Us</li>
-                <li>Terms and Conditions</li>
-                <li>Career</li>
+                <li>
+                  <Link href="/about-us" className="hover:text-white transition">
+                    Regarding Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="hover:text-white transition">
+                    Terms and Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/career" className="hover:text-white transition">
+                    Career
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Important Link */}
-            <div>
-              <h3 className="text-md font-semibold mb-3">Important Link</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li>Delivery Policy</li>
-                <li>Point Policy</li>
-                <li>Return Policy</li>
-                <li>Refund Policy</li>
-                <li>Cancellation Policy</li>
-                <li>Privacy Policy</li>
-                <li>Warranty Policy</li>
-              </ul>
-            </div>
+            {/* Widget One */}
+            {footerData.widget_one && widgetOneLabels.length > 0 && (
+              <div>
+                <h3 className="text-md font-semibold mb-3">
+                  {footerData.widget_one}
+                </h3>
+                <ul className="space-y-2 text-gray-400 text-sm">
+                  {widgetOneLabels.map((label, index) => (
+                    <li key={index}>
+                      <Link
+                        href={widgetOneLinks[index] || "#"}
+                        className="hover:text-white transition"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-            {/* Help Us */}
-            <div>
-              <h3 className="text-md font-semibold mb-3">Help Us</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li>Contact Us</li>
-                <li>Exchange</li>
-                <li>Enouncement</li>
-                <li>EMI Charge</li>
-                <li>Bank Transfer</li>
-              </ul>
-            </div>
+            {/* Widget Two */}
+            {footerData.widget_two && widgetTwoLabels.length > 0 && (
+              <div>
+                <h3 className="text-md font-semibold mb-3">
+                  {footerData.widget_two}
+                </h3>
+                <ul className="space-y-2 text-gray-400 text-sm">
+                  {widgetTwoLabels.map((label, index) => (
+                    <li key={index}>
+                      <Link
+                        href={widgetTwoLinks[index] || "#"}
+                        className="hover:text-white transition"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Contact Us */}
             <div>
               <h3 className="text-md font-semibold mb-3">Contact Us</h3>
               <ul className="space-y-2 text-gray-400 text-sm mb-4">
-                <li>+88019854812348</li>
-                <li>+88019854812348</li>
-                <li>liketele@gmail.com</li>
+                {footerData.helpline_number && (
+                  <li>
+                    <a
+                      href={`tel:${footerData.helpline_number}`}
+                      className="hover:text-white transition"
+                    >
+                      {footerData.helpline_number}
+                    </a>
+                  </li>
+                )}
+                {footerData.contact_email && (
+                  <li>
+                    <a
+                      href={`mailto:${footerData.contact_email}`}
+                      className="hover:text-white transition"
+                    >
+                      {footerData.contact_email}
+                    </a>
+                  </li>
+                )}
+                {footerData.contact_address && (
+                  <li className="text-xs leading-relaxed">
+                    {footerData.contact_address}
+                  </li>
+                )}
               </ul>
 
               {/* Store Locator with Google Map */}
-              <div className="rounded-md overflow-hidden w-40 h-[100px]">
+              <div className="rounded-md overflow-hidden w-full h-[150px]">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902087158993!2d90.42027327536774!3d23.750857288811812!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b89832a89a67%3A0x9b4a955a8ed6f9b4!2sJamuna%20Future%20Park!5e0!3m2!1sen!2sbd!4v1699786046284!5m2!1sen!2sbd"
                   width="100%"
@@ -136,9 +306,14 @@ const Footer = () => {
       </div>
 
       {/* Bottom Copyright */}
-      <div className="text-center text-gray-500 text-sm mt-6">
-        Copyright © 2025 Alif Hossain. All rights reserved.
-      </div>
+      {footerData.frontend_copyright_text && (
+        <div
+          className="text-center text-gray-500 text-sm mt-6"
+          dangerouslySetInnerHTML={{
+            __html: footerData.frontend_copyright_text,
+          }}
+        />
+      )}
     </footer>
   );
 };

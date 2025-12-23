@@ -103,6 +103,7 @@ const ratingCount = product.rating_count; // e.g. 123
                 otherFeatures={product.other_features}
                 currentStock={product.current_stock}
                 sku={product.model_number || "iPhone-13-saq"}
+                variants={product.variants || []}
               />
 
 
@@ -305,11 +306,13 @@ const ratingCount = product.rating_count; // e.g. 123
 </div>
 <div className="">
       <PriceTable
-        categoryName={product.brand?.name || product.name}
+        categoryName={product.category_info?.category_name || product.brand?.name || product.name}
         categorySlug={categorySlug}
         location="Bangladesh"
         year={new Date().getFullYear()}
         data={product.priceTableData || []}
+        latestPriceList={product.latest_price_list || []}
+        categoryInfo={product.category_info}
       />
     </div>
     </div>

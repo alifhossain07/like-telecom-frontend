@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { FiMail } from "react-icons/fi";
-import Loader from "@/components/ui/Loader";
+import NewsLetterBannerSkeleton from "@/components/Skeletons/NewsLetterBannerSkeleton";
 
 type HomeBottomBanner = {
   image: string;
@@ -47,11 +47,7 @@ const NewsletterBanner: React.FC = () => {
 
   // -------- LOADING --------
   if (loading) {
-    return (
-      <div className="w-11/12 mx-auto mt-12 h-[280px] rounded-xl bg-gray-100 flex items-center justify-center">
-        <Loader />
-      </div>
-    );
+    return <NewsLetterBannerSkeleton />;
   }
 
   if (!data) return null;

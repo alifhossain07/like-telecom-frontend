@@ -8,6 +8,14 @@ interface ChoiceOption {
   options: string[];
 }
 
+interface Variant {
+  variant: string;
+  price: number;
+  sku: string;
+  qty: number;
+  image: string | null;
+}
+
 interface ProductVariantsProps {
   choiceOptions?: ChoiceOption[];
   colors?: string[];
@@ -17,6 +25,8 @@ interface ProductVariantsProps {
   initialColor?: string;
   initialStorage?: string;
   initialRegion?: string;
+  variants?: Variant[];
+  onVariantChange?: (variant: Variant | null) => void;
 }
 
 const ProductVariants: React.FC<ProductVariantsProps> = ({
@@ -28,11 +38,16 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
   initialColor,
   initialStorage,
   initialRegion,
+  variants = [],
+  onVariantChange,
 }) => {
   // State for selected variants
   const [selectedColor, setSelectedColor] = useState<string>(initialColor || colors[0] || '');
   const [selectedStorage, setSelectedStorage] = useState<string>(initialStorage || '');
   const [selectedRegion, setSelectedRegion] = useState<string>(initialRegion || '');
+  const [currentVariant, setCurrentVariant] = useState<Variant | null>(null);
+  const [displayStock, setDisplayStock] = useState<number | undefined>(currentStock);
+  const [displaySku, setDisplaySku] = useState<string>(sku || '');
 
   // Initialize selections from choice options
   useEffect(() => {
@@ -45,6 +60,41 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       }
     });
   }, [choiceOptions, selectedStorage, selectedRegion]);
+
+  // Find matching variant based on selected options
+  useEffect(() => {
+    // Filter out invalid variants (empty objects or missing variant property)
+    const validVariants = variants.filter(
+      (v) => v && v.variant && v.sku
+    );
+
+    if (!selectedColor || !selectedStorage || !selectedRegion || validVariants.length === 0) {
+      setCurrentVariant(null);
+      setDisplayStock(currentStock);
+      setDisplaySku(sku || '');
+      onVariantChange?.(null);
+      return;
+    }
+
+    const colorName = getColorName(selectedColor);
+    const variantString = `${colorName}-${selectedStorage}-${selectedRegion}`;
+    
+    const matchedVariant = validVariants.find(
+      (v) => v.variant === variantString
+    );
+
+    if (matchedVariant) {
+      setCurrentVariant(matchedVariant);
+      setDisplayStock(matchedVariant.qty);
+      setDisplaySku(matchedVariant.sku);
+      onVariantChange?.(matchedVariant);
+    } else {
+      setCurrentVariant(null);
+      setDisplayStock(currentStock);
+      setDisplaySku(sku || '');
+      onVariantChange?.(null);
+    }
+  }, [selectedColor, selectedStorage, selectedRegion, variants, currentStock, sku, onVariantChange]);
 
   // Helper function to get color name from hex code
   const getColorName = (hex: string): string => {
@@ -112,18 +162,18 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       <div className="flex bg-gray-100 p-2 rounded-md items-center gap-4 mb-4 text-sm">
         <div>
           <span className="text-gray-600">Status: </span>
-          {currentStock === 0 ? (
+          {displayStock === 0 ? (
             <span className="text-red-600 font-semibold">Out of stock</span>
-          ) : currentStock && currentStock < 5 ? (
+          ) : displayStock && displayStock < 5 ? (
             <span className="text-orange-600 font-semibold">Low stock</span>
           ) : (
             <span className="text-green-600 font-semibold">Available</span>
           )}
         </div>
-        {sku && (
+        {displaySku && (
           <div>
             <span className="text-gray-600 border-l-2 border-gray-300 pl-2">SKU: </span>
-            <span className="text-gray-700 font-medium">{sku}</span>
+            <span className="text-gray-700 font-medium">{displaySku}</span>
           </div>
         )}
       </div>

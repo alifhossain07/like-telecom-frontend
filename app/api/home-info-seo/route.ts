@@ -4,8 +4,6 @@ import { NextResponse } from "next/server";
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
-type InfoRow = Record<string, string>;
-
 export async function GET() {
   try {
     const res = await fetch(`${API_BASE}/home-bottom-info`, {
@@ -18,25 +16,10 @@ export async function GET() {
 
     const seoJson = await res.json();
 
-    if (seoJson?.data?.[0]?.info_rows) {
-      const infoRows = seoJson.data[0].info_rows.map((item: InfoRow) => {
-        const titleKey = Object.keys(item).find((key): key is string =>
-          key.startsWith("title_")
-        );
-
-        const paragraphKey = Object.keys(item).find((key): key is string =>
-          key.startsWith("paragraph_")
-        );
-
-        return {
-          title: titleKey ? item[titleKey] : "",
-          paragraph: paragraphKey ? item[paragraphKey] : "",
-        };
-      });
-
+    if (seoJson?.data?.[0]) {
       return NextResponse.json({
         success: true,
-        rows: infoRows,
+        data: seoJson.data[0],
       });
     }
 
