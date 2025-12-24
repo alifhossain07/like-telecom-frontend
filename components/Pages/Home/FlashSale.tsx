@@ -43,9 +43,27 @@ const FlashSale = () => {
     let interval: NodeJS.Timeout | null = null;
     try {
       const res = await axios.get("/api/products/flashsale");
-      setBanner(res.data.banner);
+      
+      // Check if flash deal data is available
+      if (!res.data.success || !res.data.data || res.data.data.length === 0) {
+        setLoading(false);
+        return;
+      }
+      
+      // Find the flash deal with homepage: 1
+      const homepageFlashDeal = res.data.data.find((deal: any) => deal.homepage === 1);
+      
+      // If no homepage flash deal found, use the first one as fallback
+      const activeFlashDeal = homepageFlashDeal || res.data.data[0];
+      
+      if (!activeFlashDeal || !activeFlashDeal.banner || !activeFlashDeal.products?.data) {
+        setLoading(false);
+        return;
+      }
+      
+      setBanner(activeFlashDeal.banner);
 
-      const mappedProducts: Product[] = res.data.products.map((product: BackendProduct) => ({
+      const mappedProducts: Product[] = activeFlashDeal.products.data.map((product: BackendProduct) => ({
         id: product.id,
         name: product.name,
         slug: product.slug,
@@ -59,7 +77,7 @@ const FlashSale = () => {
 
       setProducts(mappedProducts);
 
-      const apiEndTime = res.data.date * 1000; // ms
+      const apiEndTime = activeFlashDeal.date * 1000; // ms
 
       interval = setInterval(() => {
         const currentTime = Date.now();

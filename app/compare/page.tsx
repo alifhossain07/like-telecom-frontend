@@ -301,7 +301,7 @@ const ComparePage: React.FC = () => {
     <div className="min-h-screen bg-[#f5f5f5] py-8">
       <div className="w-11/12 mx-auto max-w-7xl mx-auto">
         {/* Feature Cards Section */}
-        <div className="hidden grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="hidden md:grid md:grid-cols-3 gap-6 mb-8">
           {/* Save Time Card */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex flex-col items-start">
