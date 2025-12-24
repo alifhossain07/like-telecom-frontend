@@ -178,7 +178,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
 
   return (
     <div ref={searchRef} className="relative w-full">
-      <div className="relative flex items-center bg-gray-100 border border-gray-300 rounded-full overflow-hidden">
+      <div className="relative flex items-center bg-gray-100 border border-gray-300 rounded-full overflow-visible">
         <input
           type="text"
           value={query}
@@ -189,12 +189,12 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
             }
           }}
           placeholder={placeholder || "Search your favorite accessories"}
-          className="flex-1 px-4 py-2 bg-transparent text-gray-700 placeholder-gray-500 focus:outline-none"
+          className="flex-1 min-w-0 px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-1.5 lg:px-4 lg:py-2 bg-transparent text-gray-700 placeholder-gray-500 focus:outline-none text-[9px] sm:text-[10px] md:text-xs lg:text-base"
           disabled={loading}
         />
         {isSearching ? (
-          <div className="mr-2">
-            <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="mr-0.5 sm:mr-1 md:mr-1.5 lg:mr-2 flex-shrink-0">
+            <div className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
           <button
@@ -204,11 +204,11 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                 performSearch(query);
               }
             }}
-            className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors mr-1 flex-shrink-0"
+            className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors mr-0.5 sm:mr-0.5 md:mr-1 lg:mr-1 flex-shrink-0 z-10"
             aria-label="Search"
           >
             <svg
-              className="w-5 h-5"
+              className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

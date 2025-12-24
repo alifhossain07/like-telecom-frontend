@@ -299,9 +299,9 @@ const ComparePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] py-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-11/12 mx-auto max-w-7xl mx-auto">
         {/* Feature Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="hidden grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Save Time Card */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex flex-col items-start">
@@ -342,16 +342,16 @@ const ComparePage: React.FC = () => {
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Compare Products</h1>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Compare Products</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+        <div className="grid grid-cols-3 gap-0">
           {/* Empty Left Column - Aligns with attribute names column */}
-          <div className="bg-white border-r border-gray-200 p-6 hidden lg:block">
+          <div className="bg-white border-r border-gray-200 p-2 sm:p-4 lg:p-6">
             {/* Empty column for alignment */}
           </div>
 
           {/* Product 1 Column - Middle */}
-          <div className="bg-white border-r border-gray-200 p-6 flex flex-col">
+          <div className="bg-white border-r border-gray-200 p-2 sm:p-4 lg:p-6 flex flex-col">
             <ProductSearch
               onProductSelect={(product) => handleProductSelect(product, 1)}
               placeholder="Search and select first product..."
@@ -359,10 +359,10 @@ const ComparePage: React.FC = () => {
             />
 
             {product1 ? (
-              <div className="mt-6 flex-1 flex flex-col">
+              <div className="mt-3 sm:mt-4 lg:mt-6 flex-1 flex flex-col">
                 {/* Product Image */}
-                <div className="flex justify-center mb-4">
-                  <div className="relative w-64 h-64">
+                <div className="flex justify-center mb-2 sm:mb-3 lg:mb-4">
+                  <div className="relative w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64">
                     <Image
                       src={getProductImage(product1)}
                       alt={product1.name}
@@ -373,13 +373,13 @@ const ComparePage: React.FC = () => {
                 </div>
 
                 {/* Product Name and Remove Button */}
-                <div className="flex items-start justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex-1 pr-4">
+                <div className="flex flex-col items-center mb-2 sm:mb-3 lg:mb-4">
+                  <h2 className="text-[10px] sm:text-xs md:text-sm lg:text-xl font-semibold text-gray-900 text-center mb-1 sm:mb-2 min-h-[2.5em] sm:min-h-[3em] lg:min-h-0 flex items-center justify-center line-clamp-2">
                     {product1.name}
                   </h2>
                   <button
                     onClick={() => handleRemoveProduct(1)}
-                    className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition flex-shrink-0"
+                    className="px-2 py-1 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 bg-red-500 text-white text-[9px] sm:text-xs lg:text-sm font-medium rounded hover:bg-red-600 transition"
                   >
                     Remove
                   </button>
@@ -389,38 +389,41 @@ const ComparePage: React.FC = () => {
                 {(() => {
                   const { price, oldPrice, discount } = getProductPrices(product1);
                   return (
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex flex-col items-center gap-1 sm:gap-2 mb-2 sm:mb-3 lg:mb-4">
                       {/* Current Price */}
-                      <span className="text-xl font-bold text-orange-500">
+                      <span className="text-xs sm:text-sm md:text-base lg:text-xl font-bold text-orange-500">
                         ৳{price.toLocaleString()}
                       </span>
                       
-                      {/* Discount Badge */}
-                      {discount > 0 && (
-                        <span className="bg-green-100 text-green-700 font-bold text-sm px-2 py-1 rounded">
-                          {discount}% OFF
-                        </span>
-                      )}
-                      
-                      {/* Original Price */}
-                      {oldPrice > price && (
-                        <span className="text-gray-400 line-through text-lg">
-                          ৳{oldPrice.toLocaleString()}
-                        </span>
-                      )}
+                      {/* Discount Badge and Original Price */}
+                      <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
+                        {/* Discount Badge */}
+                        {discount > 0 && (
+                          <span className="bg-green-100 text-green-700 font-bold text-[8px] sm:text-[10px] lg:text-sm px-1 sm:px-1.5 lg:px-2 py-0.5 sm:py-1 rounded">
+                            {discount}% OFF
+                          </span>
+                        )}
+                        
+                        {/* Original Price */}
+                        {oldPrice > price && (
+                          <span className="text-gray-400 line-through text-[10px] sm:text-xs lg:text-lg">
+                            ৳{oldPrice.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })()}
               </div>
             ) : (
-              <div className="mt-6 flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
-                <p className="text-gray-400">No product selected</p>
+              <div className="mt-3 sm:mt-4 lg:mt-6 flex items-center justify-center h-20 sm:h-32 md:h-48 lg:h-64 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-gray-400 text-[10px] sm:text-xs lg:text-sm text-center">No product selected</p>
               </div>
             )}
           </div>
 
           {/* Product 2 Column - Right */}
-          <div className="bg-white p-6 flex flex-col">
+          <div className="bg-white p-2 sm:p-4 lg:p-6 flex flex-col">
             <ProductSearch
               onProductSelect={(product) => handleProductSelect(product, 2)}
               placeholder="Search and select second product..."
@@ -428,10 +431,10 @@ const ComparePage: React.FC = () => {
             />
 
             {product2 ? (
-              <div className="mt-6 flex-1 flex flex-col">
+              <div className="mt-3 sm:mt-4 lg:mt-6 flex-1 flex flex-col">
                 {/* Product Image */}
-                <div className="flex justify-center mb-4">
-                  <div className="relative w-64 h-64">
+                <div className="flex justify-center mb-2 sm:mb-3 lg:mb-4">
+                  <div className="relative w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64">
                     <Image
                       src={getProductImage(product2)}
                       alt={product2.name}
@@ -442,13 +445,13 @@ const ComparePage: React.FC = () => {
                 </div>
 
                 {/* Product Name and Remove Button */}
-                <div className="flex items-start justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex-1 pr-4">
+                <div className="flex flex-col items-center mb-2 sm:mb-3 lg:mb-4">
+                  <h2 className="text-[10px] sm:text-xs md:text-sm lg:text-xl font-semibold text-gray-900 text-center mb-1 sm:mb-2 min-h-[2.5em] sm:min-h-[3em] lg:min-h-0 flex items-center justify-center line-clamp-2">
                     {product2.name}
                   </h2>
                   <button
                     onClick={() => handleRemoveProduct(2)}
-                    className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition flex-shrink-0"
+                    className="px-2 py-1 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 bg-red-500 text-white text-[9px] sm:text-xs lg:text-sm font-medium rounded hover:bg-red-600 transition"
                   >
                     Remove
                   </button>
@@ -458,25 +461,28 @@ const ComparePage: React.FC = () => {
                 {(() => {
                   const { price, oldPrice, discount } = getProductPrices(product2);
                   return (
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex flex-col items-center gap-1 sm:gap-2 mb-2 sm:mb-3 lg:mb-4">
                       {/* Current Price */}
-                      <span className="text-xl font-bold text-orange-500">
+                      <span className="text-xs sm:text-sm md:text-base lg:text-xl font-bold text-orange-500">
                         ৳{price.toLocaleString()}
                       </span>
                       
-                      {/* Discount Badge */}
-                      {discount > 0 && (
-                        <span className="bg-green-100 text-green-700 font-bold text-sm px-2 py-1 rounded">
-                          {discount}% OFF
-                        </span>
-                      )}
-                      
-                      {/* Original Price */}
-                      {oldPrice > price && (
-                        <span className="text-gray-400 line-through text-lg">
-                          ৳{oldPrice.toLocaleString()}
-                        </span>
-                      )}
+                      {/* Discount Badge and Original Price */}
+                      <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
+                        {/* Discount Badge */}
+                        {discount > 0 && (
+                          <span className="bg-green-100 text-green-700 font-bold text-[8px] sm:text-[10px] lg:text-sm px-1 sm:px-1.5 lg:px-2 py-0.5 sm:py-1 rounded">
+                            {discount}% OFF
+                          </span>
+                        )}
+                        
+                        {/* Original Price */}
+                        {oldPrice > price && (
+                          <span className="text-gray-400 line-through text-[10px] sm:text-xs lg:text-lg">
+                            ৳{oldPrice.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })()}
@@ -488,8 +494,8 @@ const ComparePage: React.FC = () => {
                 
               </div>
             ) : (
-              <div className="mt-6 flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
-                <p className="text-gray-400">No product selected</p>
+              <div className="mt-3 sm:mt-4 lg:mt-6 flex items-center justify-center h-20 sm:h-32 md:h-48 lg:h-64 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-gray-400 text-[10px] sm:text-xs lg:text-sm text-center">No product selected</p>
               </div>
             )}
           </div>
@@ -497,7 +503,7 @@ const ComparePage: React.FC = () => {
 
         {/* Aligned Specifications Table - Spans both columns */}
         {(product1 || product2) && (
-          <div className="bg-white border-t border-gray-200">
+          <div className="bg-white border-t border-gray-200 overflow-x-auto">
             <AlignedSpecifications 
               product1={product1} 
               product2={product2}

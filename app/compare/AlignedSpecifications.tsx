@@ -164,40 +164,40 @@ const AlignedSpecifications: React.FC<AlignedSpecificationsProps> = ({
   };
 
   return (
-    <div className="w-full">
-      <table className="w-full border-collapse">
+    <div className="w-full min-w-full">
+      <table className="w-full border-collapse text-[9px] sm:text-xs md:text-sm">
         <tbody>
           {/* Product Info Rows - Brand, Short Description, Warranty */}
           <tr className="border-b border-gray-200">
-            <td className="border-r border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 w-1/3">
+            <td className="border-r border-gray-200 bg-gray-50 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 font-medium text-gray-700 w-1/3">
               Brand
             </td>
-            <td className="border-r border-gray-200 px-4 py-3 text-sm text-gray-600 w-1/3">
+            <td className="border-r border-gray-200 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
               {brand1 || "-"}
             </td>
-            <td className="px-4 py-3 text-sm text-gray-600 w-1/3">
+            <td className="px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
               {brand2 || "-"}
             </td>
           </tr>
           <tr className="border-b border-gray-200">
-            <td className="border-r border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 w-1/3">
+            <td className="border-r border-gray-200 bg-gray-50 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 font-medium text-gray-700 w-1/3">
               Short Description
             </td>
-            <td className="border-r border-gray-200 px-4 py-3 text-sm text-gray-600 w-1/3">
+            <td className="border-r border-gray-200 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
               {shortDescription1 || "-"}
             </td>
-            <td className="px-4 py-3 text-sm text-gray-600 w-1/3">
+            <td className="px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
               {shortDescription2 || "-"}
             </td>
           </tr>
           <tr className="border-b border-gray-200">
-            <td className="border-r border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 w-1/3">
+            <td className="border-r border-gray-200 bg-gray-50 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 font-medium text-gray-700 w-1/3">
               Warranty
             </td>
-            <td className="border-r border-gray-200 px-4 py-3 text-sm text-gray-600 w-1/3">
+            <td className="border-r border-gray-200 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
               {warranty1 || "-"}
             </td>
-            <td className="px-4 py-3 text-sm text-gray-600 w-1/3">
+            <td className="px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
               {warranty2 || "-"}
             </td>
           </tr>
@@ -209,7 +209,7 @@ const AlignedSpecifications: React.FC<AlignedSpecificationsProps> = ({
               <tr>
                 <td
                   colSpan={3}
-                  className="border-b border-gray-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-600"
+                  className="border-b border-gray-200 bg-red-50 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 font-bold text-red-600"
                 >
                   {section.title.toUpperCase()}
                 </td>
@@ -231,15 +231,15 @@ const AlignedSpecifications: React.FC<AlignedSpecificationsProps> = ({
                 return (
                   <tr key={`${section.title}-${attr.name}-${attrIndex}`} className="border-b border-gray-200">
                     {/* Attribute Name Column */}
-                    <td className="border-r border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 w-1/3">
+                    <td className="border-r border-gray-200 bg-gray-50 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 font-medium text-gray-700 w-1/3">
                       {attr.name}
                     </td>
                     {/* Product 1 Value Column */}
-                    <td className="border-r border-gray-200 px-4 py-3 text-sm text-gray-600 w-1/3">
+                    <td className="border-r border-gray-200 px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
                       {value1 || "-"}
                     </td>
                     {/* Product 2 Value Column */}
-                    <td className="px-4 py-3 text-sm text-gray-600 w-1/3">
+                    <td className="px-1 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 lg:px-4 lg:py-3 text-gray-600 w-1/3">
                       {value2 || "-"}
                     </td>
                   </tr>
