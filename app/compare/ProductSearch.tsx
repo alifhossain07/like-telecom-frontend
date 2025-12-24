@@ -1,0 +1,255 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+
+interface Product {
+  id: number;
+  slug: string;
+  name: string;
+  thumbnail_image?: string;
+  main_price?: string | number;
+}
+
+interface ProductSearchProps {
+  onProductSelect: (product: Product) => void;
+  placeholder?: string;
+  loading?: boolean;
+}
+
+const ProductSearch: React.FC<ProductSearchProps> = ({
+  onProductSelect,
+  placeholder = "Search for products...",
+  loading = false,
+}) => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Product[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const delaySearch = setTimeout(() => {
+      if (query.trim().length >= 2) {
+        performSearch(query);
+      } else {
+        setResults([]);
+        setShowResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delaySearch);
+  }, [query]);
+
+  const performSearch = async (searchQuery: string) => {
+    setIsSearching(true);
+    try {
+      const res = await fetch(
+        `/api/products/search?suggest=1&query_key=${encodeURIComponent(
+          searchQuery
+        )}&type=product`
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Extract products from the response
+        // The API can return suggestions in different formats
+        let products: Product[] = [];
+        let suggestions: any[] = [];
+        
+        // Try different response structures (handle nested data.data structure)
+        if (Array.isArray(data)) {
+          suggestions = data;
+        } else if (data.data) {
+          // Handle nested structure: { success: true, data: { data: [...] } }
+          if (Array.isArray(data.data)) {
+            suggestions = data.data;
+          } else if (data.data.data && Array.isArray(data.data.data)) {
+            suggestions = data.data.data;
+          } else if (data.data.suggestions && Array.isArray(data.data.suggestions)) {
+            suggestions = data.data.suggestions;
+          } else if (data.data.items && Array.isArray(data.data.items)) {
+            suggestions = data.data.items;
+          }
+        } else if (data.suggestions && Array.isArray(data.suggestions)) {
+          suggestions = data.suggestions;
+        } else if (data.items && Array.isArray(data.items)) {
+          suggestions = data.items;
+        }
+        
+        // Filter and map suggestions to products
+        products = suggestions
+          .filter((item: any) => {
+            // Must have either slug or name/query
+            const hasSlug = item.slug && typeof item.slug === 'string';
+            const hasName = (item.name || item.query) && typeof (item.name || item.query) === 'string';
+            return hasSlug || hasName;
+          })
+          .slice(0, 10) // Limit to 10 results
+          .map((item: any) => {
+            // Get slug - try different possible locations
+            const slug = item.slug || 
+                        (item.seo && item.seo.slug) || 
+                        (item.links && item.links.details && item.links.details.split('/').pop()) ||
+                        '';
+            
+            // Get name
+            const name = item.name || item.query || '';
+            
+            // Get image
+            const thumbnail_image = item.thumbnail_image || 
+                                   item.image || 
+                                   item.thumbnail_img || 
+                                   '';
+            
+            // Get price
+            const main_price = item.main_price || 
+                             item.price || 
+                             item.base_discounted_price ||
+                             '';
+            
+            return {
+              id: item.id || slug || name,
+              slug: slug,
+              name: name,
+              thumbnail_image: thumbnail_image,
+              main_price: main_price,
+            };
+          })
+          .filter((p: Product) => p.slug && p.name); // Only include products with both slug and name
+
+        console.log("Search results:", products);
+        setResults(products);
+        setShowResults(products.length > 0);
+      } else {
+        console.error("Search API error:", res.status, res.statusText);
+        setResults([]);
+        setShowResults(false);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setResults([]);
+      setShowResults(false);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectProduct = async (product: Product) => {
+    // Fetch full product data if we only have basic info
+    if (product.slug && (!product.id || !product.name)) {
+      try {
+        const res = await fetch(`/api/products/${product.slug}`);
+        if (res.ok) {
+          const fullProduct = await res.json();
+          onProductSelect(fullProduct);
+        } else {
+          // If fetch fails, use the basic product data
+          onProductSelect(product);
+        }
+      } catch (error) {
+        console.error("Error fetching full product:", error);
+        // If fetch fails, use the basic product data
+        onProductSelect(product);
+      }
+    } else {
+      onProductSelect(product);
+    }
+    setQuery("");
+    setShowResults(false);
+  };
+
+  return (
+    <div ref={searchRef} className="relative w-full">
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => {
+            if (results.length > 0) {
+              setShowResults(true);
+            }
+          }}
+          placeholder={placeholder}
+          className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          disabled={loading}
+        />
+        <svg
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        {isSearching && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+      </div>
+
+      {/* Search Results Dropdown */}
+      {showResults && results.length > 0 && (
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+          {results.map((product) => (
+            <button
+              key={product.id}
+              onClick={() => handleSelectProduct(product)}
+              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition text-left border-b last:border-b-0"
+            >
+              {product.thumbnail_image && (
+                <div className="relative w-12 h-12 flex-shrink-0">
+                  <Image
+                    src={product.thumbnail_image}
+                    alt={product.name}
+                    fill
+                    className="object-contain rounded"
+                  />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {product.name}
+                </p>
+                {product.main_price && (
+                  <p className="text-xs text-gray-500">
+                    {typeof product.main_price === "string"
+                      ? product.main_price
+                      : `৳${product.main_price}`}
+                  </p>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProductSearch;
+

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaShoppingCart } from "react-icons/fa";
+import { FaCodeCompare } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 interface CartSidebarProps {
   externalOpen: boolean;
   setExternalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,12 +28,71 @@ interface CartItem {
 }
 
 export default function CartSidebar({ externalOpen, setExternalOpen }: CartSidebarProps) {
-  const { cart, increaseQty, decreaseQty, removeFromCart, selectedItems, setSelectedItems } = useCart();
+  const { cart, increaseQty, decreaseQty, removeFromCart, selectedItems, setSelectedItems, cartOpen, setCartOpen } = useCart();
   const [mounted, setMounted] = useState(false);
+  const [compareCount, setCompareCount] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
+    updateCompareCount();
+    
+    // Listen for storage changes to update count (for cross-tab updates)
+    const handleStorageChange = () => {
+      updateCompareCount();
+    };
+    
+    // Listen for custom events when compare is updated in same window
+    const handleCompareUpdate = () => {
+      updateCompareCount();
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("compareUpdated", handleCompareUpdate);
+    
+    // Also poll periodically to catch any changes
+    const interval = setInterval(updateCompareCount, 1000);
+    
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("compareUpdated", handleCompareUpdate);
+      clearInterval(interval);
+    };
   }, []);
+
+  const updateCompareCount = () => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("compareProducts");
+      if (stored) {
+        try {
+          const compareProducts: string[] = JSON.parse(stored);
+          setCompareCount(compareProducts.length);
+        } catch (e) {
+          setCompareCount(0);
+        }
+      } else {
+        setCompareCount(0);
+      }
+    }
+  };
+
+  const handleCompareClick = () => {
+    router.push("/compare");
+  };
+
+  // Sync cartOpen from context with externalOpen prop
+  useEffect(() => {
+    if (cartOpen && !externalOpen) {
+      setExternalOpen(true);
+    }
+  }, [cartOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync externalOpen prop with cartOpen context when closed externally
+  useEffect(() => {
+    if (!externalOpen && cartOpen) {
+      setCartOpen(false);
+    }
+  }, [externalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const typedCart: CartItem[] = cart;
 
@@ -44,7 +105,8 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
         const missingItems = allItemIds.filter(id => !prev.includes(id));
         if (missingItems.length > 0) {
           // Add missing items to selection
-          return [...new Set([...prev, ...missingItems])];
+          const combined = [...prev, ...missingItems];
+          return Array.from(new Set(combined));
         }
         return prev;
       });
@@ -84,33 +146,65 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
   return (
     <>
       {/* Floating Cart Button */}
-     <button
-  onClick={() => setExternalOpen(true)}
-  className="fixed hidden lg:flex flex-col right-0 top-1/2 -translate-y-1/2 z-[10001] shadow-xl rounded-l-3xl overflow-hidden transform hover:scale-105 transition"
->
-  <div className="w-[90px] bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col items-center py-3">
-    {/* Icon */}
-    <div className="w-8 h-8 flex items-center justify-center bg-white text-orange-500 rounded-full">
-      <FaShoppingCart className="w-5 h-5" />
-    </div>
+      <button
+        onClick={() => setExternalOpen(true)}
+        className="fixed hidden lg:flex items-center justify-center
+                   right-2 top-1/2 -translate-y-1/2 z-[10001]
+                   rounded-l-full overflow-visible
+                   transform hover:scale-105 transition"
+      >
+        <div className="relative">
+          {/* Cart Icon */}
+          <div className="w-12 h-12 flex items-center justify-center bg-orange-500 text-white rounded-full">
+            <FaShoppingCart className="w-6 h-6" />
+          </div>
 
-    {/* Items count */}
-    <span className="text-xs mt-2">
-      *{mounted ? typedCart.length.toString().padStart(2, "0") : "00"} Items
-    </span>
-  </div>
+          {/* Item Count Badge */}
+          <span className="absolute -top-1 -right-1
+                           min-w-[20px] h-[20px]
+                           flex items-center justify-center
+                           bg-red-600 text-white text-[10px] font-semibold
+                           rounded-full px-1">
+            {mounted ? typedCart.length : 0}
+          </span>
+        </div>
+      </button>
 
-  {/* Total */}
-  <div className="bg-orange-500 text-white text-center py-2 font-semibold text-sm">
-    {mounted
-      ? `৳${typedCart.reduce((acc, item) => acc + item.price * item.qty, 0).toLocaleString()}`
-      : "৳0"}
-  </div>
-</button>
+      {/* Floating Compare Button */}
+      <button
+        onClick={handleCompareClick}
+        className="fixed hidden lg:flex items-center justify-center
+                   right-2 top-[calc(50%+38px)] -translate-y-0 z-[10001]
+                   rounded-l-full overflow-visible
+                   transform hover:scale-105 transition"
+      >
+        <div className="relative">
+          {/* Compare Icon */}
+          <div className="w-12 h-12 flex items-center justify-center bg-orange-500 text-white rounded-full">
+            <FaCodeCompare className="w-6 h-6" />
+          </div>
+
+          {/* Compare Count Badge */}
+          {mounted && compareCount > 0 && (
+            <span className="absolute -top-1 -right-1
+                             min-w-[20px] h-[20px]
+                             flex items-center justify-center
+                             bg-red-600 text-white text-[10px] font-semibold
+                             rounded-full px-1">
+              {compareCount}
+            </span>
+          )}
+        </div>
+      </button>
+
+
 
       {/* Overlay */}
       {externalOpen && (
-        <div onClick={() => setExternalOpen(false)} className="fixed inset-0 bg-black/30 z-[9998]" />
+        <div onClick={() => {
+          setExternalOpen(false);
+          setCartOpen(false);
+        }} className="fixed inset-0 bg-black/30 z-[9998]" />
       )}
 
       {/* Sidebar */}
@@ -127,7 +221,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
             </span>
           </div>
          
-          <button onClick={() => setExternalOpen(false)} className="text-white text-2xl">
+          <button onClick={() => {
+            setExternalOpen(false);
+            setCartOpen(false);
+          }} className="text-white text-2xl">
             ✕
           </button>
         </div>
@@ -275,7 +372,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
     </div>
 
     {/* Checkout Button */}
-    <Link href="/checkout" onClick={() => setExternalOpen(false)}>
+    <Link href="/checkout" onClick={() => {
+      setExternalOpen(false);
+      setCartOpen(false);
+    }}>
       <button
         disabled={selectedItems.length === 0}
         className={`w-full py-3 rounded-xl font-semibold transition ${

@@ -5,10 +5,30 @@ import React from 'react';
 
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h1 className="text-[26px] font-semi text-gray-800 mb-4">Please log in to view your profile</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h1 className="text-[26px] font-semi text-gray-800 mb-8">Welcome, {user ? user.name : 'User'}!</h1>
+      <h1 className="text-[26px] font-semi text-gray-800 mb-8">Welcome, {user.name}!</h1>
       <h2 className="text-lg text-gray-600 mb-6">My Account Information</h2>
 
       <form className="space-y-5">
@@ -17,39 +37,44 @@ export default function ProfilePage() {
           <label className="block text-sm font-medium mb-2">Full-name *</label>
           <input 
             type="text" 
+            value={user.name}
             placeholder="Enter Name" 
             className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+            readOnly
           />
         </div>
 
         {/* Email Address */}
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1">
-            <label className="block text-sm font-medium mb-2">E-mail address *</label>
+            <label className="block text-sm font-medium mb-2">E-mail address {user.email_verified_at ? '(Verified)' : ''}</label>
             <input 
               type="email" 
-              placeholder="Enter Email" 
+              value={user.email || ''}
+              placeholder="No email provided" 
               className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+              readOnly
             />
           </div>
-          <button type="button" className="md:mt-7 bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-8 rounded-lg transition-colors">
-            Send OTP
-          </button>
+          {!user.email_verified_at && (
+            <button type="button" className="md:mt-7 bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-8 rounded-lg transition-colors">
+              Verify Email
+            </button>
+          )}
         </div>
 
-        {/* Name / Phone */}
+        {/* Phone Number */}
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1">
-            <label className="block text-sm font-medium mb-2">Number *</label>
+            <label className="block text-sm font-medium mb-2">Phone Number *</label>
             <input 
               type="text" 
-              placeholder="Enter Name" 
+              value={user.phone || ''}
+              placeholder="No phone provided" 
               className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+              readOnly
             />
           </div>
-          <button type="button" className="md:mt-7 bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-8 rounded-lg transition-colors">
-            Send OTP
-          </button>
         </div>
 
         {/* Birthday and Gender */}
@@ -72,14 +97,99 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* User Type */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Account Type</label>
+          <input 
+            type="text" 
+            value={user.user_type || 'customer'} 
+            className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all capitalize"
+            readOnly
+          />
+        </div>
+
+        {/* Balance */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Account Balance</label>
+          <input 
+            type="text" 
+            value={`৳${user.balance || 0}`}
+            className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+            readOnly
+          />
+        </div>
+
         {/* Full Address */}
         <div>
-          <label className="block text-sm font-semibold mb-2">Full Address*</label>
+          <label className="block text-sm font-semibold mb-2">Full Address</label>
           <textarea 
             rows={3}
-            placeholder="Enter Name" 
+            value={user.address || ''}
+            placeholder="No address provided" 
             className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+            readOnly
           ></textarea>
+        </div>
+
+        {/* Location Details */}
+        {(user.city || user.state || user.country || user.postal_code) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {user.country && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Country</label>
+                <input 
+                  type="text" 
+                  value={user.country}
+                  className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+                  readOnly
+                />
+              </div>
+            )}
+            {user.state && (
+              <div>
+                <label className="block text-sm font-medium mb-2">State</label>
+                <input 
+                  type="text" 
+                  value={user.state}
+                  className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+                  readOnly
+                />
+              </div>
+            )}
+            {user.city && (
+              <div>
+                <label className="block text-sm font-medium mb-2">City</label>
+                <input 
+                  type="text" 
+                  value={user.city}
+                  className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+                  readOnly
+                />
+              </div>
+            )}
+            {user.postal_code && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Postal Code</label>
+                <input 
+                  type="text" 
+                  value={user.postal_code}
+                  className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+                  readOnly
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Account Created Date */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Member Since</label>
+          <input 
+            type="text" 
+            value={user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+            className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
+            readOnly
+          />
         </div>
 
         {/* Submit Button */}

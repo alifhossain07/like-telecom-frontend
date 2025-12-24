@@ -2,6 +2,7 @@
 import axios from "axios";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import toast from "react-hot-toast";
 import { useForm, Controller } from "react-hook-form";
@@ -10,6 +11,7 @@ import * as yup from "yup";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { FaMoneyBillWave } from "react-icons/fa";
+import OrderCompleteModal from "@/components/checkout/OrderCompleteModal";
 // ------------------------- Types -------------------------
 interface CartItem {
   id: string | number;
@@ -94,7 +96,10 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
 const CheckoutPage: React.FC = () => {
   const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart, clearCart } =
     useCart();
+  const { user } = useAuth();
   const router = useRouter();
+  const [showOrderCompleteModal, setShowOrderCompleteModal] = React.useState(false);
+  const [completedOrderId, setCompletedOrderId] = React.useState<string | null>(null);
 
   // Filter selected items
   const selectedCart: CartItem[] = cart.filter((item) =>
@@ -119,6 +124,7 @@ const CheckoutPage: React.FC = () => {
     control,
     watch,
     setValue,
+    getValues,
     formState: { errors, isValid },
   } = useForm<CheckoutFormData>({
     resolver: yupResolver(schema),
@@ -392,6 +398,27 @@ const CheckoutPage: React.FC = () => {
       cancelled = true;
     };
   }, []);
+
+  // Pre-fill form with user data when logged in
+  React.useEffect(() => {
+    if (user) {
+      // Only pre-fill if fields are currently empty (don't overwrite user input)
+      const currentValues = getValues();
+      
+      if (!currentValues.name && user.name) {
+        setValue("name", user.name, { shouldValidate: false });
+      }
+      if (!currentValues.mobile && user.phone) {
+        setValue("mobile", user.phone, { shouldValidate: false });
+      }
+      if (!currentValues.email && user.email) {
+        setValue("email", user.email, { shouldValidate: false });
+      }
+      if (!currentValues.address && user.address) {
+        setValue("address", user.address, { shouldValidate: false });
+      }
+    }
+  }, [user, setValue, getValues]);
 
   // Shipping charges (dynamic from config)
   const insideDhaka = shippingConfig?.shipping_cost_inside_dhaka ?? 60;
@@ -668,19 +695,19 @@ window.dataLayer.push({
               sessionStorage.setItem("lastOrder", JSON.stringify(orderSummary));
             } catch {}
 
-            // Navigate with orderId when available
-            const nextHref = `/checkout/ordercomplete${transactionId ? `?orderId=${encodeURIComponent(transactionId)}` : ""}`;
-            // Clear and navigate after persisting
+            // Clear cart and show order complete modal
             clearCart();
-            router.push(nextHref);
+            setCompletedOrderId(transactionId || null);
+            setShowOrderCompleteModal(true);
             return;
           }
         } catch (e) {
           console.error("Failed to push purchase event", e);
         }
-        // Fallback navigation if window/data persistence failed
+        // Fallback: show modal even if analytics failed
         clearCart();
-        router.push("/checkout/ordercomplete");
+        setCompletedOrderId(null);
+        setShowOrderCompleteModal(true);
       } else {
         toast.error(response.data.message || "Failed to place order ❌");
       }
@@ -1121,6 +1148,13 @@ window.dataLayer.push({
 
       {/* ------------------------- Payment Modal ------------------------- */}
       {/* Online payment modal removed. Future implementation can be added here. */}
+
+      {/* ------------------------- Order Complete Modal ------------------------- */}
+      <OrderCompleteModal
+        isOpen={showOrderCompleteModal}
+        onClose={() => setShowOrderCompleteModal(false)}
+        orderId={completedOrderId}
+      />
     </div>
   );
 };

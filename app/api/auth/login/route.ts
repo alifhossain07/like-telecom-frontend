@@ -14,15 +14,20 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
+    // Ensure login_by is set to "phone" and use "phone" field instead of "email"
+    const loginBody = {
+      login_by: "phone",
+      phone: body.phone || body.email, // Support both for backward compatibility
+      password: body.password,
+    };
+
     const res = await fetch(`${apiBase}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "System-Key": systemKey,
-        // Or, if your backend expects bearer-style:
-        // "Authorization": `Bearer ${systemKey}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(loginBody),
     });
 
     const data = await res.json();

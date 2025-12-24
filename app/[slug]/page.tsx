@@ -9,7 +9,8 @@ import ProductList from "./ProductList";
 import FAQ from "./FAQ";
 import ProductDetails from "./ProductDetails";
 import PriceTable from "./PriceTable";
-import ProductVariants from "./ProductVariants";
+import ProductActions from "./ProductActions";
+import AddToCompare from "./AddToCompare";
 
 // Data fetching logic
 import { notFound } from 'next/navigation';
@@ -86,79 +87,25 @@ const ratingCount = product.rating_count; // e.g. 123
               <div className="">
                 <div className="flex items-baseline gap-3 mb-2 flex-wrap">
                   <span className="md:text-[26px] text-[22px] font-bold text-orange-600">{product.main_price}</span>
-                  <span className="text-[16px] text-gray-400 line-through">{product.stroked_price}</span>
-
-                  <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
-                    {product.discount} off
-                  </span>
+                  {product.discount && 
+                   product.discount !== "0%" && 
+                   product.discount !== "0" && 
+                   product.discount !== "" && 
+                   product.discount !== 0 && (
+                    <>
+                      <span className="text-[16px] text-gray-400 line-through">{product.stroked_price}</span>
+                      <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
+                        {product.discount} off
+                      </span>
+                    </>
+                  )}
                   {/* <span className="px-3 py-1 bg-[#FFEFCC] text-[#FFB20B] text-sm font-semibold rounded-2xl">
                     Earn 200-Points
                   </span> */}
                 </div>
               </div>
-              {/* Product Variants - Color, Storage, Region */}
-              <ProductVariants
-                choiceOptions={product.choice_options || []}
-                colors={product.colors || []}
-                otherFeatures={product.other_features}
-                currentStock={product.current_stock}
-                sku={product.model_number || "iPhone-13-saq"}
-                variants={product.variants || []}
-              />
-
-
-              {/* Region Options */}
-              {/* <div className="flex bg-[#f4f4f4] items-center p-2 mb-3">
-                <div className=" text-sm font-medium text-gray-700 mr-5 ">Region: </div>
-                <div className="flex flex-wrap gap-2">
-                  <button className="px-4 py-1 rounded text-[12px] font-medium transition bg-gray-900 text-white">International</button>
-                  <button className="px-4 py-1 rounded text-[12px] font-medium transition bg-[#E5E5E5] text-gray-700 hover:bg-gray-300">Usa</button>
-                  <button className="px-4 py-1 rounded text-[12px] font-medium transition bg-[#E5E5E5] text-gray-700 hover:bg-gray-300">China</button>
-                </div>
-              </div> */}
-
-              {/* Quantity Selector */}
-              <div className="mb-4 flex items-center ">
-                <div className=" text-sm font-medium text-gray-700 mr-3 ">Quantity:  </div>
-                <div className="flex items-center  gap-4">
-                  <div className="flex items-center w-[90px] bg-[#f4f4f4] h-[38px] border border-gray-300 rounded overflow-hidden">
-
-                    {/* Minus */}
-                    <button className="w-[42px] h-[13px] text-xs md:text-lg md:w-[42px] md:h-[20px] bg-orange-500 rounded-full text-white hover:text-black ml-1 flex items-center justify-center  font-semibold  hover:bg-gray-100 transition">
-                      −
-                    </button>
-
-                    {/* Quantity */}
-                    <input type="text" value={1} readOnly className="w-full h-full bg-[#f4f4f4] text-center text-sm font-medium text-gray-800 focus:outline-none" />
-
-                    {/* Plus */}
-                    <button className="w-[42px] h-[13px] text-xs md:text-lg md:w-[42px] md:h-[20px] rounded-full text-white flex bg-orange-500 items-center justify-center  font-semibold  hover:text-black mr-1 hover:bg-gray-100 transition">
-                      +
-                    </button>
-
-                  </div>
-
-                  <span className="md:text-sm text-[12px] text-[#B3D9C5] font-bold">
-                    Call For Online Order (09678-664664)
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 mb-4">
-                <button className="flex-1 2xl:text-base text-xs bg-gray-800 text-white px-6 py-3 rounded font-semibold hover:bg-gray-900 transition flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Add to Cart
-                </button>
-                <button className="flex-1 2xl:text-base text-xs bg-orange-500 text-white px-6 py-3 rounded font-semibold hover:bg-orange-600 transition flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                  Buy Now
-                </button>
-              </div>
+              {/* Product Variants, Quantity Selector, and Action Buttons */}
+              <ProductActions product={product} />
 
               {/* Messaging Options */}
               <div className="flex gap-3">
@@ -231,10 +178,7 @@ const ratingCount = product.rating_count; // e.g. 123
 
               {/* Secondary Action Buttons */}
               <div className="flex gap-2 mb-3">
-                <button className="flex-1 px-4 py-4 border border-gray-300 rounded text-sm font-medium bg-[#f4f4f4] hover:bg-gray-50 transition flex items-center justify-center gap-2">
-                  <FaBalanceScale className="w-4 h-4" />
-                  Add Compare
-                </button>
+                <AddToCompare product={product} />
                 <button className="flex-1 px-4 py-4 border bg-[#f4f4f4]  border-gray-300 rounded text-sm font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2">
                   <FaHeart className="w-4 h-4" />
                   Add Wishlist

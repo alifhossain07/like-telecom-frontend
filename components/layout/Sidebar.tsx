@@ -7,6 +7,7 @@ import {
 } from "react-icons/hi";
 import { MdOutlineEdit } from "react-icons/md";
 import Image from "next/image";
+import { useAuth } from "@/app/context/AuthContext";
 
 
 const menuItems = [
@@ -21,6 +22,7 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
 
 
 
@@ -30,8 +32,8 @@ export default function Sidebar() {
       <div className="flex flex-row lg:flex-col items-center p-4 lg:py-8 border-b lg:border-none border-gray-50">
         <div className="relative">
           <Image 
-            src="images/avatar.png" 
-            alt="Avatar" 
+            src={user?.avatar_original || user?.avatar || "/images/avatar.png"} 
+            alt={user?.name || "Avatar"} 
             width={500}
             height={500}
             className="rounded-full w-12 h-12 lg:w-24 lg:h-24 object-cover border-2 border-gray-100" 
@@ -41,8 +43,12 @@ export default function Sidebar() {
           </button>
         </div>
         <div className="ml-4 lg:ml-0 lg:text-center">
-          <h2 className="font-bold lg:mt-4 text-base lg:text-lg text-gray-800 leading-tight">Like Telecom</h2>
-          <p className="text-xs lg:text-sm text-gray-500 font-medium">Points: 200</p>
+          <h2 className="font-bold lg:mt-4 text-base lg:text-lg text-gray-800 leading-tight">
+            {user?.name || "User"}
+          </h2>
+          <p className="text-xs lg:text-sm text-gray-500 font-medium">
+            Balance: ৳{user?.balance || 0}
+          </p>
         </div>
       </div>
 

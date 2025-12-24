@@ -27,6 +27,9 @@ interface ProductVariantsProps {
   initialRegion?: string;
   variants?: Variant[];
   onVariantChange?: (variant: Variant | null) => void;
+  onColorChange?: (color: string) => void;
+  onStorageChange?: (storage: string) => void;
+  onRegionChange?: (region: string) => void;
 }
 
 const ProductVariants: React.FC<ProductVariantsProps> = ({
@@ -40,6 +43,9 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
   initialRegion,
   variants = [],
   onVariantChange,
+  onColorChange,
+  onStorageChange,
+  onRegionChange,
 }) => {
   // State for selected variants
   const [selectedColor, setSelectedColor] = useState<string>(initialColor || colors[0] || '');
@@ -200,8 +206,10 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                   onClick={() => {
                     if (choice.title === 'Storage') {
                       setSelectedStorage(option);
+                      onStorageChange?.(option);
                     } else if (choice.title === 'Region') {
                       setSelectedRegion(option);
+                      onRegionChange?.(option);
                     }
                   }}
                   className={`px-4 py-1 rounded text-[12px] font-base transition ${
@@ -232,7 +240,10 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
               return (
                 <div key={index} className="relative group">
                   <button
-                    onClick={() => setSelectedColor(color)}
+                    onClick={() => {
+                      setSelectedColor(color);
+                      onColorChange?.(color);
+                    }}
                     style={{ backgroundColor: color }}
                     className={`w-[24px] h-[24px] rounded-md border-2 transition ${
                       isSelected
