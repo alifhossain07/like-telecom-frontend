@@ -46,6 +46,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Session expired - auto logout
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(SESSION_TIMESTAMP_KEY);
+      if (typeof window !== "undefined") {
+        document.cookie = `${STORAGE_KEY}=; path=/; max-age=0`;
+      }
       setAccessToken(null);
       setUser(null);
       setLoading(false);
@@ -65,6 +68,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (isMounted) {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(SESSION_TIMESTAMP_KEY);
+          if (typeof window !== "undefined") {
+            document.cookie = `${STORAGE_KEY}=; path=/; max-age=0`;
+          }
           setAccessToken(null);
           setUser(null);
         }
@@ -85,6 +91,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setAccessToken(null);
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(SESSION_TIMESTAMP_KEY);
+        if (typeof window !== "undefined") {
+          document.cookie = `${STORAGE_KEY}=; path=/; max-age=0`;
+        }
         
         // Optionally call logout API
         if (token) {
@@ -108,11 +117,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await apiLogin(args);
       if (!res.result) throw new Error(res.message || "Login failed");
       
-      // Store token and timestamp
+      // Store token and timestamp in localStorage and cookie
       const token = res.access_token;
       setAccessToken(token);
       localStorage.setItem(STORAGE_KEY, token);
       localStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
+      // Also store in cookie for Server Components to access
+      document.cookie = `${STORAGE_KEY}=${token}; path=/; max-age=${SESSION_DURATION_MS / 1000}; SameSite=Lax`;
       
       // Fetch full user profile using Bearer token
       try {
@@ -140,11 +151,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await apiSignup(args);
       if (!res.result) throw new Error(res.message || "Signup failed");
       
-      // Store token and timestamp
+      // Store token and timestamp in localStorage and cookie
       const token = res.access_token;
       setAccessToken(token);
       localStorage.setItem(STORAGE_KEY, token);
       localStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
+      // Also store in cookie for Server Components to access
+      document.cookie = `${STORAGE_KEY}=${token}; path=/; max-age=${SESSION_DURATION_MS / 1000}; SameSite=Lax`;
       
       // Fetch full user profile using Bearer token
       try {
@@ -170,6 +183,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(SESSION_TIMESTAMP_KEY);
+      // Also clear cookie
+      document.cookie = `${STORAGE_KEY}=; path=/; max-age=0`;
     }
 
     // Call logout API to invalidate token on server (if token exists)

@@ -1,20 +1,41 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   try {
     const { slug } = params;
 
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Debug logging
+    console.log("Product API Route - Bearer Token:", bearerToken ? "Present" : "Not present");
+    console.log("Product API Route - Request Headers:", Object.fromEntries(req.headers.entries()));
+
+    // Build headers:
+    // - System-Key: Always required for API access
+    // - Authorization: Only included if bearerToken is available (logged-in users)
+    //   When present, backend automatically records product view in last_viewed_products table
+    //   Guest users can still view products without Authorization header
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "System-Key": SYSTEM_KEY,
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+    
+    console.log("Product API Route - Headers being sent to backend:", {
+      "System-Key": SYSTEM_KEY ? "Present" : "Missing",
+      "Authorization": bearerToken ? "Present" : "Not present"
+    });
+
     const res = await fetch(`${API_BASE}/products/${slug}`, {
-      headers: {
-        Accept: "application/json",
-        "System-Key": SYSTEM_KEY,
-      },
+      headers,
       cache: "no-cache",
     });
 

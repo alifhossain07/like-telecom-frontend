@@ -14,6 +14,7 @@ import AddToCompare from "./AddToCompare";
 
 // Data fetching logic
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import ImageGallery from "@/components/ui/ImageGallery";
 interface PageParams {
   params: { slug: string }
@@ -25,11 +26,36 @@ type FeaturedSpec = {
 
 export default async function ProductPage({ params }: PageParams) {
   const { slug } = params;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/products/${slug}`, {
+  
+  // Get auth token from cookie (set by client-side login)
+  const cookieStore = cookies();
+  const authToken = cookieStore.get('like_auth_token')?.value;
+  
+  // Call backend API directly with System-Key and Authorization (if available)
+  // This ensures the backend records last-viewed products for logged-in users
+  const API_BASE = process.env.API_BASE!;
+  const SYSTEM_KEY = process.env.SYSTEM_KEY!;
+  
+  const headers: Record<string, string> = {
+    'Accept': 'application/json',
+    'System-Key': SYSTEM_KEY,
+    ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+  };
+  
+  const res = await fetch(`${API_BASE}/products/${slug}`, {
     cache: 'no-store',
+    headers,
   });
+  
   if (!res.ok) return notFound();
-  const product = await res.json();
+  
+  const json = await res.json();
+  
+  if (!json.success || !json.data || json.data.length === 0) {
+    return notFound();
+  }
+  
+  const product = json.data[0];
 
 
 
