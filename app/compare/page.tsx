@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import ProductSearch from "./ProductSearch";
 import AlignedSpecifications from "./AlignedSpecifications";
+import { FaClock, FaPiggyBank, FaAward } from "react-icons/fa";
 
 interface Product {
   id: number;
@@ -30,6 +31,9 @@ interface Product {
   seo?: {
     slug?: string;
   };
+  main_price?: string | number;
+  stroked_price?: string | number;
+  discount?: string;
 }
 
 const ComparePage: React.FC = () => {
@@ -270,9 +274,74 @@ const ComparePage: React.FC = () => {
     return product.other_features || "";
   };
 
+  // Parse price string to number
+  const parsePrice = (priceStr: string | number | undefined): number => {
+    if (!priceStr) return 0;
+    if (typeof priceStr === "number") return priceStr;
+    const cleaned = String(priceStr).replace(/[^\d.]/g, "");
+    return parseFloat(cleaned) || 0;
+  };
+
+  // Calculate discount percentage
+  const calculateDiscount = (price: number, oldPrice: number): number => {
+    if (!oldPrice || oldPrice <= price) return 0;
+    return Math.round(((oldPrice - price) / oldPrice) * 100);
+  };
+
+  // Get product prices
+  const getProductPrices = (product: Product | null) => {
+    if (!product) return { price: 0, oldPrice: 0, discount: 0 };
+    const price = parsePrice(product.main_price);
+    const oldPrice = parsePrice(product.stroked_price);
+    const discount = calculateDiscount(price, oldPrice);
+    return { price, oldPrice, discount };
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
+        {/* Feature Cards Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Save Time Card */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex flex-col items-start">
+              <div className="mb-4">
+                <FaClock className="w-12 h-12 text-black" />
+              </div>
+              <h3 className="text-xl font-semibold text-orange-500 mb-2">Save Time</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Compare products quickly and make informed decisions without wasting hours.
+              </p>
+            </div>
+          </div>
+
+          {/* Save Money Card */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex flex-col items-start">
+              <div className="mb-4">
+                <FaPiggyBank className="w-12 h-12 text-black" />
+              </div>
+              <h3 className="text-xl font-semibold text-orange-500 mb-2">Save Money</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Find the best deals and get the most value out of every purchase.
+              </p>
+            </div>
+          </div>
+
+          {/* Best Choices Card */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex flex-col items-start">
+              <div className="mb-4">
+                <FaAward className="w-12 h-12 text-black" />
+              </div>
+              <h3 className="text-xl font-semibold text-orange-500 mb-2">Best Choices</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Access trusted reviews, ratings, and product info to make confident choices.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Compare Products</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
@@ -315,6 +384,33 @@ const ComparePage: React.FC = () => {
                     Remove
                   </button>
                 </div>
+
+                {/* Price Information */}
+                {(() => {
+                  const { price, oldPrice, discount } = getProductPrices(product1);
+                  return (
+                    <div className="flex items-center gap-3 mb-4">
+                      {/* Current Price */}
+                      <span className="text-xl font-bold text-orange-500">
+                        ৳{price.toLocaleString()}
+                      </span>
+                      
+                      {/* Discount Badge */}
+                      {discount > 0 && (
+                        <span className="bg-green-100 text-green-700 font-bold text-sm px-2 py-1 rounded">
+                          {discount}% OFF
+                        </span>
+                      )}
+                      
+                      {/* Original Price */}
+                      {oldPrice > price && (
+                        <span className="text-gray-400 line-through text-lg">
+                          ৳{oldPrice.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             ) : (
               <div className="mt-6 flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
@@ -357,6 +453,33 @@ const ComparePage: React.FC = () => {
                     Remove
                   </button>
                 </div>
+
+                {/* Price Information */}
+                {(() => {
+                  const { price, oldPrice, discount } = getProductPrices(product2);
+                  return (
+                    <div className="flex items-center gap-3 mb-4">
+                      {/* Current Price */}
+                      <span className="text-xl font-bold text-orange-500">
+                        ৳{price.toLocaleString()}
+                      </span>
+                      
+                      {/* Discount Badge */}
+                      {discount > 0 && (
+                        <span className="bg-green-100 text-green-700 font-bold text-sm px-2 py-1 rounded">
+                          {discount}% OFF
+                        </span>
+                      )}
+                      
+                      {/* Original Price */}
+                      {oldPrice > price && (
+                        <span className="text-gray-400 line-through text-lg">
+                          ৳{oldPrice.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Brand */}
                

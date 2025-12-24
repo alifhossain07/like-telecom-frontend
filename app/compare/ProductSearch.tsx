@@ -178,7 +178,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
 
   return (
     <div ref={searchRef} className="relative w-full">
-      <div className="relative">
+      <div className="relative flex items-center bg-gray-100 border border-gray-300 rounded-full overflow-hidden">
         <input
           type="text"
           value={query}
@@ -188,27 +188,39 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
               setShowResults(true);
             }
           }}
-          placeholder={placeholder}
-          className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          placeholder={placeholder || "Search your favorite accessories"}
+          className="flex-1 px-4 py-2 bg-transparent text-gray-700 placeholder-gray-500 focus:outline-none"
           disabled={loading}
         />
-        <svg
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-        {isSearching && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+        {isSearching ? (
+          <div className="mr-2">
             <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              if (query.trim().length >= 2) {
+                performSearch(query);
+              }
+            }}
+            className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors mr-1 flex-shrink-0"
+            aria-label="Search"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
         )}
       </div>
 
