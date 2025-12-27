@@ -8,6 +8,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
+import DynamicPopup from "@/components/layout/DynamicPopup";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -87,6 +88,7 @@ export default function RootLayout({
       <body className={`${poppins.variable} antialiased`}>
         <AuthProvider>
           <CartProvider>
+            <DynamicPopup />
             <Navbar />
             <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
             <Footer />

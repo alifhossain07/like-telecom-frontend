@@ -128,7 +128,7 @@ const Navbar = () => {
   const simplePages = [
     { name: "About Us", href: "/" },
     { name: "Our Blog", href: "/" },
-    { name: "Contact Us", href: "/" },
+    { name: "Contact Us", href: "/contact" },
     { name: "Authentication", href: "/" },
   ];
 

@@ -96,7 +96,7 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
 const CheckoutPage: React.FC = () => {
   const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart, clearCart } =
     useCart();
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const router = useRouter();
   const [showOrderCompleteModal, setShowOrderCompleteModal] = React.useState(false);
   const [completedOrderId, setCompletedOrderId] = React.useState<string | null>(null);
@@ -607,7 +607,17 @@ const CheckoutPage: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post("/api/orders", payload);
+      
+      // Get the bearer token from AuthContext (stored in localStorage as like_auth_token)
+      const token = accessToken;
+      
+      // Build headers with Authorization if user is logged in
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      };
+      
+      const response = await axios.post("/api/orders", payload, { headers });
 
       if (response.data.success && response.data.data?.result) {
         toast.success(response.data.data.message || "Order placed successfully! 🎉");

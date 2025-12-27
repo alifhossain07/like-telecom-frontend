@@ -102,7 +102,7 @@ const AllFlashDealsPage = () => {
   return (
     <div className="w-11/12 mx-auto pt-10 pb-[56px] min-h-[80vh]">
       {/* Header */}
-      <div className="mb-7">
+      <div className="mb-7 text-center">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-medium mb-2">
           All Flash Deals
         </h1>
@@ -130,12 +130,12 @@ const AllFlashDealsPage = () => {
 
               {/* Banner Image */}
               {deal.banner && (
-                <div className="relative w-full h-64 bg-gray-50">
+                <div className="relative w-full h-96 bg-gray-50">
                   <Image
                     src={deal.banner}
                     alt={deal.title}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
               )}

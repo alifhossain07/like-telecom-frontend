@@ -34,7 +34,8 @@ type FooterField =
   | "helpline_number"
   | "contact_address"
   | "payment_method_images"
-  | "contact_email";
+  | "contact_email"
+  | "google_map_iframe";
 
 const FOOTER_FIELDS = new Set<FooterField>([
   "footer_logo",
@@ -56,6 +57,7 @@ const FOOTER_FIELDS = new Set<FooterField>([
   "contact_address",
   "payment_method_images",
   "contact_email",
+  "google_map_iframe",
 ]);
 
 function isFooterField(type: string): type is FooterField {

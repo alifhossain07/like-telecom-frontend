@@ -31,6 +31,7 @@ interface FooterData {
   contact_address?: string;
   payment_method_images?: string;
   contact_email?: string;
+  google_map_iframe?: string;
 }
 
 const Footer = () => {
@@ -98,6 +99,17 @@ const Footer = () => {
   const widgetTwoLabels = parseJsonString(footerData.widget_two_labels);
   const widgetTwoLinks = parseJsonString(footerData.widget_two_links);
   const showSocialLinks = footerData.show_social_links === "on";
+
+  // Transform footer page links to use /footer/{slug} format
+  // Only transform relative links that don't start with /footer, /, #, or http
+  const transformFooterLink = (link: string): string => {
+    if (!link || link === "#" || link.startsWith("http") || link.startsWith("/footer/") || link === "/") {
+      return link;
+    }
+    // Remove leading slash if present, then add /footer/ prefix
+    const slug = link.startsWith("/") ? link.slice(1) : link;
+    return `/footer/${slug}`;
+  };
 
   return (
     <footer className="bg-black text-white pt-20 pb-6">
@@ -225,7 +237,7 @@ const Footer = () => {
                   {widgetOneLabels.map((label, index) => (
                     <li key={index}>
                       <Link
-                        href={widgetOneLinks[index] || "#"}
+                        href={transformFooterLink(widgetOneLinks[index] || "#")}
                         className="hover:text-white transition"
                       >
                         {label}
@@ -246,7 +258,7 @@ const Footer = () => {
                   {widgetTwoLabels.map((label, index) => (
                     <li key={index}>
                       <Link
-                        href={widgetTwoLinks[index] || "#"}
+                        href={transformFooterLink(widgetTwoLinks[index] || "#")}
                         className="hover:text-white transition"
                       >
                         {label}
@@ -289,17 +301,19 @@ const Footer = () => {
               </ul>
 
               {/* Store Locator with Google Map */}
-              <div className="rounded-md overflow-hidden w-full h-[150px]">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902087158993!2d90.42027327536774!3d23.750857288811812!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b89832a89a67%3A0x9b4a955a8ed6f9b4!2sJamuna%20Future%20Park!5e0!3m2!1sen!2sbd!4v1699786046284!5m2!1sen!2sbd"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
+              {footerData.google_map_iframe && (
+                <div className="rounded-md overflow-hidden w-full h-[150px]">
+                  <iframe
+                    src={footerData.google_map_iframe}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div>
+              )}
             </div>
           </div>
         </div>
