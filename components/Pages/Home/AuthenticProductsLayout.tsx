@@ -82,15 +82,26 @@ const AuthenticProductsLayout: React.FC = () => {
           </div>
 
           {/* 2️⃣ Image */}
-          <div className="rounded-xl overflow-hidden shadow bg-black flex items-center justify-center h-[330px]">
-            <Image
-              src={data.banner_image_one}
-              alt="Banner Image One"
-              width={500}
-              height={400}
-              className="object-contain w-full h-full rounded-lg"
-            />
-          </div>
+          {data.banner_image_one && data.banner_image_one.trim() !== '' ? (
+            <div className="rounded-xl overflow-hidden shadow bg-black flex items-center justify-center h-[330px]">
+              <Image
+                src={data.banner_image_one}
+                alt="Banner Image One"
+                width={500}
+                height={400}
+                className="object-contain w-full h-full rounded-lg"
+                unoptimized
+                onError={(e) => {
+                  console.error("Failed to load banner_image_one:", data.banner_image_one);
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          ) : (
+            <div className="rounded-xl overflow-hidden shadow bg-black flex items-center justify-center h-[330px]">
+              <span className="text-gray-400 text-sm">No image available</span>
+            </div>
+          )}
 
           {/* 3️⃣ Text */}
           <div className="bg-gradient-to-b from-orange-50 to-orange-100 rounded-xl shadow p-6">
@@ -120,15 +131,26 @@ const AuthenticProductsLayout: React.FC = () => {
           </div>
 
           {/* 2️⃣ Image */}
-          <div className="rounded-xl overflow-hidden shadow bg-gray-900 flex items-center justify-center h-[330px] flex-shrink-0">
-            <Image
-              src={data.banner_image_two}
-              alt="Banner Image Two"
-              width={500}
-              height={400}
-              className="object-contain w-full h-full rounded-lg"
-            />
-          </div>
+          {data.banner_image_two && data.banner_image_two.trim() !== '' ? (
+            <div className="rounded-xl overflow-hidden shadow bg-gray-900 flex items-center justify-center h-[330px] flex-shrink-0">
+              <Image
+                src={data.banner_image_two}
+                alt="Banner Image Two"
+                width={500}
+                height={400}
+                className="object-contain w-full h-full rounded-lg"
+                unoptimized
+                onError={(e) => {
+                  console.error("Failed to load banner_image_two:", data.banner_image_two);
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          ) : (
+            <div className="rounded-xl overflow-hidden shadow bg-gray-900 flex items-center justify-center h-[330px] flex-shrink-0">
+              <span className="text-gray-400 text-sm">No image available</span>
+            </div>
+          )}
 
           {/* 3️⃣ Text - expands to fill remaining space */}
           <div className="bg-gradient-to-b from-green-50 to-green-100 rounded-xl shadow p-6 flex-grow">

@@ -133,10 +133,27 @@ export async function fetchProfile(access_token: string): Promise<User> {
       "Authorization": `Bearer ${access_token}`,
     },
   });
+  
   if (!res.ok) {
-    throw new Error("Fetching profile failed");
+    // For 401, token is invalid/expired
+    if (res.status === 401) {
+      throw new Error("Unauthorized - Invalid or expired token");
+    }
+    // Try to get error message from response
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Fetching profile failed");
+    } catch {
+      throw new Error(`Fetching profile failed: ${res.status} ${res.statusText}`);
+    }
   }
+  
   const data: UserInfoResponse = await res.json();
+  
+  // Validate that we have the required data
+  if (!data || !data.id) {
+    throw new Error("Invalid user data received");
+  }
   
   // Map the response to User interface
   return {

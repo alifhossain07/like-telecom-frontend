@@ -38,8 +38,20 @@ export async function GET(req: NextRequest) {
         "Content-Type": "application/json",
         "System-Key": systemKey,
         "Authorization": `Bearer ${bearerToken}`,
+        "Accept": "application/json",
       },
     });
+
+    // Check if response is JSON
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await res.text();
+      console.error("Non-JSON response from backend:", text.substring(0, 500));
+      return NextResponse.json(
+        { result: false, message: "Backend API returned an error. Please check the server logs." },
+        { status: 500 }
+      );
+    }
 
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
