@@ -160,7 +160,7 @@ const CompareSpecifications: React.FC<CompareSpecificationsProps> = ({
           </tr>
         </thead>
         <tbody>
-          {FIXED_SPECIFICATIONS.map((section, sectionIndex) => (
+          {FIXED_SPECIFICATIONS.map((section) => (
             <React.Fragment key={section.title}>
               {/* Section Header Row */}
               <tr>

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 // Proxies external contact/page API - fetches from like.test/api/v2/contact/page
-export async function GET(req: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(_req: NextRequest) {
   const API_BASE = process.env.API_BASE;
   const SYSTEM_KEY = process.env.SYSTEM_KEY;
 

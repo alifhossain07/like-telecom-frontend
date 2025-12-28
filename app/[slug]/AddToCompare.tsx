@@ -41,7 +41,7 @@ const AddToCompare: React.FC<AddToCompareProps> = ({ product }) => {
     if (storedCompare) {
       try {
         compareProducts = JSON.parse(storedCompare);
-      } catch (e) {
+      } catch {
         compareProducts = [];
       }
     }

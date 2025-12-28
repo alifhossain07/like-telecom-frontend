@@ -9,7 +9,6 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React from "react";
-import { useRouter } from "next/navigation";
 import { FaMoneyBillWave } from "react-icons/fa";
 import OrderCompleteModal from "@/components/checkout/OrderCompleteModal";
 // ------------------------- Types -------------------------
@@ -97,7 +96,6 @@ const CheckoutPage: React.FC = () => {
   const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart, clearCart } =
     useCart();
   const { user, accessToken } = useAuth();
-  const router = useRouter();
   const [showOrderCompleteModal, setShowOrderCompleteModal] = React.useState(false);
   const [completedOrderId, setCompletedOrderId] = React.useState<string | null>(null);
 
@@ -155,7 +153,6 @@ const CheckoutPage: React.FC = () => {
   const [districtQuery, setDistrictQuery] = React.useState<string>("");
   const [districtsLoading, setDistrictsLoading] = React.useState<boolean>(false);
   const [districtOpen, setDistrictOpen] = React.useState<boolean>(false);
-  const districtDebounceRef = React.useRef<number | undefined>(undefined);
   
   // States/Upazilas state
   const [states, setStates] = React.useState<StateOption[]>([]);
@@ -881,7 +878,7 @@ window.dataLayer.push({
                           <div className="p-2 text-sm text-gray-500">No districts available. Please try again.</div>
                         ) : filteredDistricts.length === 0 ? (
                           <div className="p-2 text-sm text-gray-500">
-                            No districts found matching "{districtQuery}"
+                            No districts found matching &quot;{districtQuery}&quot;
                           </div>
                         ) : (
                           filteredDistricts.map((district) => (

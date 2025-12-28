@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { LuGift } from "react-icons/lu"; // Gift icon for the empty state
 
 export default function CouponPage() {
@@ -20,12 +21,14 @@ export default function CouponPage() {
         </div>
 
         {/* --- Promotional Banner Section --- */}
-        <div className="relative w-full overflow-hidden rounded-xl shadow-md">
+        <div className="relative w-full overflow-hidden rounded-xl shadow-md min-h-[180px]">
           {/* Replace the src with your actual banner image path */}
-          <img 
+          <Image 
             src="/path-to-your-banner.jpg" 
             alt="Promotion Banner"
-            className="w-full h-auto object-cover min-h-[180px]"
+            width={800}
+            height={180}
+            className="w-full h-auto object-cover"
           />
           
           {/* Fallback styling if image is missing to show the black aesthetics */}

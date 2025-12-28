@@ -210,6 +210,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       price: productMainPrice,
       oldPrice: productStrokedPrice
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product, selectedColor, selectedStorage, selectedRegion]);
 
   const handleConfirmAdd = () => {

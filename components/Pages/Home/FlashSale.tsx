@@ -51,7 +51,7 @@ const FlashSale = () => {
       }
       
       // Find the flash deal with homepage: 1
-      const homepageFlashDeal = res.data.data.find((deal: any) => deal.homepage === 1);
+      const homepageFlashDeal = res.data.data.find((deal: { homepage?: number }) => deal.homepage === 1);
       
       // If no homepage flash deal found, use the first one as fallback
       const activeFlashDeal = homepageFlashDeal || res.data.data[0];

@@ -5,7 +5,7 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { FaStar, FaShoppingBag } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 import ProductOptionsModal from "@/components/ui/ProductOptionsModal";
 
 interface Product {
@@ -96,15 +96,6 @@ const FlashDealDetailsPage = () => {
 
     return () => clearInterval(interval);
   }, [flashDeal]);
-
-  const calculateDiscount = (mainPrice: string, strokedPrice: string) => {
-    const main = parseFloat(mainPrice.replace(/[^\d.]/g, ""));
-    const stroked = parseFloat(strokedPrice.replace(/[^\d.]/g, ""));
-    if (stroked > main) {
-      return Math.round(((stroked - main) / stroked) * 100);
-    }
-    return 0;
-  };
 
   const startIndex = (currentPage - 1) * productsPerPage;
   const endIndex = startIndex + productsPerPage;

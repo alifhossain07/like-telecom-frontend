@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import axios from "axios";
 import BankDetailsContent from "@/components/footer/BankDetailsContent";
+
 import EMIContent from "@/components/footer/EMIContent";
 import BrandsPage from "@/components/footer/BrandsPage";
 
@@ -9,7 +10,7 @@ interface PageData {
   title: string;
   slug: string;
   type: string;
-  content: string | any[];
+  content: string | string[];
   meta_title: string;
   meta_description: string;
   meta_image: string | null;
@@ -19,7 +20,7 @@ interface PageData {
   subtitle?: string;
   instruction_1?: string;
   instruction_2?: string;
-  bank_accounts?: any[];
+  bank_accounts?: unknown[];
 }
 
 async function getPageData(slug: string): Promise<PageData | null> {
@@ -90,7 +91,7 @@ export async function generateMetadata({
 }
 
 // Render HTML content safely
-function renderContent(content: string | any[]) {
+function renderContent(content: string | string[]) {
   if (!content) return null;
 
   // If content is a string (HTML), render it directly
@@ -229,12 +230,69 @@ export default async function FooterPage({
 
   // If it's an EMI page, render the EMI component
   if (isEMIPage) {
-    return <EMIContent data={pageData as any} />;
+    // Type assertion: EMI pages have content as object structure
+    // The component handles both string and object content with optional chaining
+    return <EMIContent data={pageData as unknown as Parameters<typeof EMIContent>[0]['data']} />;
   }
 
   // If it's a bank details page, render the special component
   if (isBankDetailsPage) {
-    return <BankDetailsContent data={pageData as any} />;
+    // Only render BankDetailsContent if content is the required object
+    if (
+      typeof pageData.content === "object" &&
+      pageData.content !== null &&
+      !Array.isArray(pageData.content)
+    ) {
+      type BankAccount = {
+        bank_name: string;
+        bank_icon: string;
+        account_name: string;
+        account_number: string;
+        branch: string;
+      };
+      type BankContent = {
+        subtitle?: string;
+        instruction_1?: string;
+        instruction_2?: string;
+        bank_accounts?: unknown[];
+      };
+      const contentObj = pageData.content as BankContent;
+      const subtitle = (contentObj.subtitle ?? pageData.subtitle) ?? "";
+      const instruction_1 = (contentObj.instruction_1 ?? pageData.instruction_1) ?? "";
+      const instruction_2 = (contentObj.instruction_2 ?? pageData.instruction_2) ?? "";
+      const bank_accounts = (contentObj.bank_accounts ?? pageData.bank_accounts ?? []) as BankAccount[];
+      const content: { subtitle: string; instruction_1: string; instruction_2: string; bank_accounts: BankAccount[] } = {
+        subtitle,
+        instruction_1,
+        instruction_2,
+        bank_accounts,
+      };
+      const bankDetailsData: React.ComponentProps<typeof BankDetailsContent>["data"] = {
+        ...pageData,
+        content,
+        subtitle,
+        instruction_1,
+        instruction_2,
+        bank_accounts,
+      };
+      return <BankDetailsContent data={bankDetailsData} />;
+    } else {
+      // Fallback: content is not the required object
+      return (
+        <div className="w-11/12 mx-auto my-10">
+          <div className="bg-white rounded-xl p-8 text-center min-h-[400px] flex items-center justify-center">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-800 mb-2">
+                Bank Details Not Available
+              </h1>
+              <p className="text-gray-600">
+                The bank details for this page are not available or are in an invalid format.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
 
   // Otherwise, render the default footer page layout
@@ -242,7 +300,7 @@ export default async function FooterPage({
     <div className="w-11/12 mx-auto my-10">
       <div className="bg-white rounded-xl p-6 md:p-8 lg:p-10">
         {/* Page Title */}
-        <h1 className="text-3xl bg-black text-white text-center md:text-3xl items-center font-semibold text-gray-800 py-3 border-b border-gray-200">
+        <h1 className="text-3xl bg-black text-white text-center md:text-3xl items-center font-semibold py-3 border-b border-gray-200">
           {pageData.title}
         </h1>
 

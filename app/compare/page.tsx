@@ -101,7 +101,7 @@ const ComparePage: React.FC = () => {
         }
       }
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const loadProduct = async (slug: string, position: 1 | 2): Promise<Product | null> => {
     if (!slug || slug === "undefined") {

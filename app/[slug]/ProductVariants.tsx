@@ -51,7 +51,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
   const [selectedColor, setSelectedColor] = useState<string>(initialColor || colors[0] || '');
   const [selectedStorage, setSelectedStorage] = useState<string>(initialStorage || '');
   const [selectedRegion, setSelectedRegion] = useState<string>(initialRegion || '');
-  const [currentVariant, setCurrentVariant] = useState<Variant | null>(null);
+  const [, setCurrentVariant] = useState<Variant | null>(null);
   const [displayStock, setDisplayStock] = useState<number | undefined>(currentStock);
   const [displaySku, setDisplaySku] = useState<string>(sku || '');
 

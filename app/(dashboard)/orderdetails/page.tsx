@@ -1,5 +1,6 @@
 "use client"
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { LuCopy } from "react-icons/lu";
 
@@ -48,11 +49,14 @@ export default function OrderDetailsPage() {
       <div className="space-y-4 mb-8">
         {[1, 2].map((item) => (
           <div key={item} className="bg-[#F9FAFB] rounded-xl p-4 flex gap-4 border border-gray-50">
-            <div className="w-24 h-24 bg-white rounded-lg flex-shrink-0 border border-gray-100 p-2">
-              <img 
+            <div className="w-24 h-24 bg-white rounded-lg flex-shrink-0 border border-gray-100 p-2 relative">
+              <Image 
                 src="https://via.placeholder.com/100" // Replace with Galaxy S25 image
                 alt="Galaxy S25 Ultra"
+                width={100}
+                height={100}
                 className="w-full h-full object-contain"
+                unoptimized
               />
             </div>
             <div className="flex-1">

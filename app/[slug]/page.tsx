@@ -1,6 +1,6 @@
 import Image from "next/image";
 import {
-  FaStar, FaRegStar, FaStarHalfAlt, FaBalanceScale, FaHeart,
+  FaStar, FaRegStar, FaStarHalfAlt, FaHeart,
   FaCreditCard, FaShieldAlt, FaTruck, FaFacebookF, FaInstagram, FaTwitter, FaYoutube
 } from "react-icons/fa";
 import { MdStars } from "react-icons/md";
@@ -63,7 +63,7 @@ export default async function ProductPage({ params }: PageParams) {
 const ratingCount = product.rating_count; // e.g. 123
 
   // Helper function to determine category slug from product
-  const getCategorySlug = (product: any): string | undefined => {
+  const getCategorySlug = (product: { category?: { slug?: string }; tags?: string[]; brand?: { name?: string; slug?: string }; name?: string }): string | undefined => {
     // First, try to get from product.category?.slug if available
     if (product.category?.slug) {
       return product.category.slug;

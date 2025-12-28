@@ -42,7 +42,7 @@ export default function OrderComplete() {
         if (Array.isArray(parsed?.items)) {
           // Debug: log items to check variant data
           console.log("Order items loaded:", parsed.items);
-          parsed.items.forEach((item: any, idx: number) => {
+          parsed.items.forEach((item: { variant?: string; name?: string }, idx: number) => {
             if (item.variant) {
               console.log(`Item ${idx + 1} (${item.name}) has variant:`, item.variant);
             }

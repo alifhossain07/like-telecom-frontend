@@ -66,19 +66,6 @@ const Footer = () => {
     }
   };
 
-  // Parse HTML content safely
-  const parseHtml = (html: string | undefined): string => {
-    if (!html) return "";
-    // Remove HTML tags and decode entities
-    return html
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .trim();
-  };
 
   if (loading) {
     return (

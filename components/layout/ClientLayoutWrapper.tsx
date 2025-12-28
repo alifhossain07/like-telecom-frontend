@@ -13,14 +13,14 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     if (cartOpen && !externalOpen) {
       setExternalOpen(true);
     }
-  }, [cartOpen]);
+  }, [cartOpen, externalOpen]);
 
   // Sync externalOpen with CartContext when closed externally
   useEffect(() => {
     if (!externalOpen && cartOpen) {
       setCartOpen(false);
     }
-  }, [externalOpen]);
+  }, [externalOpen, cartOpen, setCartOpen]);
 
   return (
     <>

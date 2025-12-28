@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { AiOutlineShoppingCart } from 'react-icons/ai'; // Using a similar cart icon
 import { FaStar } from 'react-icons/fa';
 
@@ -38,10 +39,13 @@ export default function WishlistPage() {
           <div key={item} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             {/* Image Container */}
             <div className="relative p-4 bg-[#F3F4F6] m-3 rounded-lg flex justify-center">
-              <img 
+              <Image 
                 src="https://via.placeholder.com/200x250" // Replace with your iPhone image source
                 alt="iPhone Series 16 Pro Max"
+                width={200}
+                height={250}
                 className="h-48 object-contain"
+                unoptimized
               />
               {/* Save Badge */}
               <div className="absolute top-0 left-0 bg-[#008D41] text-white text-xs font-bold px-3 py-1.5 rounded-br-lg rounded-tl-lg">

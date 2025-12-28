@@ -3,7 +3,7 @@
 import { useCart } from "@/app/context/CartContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaCodeCompare } from "react-icons/fa6";
@@ -67,7 +67,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
         try {
           const compareProducts: string[] = JSON.parse(stored);
           setCompareCount(compareProducts.length);
-        } catch (e) {
+        } catch {
           setCompareCount(0);
         }
       } else {

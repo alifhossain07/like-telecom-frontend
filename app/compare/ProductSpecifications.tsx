@@ -144,7 +144,7 @@ const ProductSpecifications: React.FC<ProductSpecificationsProps> = ({
   return (
     <div className="w-full">
       <div className="space-y-4">
-        {FIXED_SPECIFICATIONS.map((section, sectionIndex) => {
+        {FIXED_SPECIFICATIONS.map((section) => {
           return (
             <div key={section.title} className="border border-gray-200 rounded-lg overflow-hidden">
               {/* Section Header */}

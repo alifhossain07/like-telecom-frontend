@@ -100,7 +100,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
     if (selectedVariant) {
       const variantPrice = selectedVariant.price;
       let price = variantPrice;
-      let oldPrice = variantPrice;
+      const oldPrice = variantPrice;
 
       // Apply discount if available
       if (product.discount) {

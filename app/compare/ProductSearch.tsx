@@ -72,7 +72,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
         // Extract products from the response
         // The API can return suggestions in different formats
         let products: Product[] = [];
-        let suggestions: any[] = [];
+        let suggestions: unknown[] = [];
         
         // Try different response structures (handle nested data.data structure)
         if (Array.isArray(data)) {
@@ -96,41 +96,60 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
         
         // Filter and map suggestions to products
         products = suggestions
-          .filter((item: any) => {
+          .filter((item: unknown): item is Record<string, unknown> => {
+            if (typeof item !== 'object' || item === null) return false;
+            const obj = item as Record<string, unknown>;
             // Must have either slug or name/query
-            const hasSlug = item.slug && typeof item.slug === 'string';
-            const hasName = (item.name || item.query) && typeof (item.name || item.query) === 'string';
+            const hasSlug = typeof obj.slug === 'string' && obj.slug.length > 0;
+            const hasName = (typeof obj.name === 'string' && obj.name.length > 0) || 
+                           (typeof obj.query === 'string' && obj.query.length > 0);
             return hasSlug || hasName;
           })
           .slice(0, 10) // Limit to 10 results
-          .map((item: any) => {
+          .map((item): Product => {
             // Get slug - try different possible locations
-            const slug = item.slug || 
-                        (item.seo && item.seo.slug) || 
-                        (item.links && item.links.details && item.links.details.split('/').pop()) ||
+            const slug = (typeof item.slug === 'string' ? item.slug : '') || 
+                        (typeof item.seo === 'object' && item.seo !== null && typeof (item.seo as Record<string, unknown>).slug === 'string' ? (item.seo as Record<string, unknown>).slug as string : '') || 
+                        (typeof item.links === 'object' && item.links !== null && typeof (item.links as Record<string, unknown>).details === 'string' ? ((item.links as Record<string, unknown>).details as string).split('/').pop() || '' : '') ||
                         '';
             
             // Get name
-            const name = item.name || item.query || '';
+            const name = (typeof item.name === 'string' ? item.name : '') || 
+                        (typeof item.query === 'string' ? item.query : '') || 
+                        '';
             
             // Get image
-            const thumbnail_image = item.thumbnail_image || 
-                                   item.image || 
-                                   item.thumbnail_img || 
+            const thumbnail_image = (typeof item.thumbnail_image === 'string' ? item.thumbnail_image : '') || 
+                                   (typeof item.image === 'string' ? item.image : '') || 
+                                   (typeof item.thumbnail_img === 'string' ? item.thumbnail_img : '') || 
                                    '';
             
             // Get price
-            const main_price = item.main_price || 
-                             item.price || 
-                             item.base_discounted_price ||
+            const main_price = (typeof item.main_price === 'string' || typeof item.main_price === 'number' ? String(item.main_price) : '') || 
+                             (typeof item.price === 'string' || typeof item.price === 'number' ? String(item.price) : '') || 
+                             (typeof item.base_discounted_price === 'string' || typeof item.base_discounted_price === 'number' ? String(item.base_discounted_price) : '') ||
                              '';
             
+            // Get id - ensure it's always a number
+            let id: number;
+            if (typeof item.id === 'number') {
+              id = item.id;
+            } else if (typeof item.id === 'string') {
+              const parsedId = parseInt(item.id, 10);
+              id = isNaN(parsedId) ? Date.now() : parsedId;
+            } else if (slug) {
+              // Use hash of slug as id
+              id = slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            } else {
+              id = Date.now();
+            }
+            
             return {
-              id: item.id || slug || name,
-              slug: slug,
-              name: name,
-              thumbnail_image: thumbnail_image,
-              main_price: main_price,
+              id,
+              slug: slug || '',
+              name: name || '',
+              thumbnail_image: thumbnail_image || '',
+              main_price: main_price || '',
             };
           })
           .filter((p: Product) => p.slug && p.name); // Only include products with both slug and name

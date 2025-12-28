@@ -3,12 +3,7 @@ import React from 'react';
 import { LuCopy } from "react-icons/lu";
 import Link from 'next/link';
 
-interface OrderCardProps {
-  orderId: string;
-  date: string;
-}
-
-const OrderCard = ({ orderId, date }) => {
+const OrderCard = ({ orderId, date }: { orderId: string; date: string }) => {
   const handleCopy = (id:string) => {
     navigator.clipboard.writeText(id);
     alert("Order ID copied to clipboard!");

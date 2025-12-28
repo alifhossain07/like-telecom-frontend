@@ -203,7 +203,7 @@ const AlignedSpecifications: React.FC<AlignedSpecificationsProps> = ({
           </tr>
 
           {/* Specifications Sections */}
-          {FIXED_SPECIFICATIONS.map((section, sectionIndex) => (
+          {FIXED_SPECIFICATIONS.map((section) => (
             <React.Fragment key={section.title}>
               {/* Section Header Row - spans all 3 columns */}
               <tr>
