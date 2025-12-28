@@ -126,10 +126,9 @@ const Navbar = () => {
 
   // ✅ SIMPLE LINKS (NOT CATEGORIES)
   const simplePages = [
-    { name: "About Us", href: "/" },
-    { name: "Our Blog", href: "/" },
+   
     { name: "Contact Us", href: "/contact" },
-    { name: "Authentication", href: "/" },
+    { name: "Authentication", href: "/login" },
   ];
 
   useEffect(() => {
