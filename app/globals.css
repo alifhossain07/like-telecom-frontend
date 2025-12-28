@@ -227,3 +227,36 @@ body {
   border-radius: 4px;
   margin-top: 1.5rem;
 }
+
+/* Print styles for invoice */
+@media print {
+  @page {
+    margin: 1cm;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  /* Hide navigation and non-essential elements when printing */
+  nav,
+  header,
+  footer,
+  button:not(.print-button),
+  a[href]:not(.print-link) {
+    display: none !important;
+  }
+
+  /* Ensure content fits on page */
+  .bg-white {
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Prevent page breaks inside important sections */
+  .space-y-4 > div,
+  .grid {
+    page-break-inside: avoid;
+  }
+}

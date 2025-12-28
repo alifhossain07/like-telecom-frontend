@@ -252,6 +252,98 @@ const CheckoutPage: React.FC = () => {
     };
   }, [selectedDistrictId, setValue]);
 
+  // Fetch default shipping address when user is logged in
+  React.useEffect(() => {
+    if (!accessToken || !user) return;
+
+    let cancelled = false;
+    const loadDefaultAddress = async () => {
+      try {
+        // Always populate name and email from user profile
+        if (!cancelled) {
+          setValue("name", user.name || "");
+          setValue("email", user.email || "");
+        }
+
+        const res = await fetch('/api/shipping/address', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+
+        if (!res.ok || cancelled) {
+          // Even if address fetch fails, populate mobile from user profile
+          if (!cancelled) {
+            setValue("mobile", user.phone || "");
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          // Find the default address (set_default === 1) or use first address
+          type ShippingAddress = {
+            id: number;
+            user_id: number;
+            address: string;
+            country_id: number;
+            state_id: number;
+            country_name: string;
+            state_name: string;
+            phone: string;
+            set_default: number;
+          };
+          const defaultAddress = data.data.find((addr: ShippingAddress) => addr.set_default === 1) || data.data[0];
+          
+          if (defaultAddress && !cancelled) {
+            // Populate form with default address
+            setValue("mobile", defaultAddress.phone || user.phone || "");
+            setValue("address", defaultAddress.address || "");
+            setValue("districtId", defaultAddress.country_id, { shouldValidate: true });
+            setValue("districtName", defaultAddress.country_name || "");
+            setValue("stateId", defaultAddress.state_id, { shouldValidate: true });
+            setValue("stateName", defaultAddress.state_name || "");
+            
+            // Set the display values for dropdowns
+            setDistrictQuery(defaultAddress.country_name || "");
+            setStateQuery(defaultAddress.state_name || "");
+            
+            // Load states for the selected district
+            if (defaultAddress.country_id) {
+              try {
+                const statesRes = await fetch(`/api/states-by-country/${defaultAddress.country_id}`, { cache: "no-store" });
+                if (statesRes.ok && !cancelled) {
+                  const statesJson = await statesRes.json();
+                  const statesList: StateOption[] = Array.isArray(statesJson?.data) ? statesJson.data : [];
+                  setStates(statesList);
+                }
+              } catch (error) {
+                console.error("Error loading states for default address:", error);
+              }
+            }
+          } else if (!cancelled) {
+            // No default address, but populate mobile from user profile
+            setValue("mobile", user.phone || "");
+          }
+        } else if (!cancelled) {
+          // No addresses found, populate mobile from user profile
+          setValue("mobile", user.phone || "");
+        }
+      } catch (error) {
+        console.error("Error loading default shipping address:", error);
+        // On error, still populate basic info from user profile
+        if (!cancelled) {
+          setValue("mobile", user.phone || "");
+        }
+      }
+    };
+
+    loadDefaultAddress();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, user, setValue]);
+
   // Fetch state suggestions with debounce
   const fetchStateSuggestions = React.useCallback(async (districtId: number, q: string) => {
     if (!q || !districtId) {

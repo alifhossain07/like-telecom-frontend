@@ -1,7 +1,7 @@
 import Image from "next/image";
 import {
   FaStar, FaRegStar, FaStarHalfAlt, FaHeart,
-  FaCreditCard, FaShieldAlt, FaTruck, FaFacebookF, FaInstagram, FaTwitter, FaYoutube
+  FaCreditCard, FaShieldAlt, FaFacebookF, FaInstagram, FaTwitter, FaYoutube
 } from "react-icons/fa";
 import { MdStars } from "react-icons/md";
 import Specifications from "./Specifications";
@@ -11,11 +11,13 @@ import ProductDetails from "./ProductDetails";
 import PriceTable from "./PriceTable";
 import ProductActions from "./ProductActions";
 import AddToCompare from "./AddToCompare";
+import ShippingButton from "@/components/ui/ShippingButton";
 
 // Data fetching logic
 import { notFound } from 'next/navigation';
 import { cookies } from 'next/headers';
 import ImageGallery from "@/components/ui/ImageGallery";
+import Link from "next/link";
 interface PageParams {
   params: { slug: string }
 }
@@ -212,21 +214,18 @@ const ratingCount = product.rating_count; // e.g. 123
               </div>
 
               {/* Payment Plans */}
-              <button className="w-full mb-3 px-4 py-4 border bg-[#f4f4f4]  border-gray-300 rounded text-sm font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2">
+              <Link href="/footer/emi" className="w-full mb-3 px-4 py-4 border bg-[#f4f4f4]  border-gray-300 rounded text-sm font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2">
                 <FaCreditCard className="w-4 h-4" />
                 EMI-View Plans
-              </button>
+              </Link>
 
               {/* Payment & Shipping Info */}
                <div className="flex gap-2 mb-3">
-                <button className="flex-1 px-4 py-4 border border-gray-300 rounded text-sm font-medium bg-[#f4f4f4] hover:bg-gray-50 transition flex items-center justify-center gap-2">
+                <Link href="/footer/terms" className="flex-1 px-4 py-4 border border-gray-300 rounded text-sm font-medium bg-[#f4f4f4] hover:bg-gray-50 transition flex items-center justify-center gap-2">
                   <FaShieldAlt className="w-5 h-5 text-black" />
                   <span>Secure Payments</span>
-                </button>
-                <button className="flex-1 px-4 py-4 border bg-[#f4f4f4]  border-gray-300 rounded text-sm font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2">
-                  <FaTruck className="w-5 h-5 text-black" />
-                  <span>Shipping & Charge</span>
-                </button>
+                </Link>
+                <ShippingButton />
               </div>
              
 
