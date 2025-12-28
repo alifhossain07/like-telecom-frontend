@@ -98,7 +98,7 @@ export default function ProfilePage() {
         </div>
 
         {/* User Type */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium mb-2">Account Type</label>
           <input 
             type="text" 
@@ -106,10 +106,10 @@ export default function ProfilePage() {
             className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all capitalize"
             readOnly
           />
-        </div>
+        </div> */}
 
         {/* Balance */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium mb-2">Account Balance</label>
           <input 
             type="text" 
@@ -117,7 +117,7 @@ export default function ProfilePage() {
             className="w-full p-3 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-orange-500 outline-none transition-all"
             readOnly
           />
-        </div>
+        </div> */}
 
         {/* Full Address */}
         <div>
