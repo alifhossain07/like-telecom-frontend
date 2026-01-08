@@ -126,7 +126,7 @@ const Navbar = () => {
 
   // ✅ SIMPLE LINKS (NOT CATEGORIES)
   const simplePages = [
-   
+
     { name: "Contact Us", href: "/contact" },
     { name: "Authentication", href: "/login" },
   ];
@@ -168,16 +168,16 @@ const Navbar = () => {
   }, []);
 
   const handleSearchSubmit = (query: string) => {
-  const trimmed = query.trim();
-  if (!trimmed) return;
-  // Close suggestions and clear search
-  setShowSuggestions(false);
-  setSuggestions([]);
- 
-  setShowMobileSearch(false);
-  // Navigate to search page
-  router.push(`/products/search?q=${encodeURIComponent(trimmed)}`);
-};
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    // Close suggestions and clear search
+    setShowSuggestions(false);
+    setSuggestions([]);
+
+    setShowMobileSearch(false);
+    // Navigate to search page
+    router.push(`/products/search?q=${encodeURIComponent(trimmed)}`);
+  };
 
   useEffect(() => {
     async function fetchLogo() {
@@ -255,30 +255,30 @@ const Navbar = () => {
       {/* ========= HEADER ========= */}
       <header className="fixed top-0 left-0 w-full bg-white z-50 shadow-md">
         {/* TOP BAR */}
-         <div className="py-2 hidden md:block shadow-md border-b border-gray-100 bg-white">
-        <div className="w-11/12 mx-auto flex flex-col md:flex-row justify-between gap-3 md:gap-0">
-          {/* Left - Info Links */}
-          <div className="flex flex-wrap justify-center md:justify-start font-semibold text-green-800 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <MdOutlineLocalShipping className="text-lg" />
-              <span className="hidden sm:inline">Order Tracking</span>
+        <div className="py-2 hidden md:block shadow-md border-b border-gray-100 bg-white">
+          <div className="w-11/12 mx-auto flex flex-col md:flex-row justify-between gap-3 md:gap-0">
+            {/* Left - Info Links */}
+            <div className="flex flex-wrap justify-center md:justify-start font-semibold text-green-800 gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <MdOutlineLocalShipping className="text-lg" />
+                <span className="hidden sm:inline">Order Tracking</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MdOutlineHeadsetMic className="text-lg" />
+                <span className="hidden sm:inline">Service Center</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FaMapMarkerAlt className="text-lg" />
+                <span className="hidden sm:inline">Store Locations</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <MdOutlineHeadsetMic className="text-lg" />
-              <span className="hidden sm:inline">Service Center</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-lg" />
-              <span className="hidden sm:inline">Store Locations</span>
-            </div>
-          </div>
 
-          {/* Right - Contact */}
-          <div className="font-semibold text-green-800 text-center md:text-right text-sm">
-            Contact Us 24/7: +--854789956
+            {/* Right - Contact */}
+            <div className="font-semibold text-green-800 text-center md:text-right text-sm">
+              Contact Us 24/7: +--854789956
+            </div>
           </div>
         </div>
-      </div>
 
         {/* MIDDLE LOGO + SEARCH */}
         <div className="w-11/12 mx-auto py-1 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -302,15 +302,15 @@ const Navbar = () => {
                 <IoSearch className="text-2xl" />
               </button>
 
-             {/* CART ICON */}
-<button onClick={() => setCartOpen(true)} className="relative">
-  <IoCartOutline className="text-2xl" />
-  {cart.length > 0 && (
-    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] leading-none px-1 py-1 rounded-full border border-white">
-      {cart.length.toString().padStart(2, "0")}
-    </span>
-  )}
-</button>
+              {/* CART ICON */}
+              <button onClick={() => setCartOpen(true)} className="relative">
+                <IoCartOutline className="text-2xl" />
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] leading-none px-1 py-1 rounded-full border border-white">
+                    {cart.length.toString().padStart(2, "0")}
+                  </span>
+                )}
+              </button>
             </div>
 
 
@@ -458,10 +458,10 @@ const Navbar = () => {
                   {suggestions.map((item: SuggestionItem, idx: number) => {
                     const label = item.name || item.title || item.query || "";
                     const slug = item.slug;
-                    const image = 
-                      item.image || 
-                      item.thumbnail || 
-                      item.cover_image || 
+                    const image =
+                      item.image ||
+                      item.thumbnail ||
+                      item.cover_image ||
                       item.thumbnail_image ||
                       item.photo ||
                       item.photos?.[0]?.path ||
@@ -525,7 +525,7 @@ const Navbar = () => {
               )}
             </div>
 
-            <Link 
+            <Link
               href="/flash-deals"
               className="flex items-center gap-1 text-white px-5 mr-5 py-2 rounded-xl text-sm"
               style={{ background: "linear-gradient(to bottom, #FFD522, #FF6B01)" }}
@@ -553,16 +553,16 @@ const Navbar = () => {
             </div> */}
 
             {/* CART */}
-            <button  className="bg-[#eaeaea] px-6 py-1 h-[40px] rounded-md flex items-center  text-sm">
-                <span className="2xl:text-base text-[14px] ">Exclusive Sales</span>
+            <button className="bg-[#eaeaea] px-6 py-1 h-[40px] rounded-md flex items-center  text-sm">
+              <span className="2xl:text-base text-[14px] ">Exclusive Sales</span>
             </button>
-<button  className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
-                <span className="2xl:text-base text-[14px] ">Corporate</span>
-            </button>
-          <button onClick={() => setCartOpen(true)} className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center 2xl:gap-3 gap-1 text-sm">
+            <Link href="/corporate" className="bg-[#eaeaea]  px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
+              <span className="2xl:text-base text-[14px] ">Corporate</span>
+            </Link>
+            <button onClick={() => setCartOpen(true)} className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center 2xl:gap-3 gap-1 text-sm">
               <FiShoppingCart className="text-2xl" />
               <div>
-               
+
                 <span className="2xl:text-base text-[14px] mt-2">*{cart.length.toString().padStart(2, "0")} Items</span>
               </div>
             </button>
@@ -618,7 +618,7 @@ const Navbar = () => {
                 <Link href="/login" className="flex items-center gap-2">
                   <FiUser className="text-2xl" />
                   {/* <div> */}
-                    <h1 className="2xl:text-base text-[14px]">Login</h1>
+                  <h1 className="2xl:text-base text-[14px]">Login</h1>
 
                   {/* </div> */}
                 </Link>
@@ -655,8 +655,8 @@ const Navbar = () => {
                   {category.subcategories.length > 0 && (
                     <div
                       className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all ${hoveredCategory === category.name
-                          ? "opacity-100 visible"
-                          : "opacity-0 invisible"
+                        ? "opacity-100 visible"
+                        : "opacity-0 invisible"
                         }`}
                     >
                       <ul className="min-w-[180px] py-2 relative">
@@ -708,203 +708,203 @@ const Navbar = () => {
         </div>
       </header>
       {showMobileSearch && (
-  <div
-    ref={searchRef}
-    className="fixed top-[70px] left-0 w-full z-40 lg:hidden animate-[fadeDown_0.25s_ease-out]"
-  >
-    <div className="relative w-full ">
-      <input
-        type="text"
-        value={mobileSearchTerm}
-        onChange={(e) => {
-          const value = e.target.value;
-          setMobileSearchTerm(value);
+        <div
+          ref={searchRef}
+          className="fixed top-[70px] left-0 w-full z-40 lg:hidden animate-[fadeDown_0.25s_ease-out]"
+        >
+          <div className="relative w-full ">
+            <input
+              type="text"
+              value={mobileSearchTerm}
+              onChange={(e) => {
+                const value = e.target.value;
+                setMobileSearchTerm(value);
 
-          if (suggestTimeoutRef.current) {
-            clearTimeout(suggestTimeoutRef.current);
-          }
+                if (suggestTimeoutRef.current) {
+                  clearTimeout(suggestTimeoutRef.current);
+                }
 
-          if (!value.trim()) {
-            setSuggestions([]);
-            setShowSuggestions(false);
-            setIsSuggestLoading(false);
-            return;
-          }
-
-          setIsSuggestLoading(true);
-          suggestTimeoutRef.current = setTimeout(async () => {
-            try {
-              const res = await fetch(
-                `/api/products/search?suggest=1&query_key=${encodeURIComponent(
-                  value
-                )}&type=product`
-              );
-              const json = await res.json();
-
-              // 🔍 DEBUG: Log the Next.js API response
-              console.log("=== NEXT.JS API RESPONSE (Mobile) ===");
-              console.log("Full response:", json);
-              console.log("Response structure:", {
-                hasData: !!json.data,
-                dataType: typeof json.data,
-                isDataArray: Array.isArray(json.data),
-                dataKeys: json.data && typeof json.data === 'object' ? Object.keys(json.data) : null
-              });
-              console.log("========================================");
-
-              let items:SuggestionItem[] = [];
-              if (Array.isArray(json.data)) {
-                items = json.data;
-                console.log("✅ Using json.data (array), count:", items.length);
-              } else if (json.data && Array.isArray(json.data.items)) {
-                items = json.data.items;
-                console.log("✅ Using json.data.items, count:", items.length);
-              } else if (json.data && Array.isArray(json.data.suggestions)) {
-                items = json.data.suggestions;
-                console.log("✅ Using json.data.suggestions, count:", items.length);
-              } else if (json.data && Array.isArray(json.data.data)) {
-                items = json.data.data;
-                console.log("✅ Using json.data.data, count:", items.length);
-              } else if (json.data && Array.isArray(json.data.products)) {
-                items = json.data.products;
-                console.log("✅ Using json.data.products, count:", items.length);
-              } else {
-                console.warn("⚠️ No suggestions array found in response structure");
-                console.log("Available paths checked:", [
-                  "json.data",
-                  "json.data.items",
-                  "json.data.suggestions",
-                  "json.data.data",
-                  "json.data.products"
-                ]);
-              }
-
-              // Log first item structure before normalization
-              if (items.length > 0) {
-                console.log("=== FIRST ITEM (Before Normalization - Mobile) ===");
-                console.log("Item keys:", Object.keys(items[0]));
-                console.log("Item:", JSON.stringify(items[0], null, 2));
-                console.log("===================================================");
-              }
-
-              // Normalize items to ensure consistent structure
-              items = items.map((item: SuggestionItem) => ({
-                ...item,
-                // Ensure we have name/title
-                name: item.name || item.title || item.query || "",
-                // Normalize image field
-                image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
-                // Normalize price field
-                price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
-              }));
-
-              // Log first item after normalization
-              if (items.length > 0) {
-                console.log("=== FIRST ITEM (After Normalization - Mobile) ===");
-                console.log("Normalized item:", {
-                  name: items[0].name,
-                  image: items[0].image,
-                  price: items[0].price,
-                  slug: items[0].slug
-                });
-                console.log("==================================================");
-              }
-
-              setSuggestions(items);
-              setShowSuggestions(items.length > 0);
-            } catch (err) {
-              console.error("Mobile suggestion fetch error:", err);
-            } finally {
-              setIsSuggestLoading(false);
-            }
-          }, 300);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleSearchSubmit(mobileSearchTerm);
-          }
-        }}
-        placeholder="Search your Favourite Accessories..."
-        className="w-full bg-white text-black py-3 px-4 pr-12 rounded-md shadow-lg outline-none caret-black placeholder:text-gray-500"
-      />
-      {isSuggestLoading && (
-        <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
-          <div className="w-4 h-4 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      )}
-
-      {/* 🔥 Suggestions Dropdown */}
-      {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0  bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
-          {suggestions.map((item: SuggestionItem, idx: number) => {
-            const label = item.name || item.title || item.query || "";
-            const slug = item.slug;
-            const image = 
-              item.image || 
-              item.thumbnail || 
-              item.cover_image || 
-              item.thumbnail_image ||
-              item.photo ||
-              item.photos?.[0]?.path ||
-              null;
-            const price =
-              item.price ||
-              item.sale_price ||
-              item.offer_price ||
-              item.main_price ||
-              item.stroked_price ||
-              (item.meta && item.meta.price) ||
-              null;
-
-            return (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => {
-                  if (slug) {
-                    router.push(`/${slug}`);
-                  } else if (label) {
-                    handleSearchSubmit(label);
-                  }
+                if (!value.trim()) {
+                  setSuggestions([]);
                   setShowSuggestions(false);
-                  setShowMobileSearch(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}
-              >
-                {image && image !== "" && (
-                  <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
-                    <Image
-                      src={image}
-                      alt={label}
-                      fill
-                      sizes="48px"
-                      className="object-contain"
-                      onError={(e) => {
-                        // Hide image on error
-                        (e.target as HTMLImageElement).style.display = 'none';
+                  setIsSuggestLoading(false);
+                  return;
+                }
+
+                setIsSuggestLoading(true);
+                suggestTimeoutRef.current = setTimeout(async () => {
+                  try {
+                    const res = await fetch(
+                      `/api/products/search?suggest=1&query_key=${encodeURIComponent(
+                        value
+                      )}&type=product`
+                    );
+                    const json = await res.json();
+
+                    // 🔍 DEBUG: Log the Next.js API response
+                    console.log("=== NEXT.JS API RESPONSE (Mobile) ===");
+                    console.log("Full response:", json);
+                    console.log("Response structure:", {
+                      hasData: !!json.data,
+                      dataType: typeof json.data,
+                      isDataArray: Array.isArray(json.data),
+                      dataKeys: json.data && typeof json.data === 'object' ? Object.keys(json.data) : null
+                    });
+                    console.log("========================================");
+
+                    let items: SuggestionItem[] = [];
+                    if (Array.isArray(json.data)) {
+                      items = json.data;
+                      console.log("✅ Using json.data (array), count:", items.length);
+                    } else if (json.data && Array.isArray(json.data.items)) {
+                      items = json.data.items;
+                      console.log("✅ Using json.data.items, count:", items.length);
+                    } else if (json.data && Array.isArray(json.data.suggestions)) {
+                      items = json.data.suggestions;
+                      console.log("✅ Using json.data.suggestions, count:", items.length);
+                    } else if (json.data && Array.isArray(json.data.data)) {
+                      items = json.data.data;
+                      console.log("✅ Using json.data.data, count:", items.length);
+                    } else if (json.data && Array.isArray(json.data.products)) {
+                      items = json.data.products;
+                      console.log("✅ Using json.data.products, count:", items.length);
+                    } else {
+                      console.warn("⚠️ No suggestions array found in response structure");
+                      console.log("Available paths checked:", [
+                        "json.data",
+                        "json.data.items",
+                        "json.data.suggestions",
+                        "json.data.data",
+                        "json.data.products"
+                      ]);
+                    }
+
+                    // Log first item structure before normalization
+                    if (items.length > 0) {
+                      console.log("=== FIRST ITEM (Before Normalization - Mobile) ===");
+                      console.log("Item keys:", Object.keys(items[0]));
+                      console.log("Item:", JSON.stringify(items[0], null, 2));
+                      console.log("===================================================");
+                    }
+
+                    // Normalize items to ensure consistent structure
+                    items = items.map((item: SuggestionItem) => ({
+                      ...item,
+                      // Ensure we have name/title
+                      name: item.name || item.title || item.query || "",
+                      // Normalize image field
+                      image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
+                      // Normalize price field
+                      price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
+                    }));
+
+                    // Log first item after normalization
+                    if (items.length > 0) {
+                      console.log("=== FIRST ITEM (After Normalization - Mobile) ===");
+                      console.log("Normalized item:", {
+                        name: items[0].name,
+                        image: items[0].image,
+                        price: items[0].price,
+                        slug: items[0].slug
+                      });
+                      console.log("==================================================");
+                    }
+
+                    setSuggestions(items);
+                    setShowSuggestions(items.length > 0);
+                  } catch (err) {
+                    console.error("Mobile suggestion fetch error:", err);
+                  } finally {
+                    setIsSuggestLoading(false);
+                  }
+                }, 300);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearchSubmit(mobileSearchTerm);
+                }
+              }}
+              placeholder="Search your Favourite Accessories..."
+              className="w-full bg-white text-black py-3 px-4 pr-12 rounded-md shadow-lg outline-none caret-black placeholder:text-gray-500"
+            />
+            {isSuggestLoading && (
+              <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+                <div className="w-4 h-4 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+
+            {/* 🔥 Suggestions Dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute left-0 right-0  bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
+                {suggestions.map((item: SuggestionItem, idx: number) => {
+                  const label = item.name || item.title || item.query || "";
+                  const slug = item.slug;
+                  const image =
+                    item.image ||
+                    item.thumbnail ||
+                    item.cover_image ||
+                    item.thumbnail_image ||
+                    item.photo ||
+                    item.photos?.[0]?.path ||
+                    null;
+                  const price =
+                    item.price ||
+                    item.sale_price ||
+                    item.offer_price ||
+                    item.main_price ||
+                    item.stroked_price ||
+                    (item.meta && item.meta.price) ||
+                    null;
+
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        if (slug) {
+                          router.push(`/${slug}`);
+                        } else if (label) {
+                          handleSearchSubmit(label);
+                        }
+                        setShowSuggestions(false);
+                        setShowMobileSearch(false);
                       }}
-                    />
-                  </div>
+                      className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}
+                    >
+                      {image && image !== "" && (
+                        <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
+                          <Image
+                            src={image}
+                            alt={label}
+                            fill
+                            sizes="48px"
+                            className="object-contain"
+                            onError={(e) => {
+                              // Hide image on error
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 flex flex-col items-start min-w-0">
+                        <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
+                        {price !== null && price !== undefined && price !== "" && (
+                          <span className="text-xs text-orange-600 font-semibold mt-0.5">
+                            ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+                {isSuggestLoading && (
+                  <div className="px-3 py-2 text-xs text-gray-500">Loading…</div>
                 )}
-                <div className="flex-1 flex flex-col items-start min-w-0">
-                  <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
-                  {price !== null && price !== undefined && price !== "" && (
-                    <span className="text-xs text-orange-600 font-semibold mt-0.5">
-                      ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
-                    </span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-          {isSuggestLoading && (
-            <div className="px-3 py-2 text-xs text-gray-500">Loading…</div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       )}
-    </div>
-  </div>
-)}
 
 
       {/* Prevent overlap */}
@@ -920,7 +920,7 @@ const Navbar = () => {
         {/* <Link href="/offers" className="flex flex-col items-center text-sm"> */}
         <div className="flex flex-col items-center text-sm"> <FiGift className="text-xl" />
           Offers</div>
-         
+
         {/* </Link> */}
 
         <button
@@ -938,13 +938,13 @@ const Navbar = () => {
           Cart
         </button>
 
-         <button className=" flex flex-col items-center text-sm text-white lg:hidden" onClick={() => setMenuOpen(true)}>
-              <FiMenu className="text-xl" />
-              Menu
-            </button>
+        <button className=" flex flex-col items-center text-sm text-white lg:hidden" onClick={() => setMenuOpen(true)}>
+          <FiMenu className="text-xl" />
+          Menu
+        </button>
 
         {/* <Link href="/login" className="flex flex-col items-center text-sm"> */}
-        <Link href="/profile"className="flex flex-col items-center text-sm">
+        <Link href="/profile" className="flex flex-col items-center text-sm">
           <FiUser className="text-xl" />
           Profile
           {/* </div> */}
@@ -1033,8 +1033,8 @@ const Navbar = () => {
                           {/* SECOND LEVEL */}
                           <div
                             className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedSubcategory === sub.name
-                                ? "max-h-40 opacity-100"
-                                : "max-h-0 opacity-0"
+                              ? "max-h-40 opacity-100"
+                              : "max-h-0 opacity-0"
                               }`}
                           >
                             <ul className="space-y-1">
@@ -1097,7 +1097,7 @@ const Navbar = () => {
         </div>
       )}
 
-      
+
     </>
   );
 };
