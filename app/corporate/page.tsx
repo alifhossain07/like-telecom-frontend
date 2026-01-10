@@ -264,7 +264,7 @@ const CorporatePage = () => {
             </section>
 
             {/* Share Your Requirements Section */}
-            <section className="py-20 2xl:py-40 bg-white">
+            <section className="pb-10 bg-white">
                 <div className="w-11/12 max-w-[1440px] 2xl:max-w-[1800px] mx-auto px-4">
                     <div className="text-center mb-16 2xl:mb-32 px-4">
                         <h2 className="text-3xl 2xl:text-4xl font-bold mb-4 2xl:mb-8 text-gray-800">{data.content_section_title}</h2>
