@@ -263,10 +263,10 @@ const Navbar = () => {
                 <MdOutlineLocalShipping className="text-lg" />
                 <span className="hidden sm:inline">Order Tracking</span>
               </div>
-              <div className="flex items-center gap-2">
+              <Link href="/servicecenter" className="flex items-center gap-2">
                 <MdOutlineHeadsetMic className="text-lg" />
                 <span className="hidden sm:inline">Service Center</span>
-              </div>
+              </Link >
               <div className="flex items-center gap-2">
                 <FaMapMarkerAlt className="text-lg" />
                 <span className="hidden sm:inline">Store Locations</span>
