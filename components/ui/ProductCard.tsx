@@ -1,10 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaCartPlus, FaHeart, FaStar } from "react-icons/fa";
 import Link from "next/link";
 import ProductOptionsModal from "./ProductOptionsModal";
+import { useAuth } from "@/app/context/AuthContext";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 type Spec = {
   icon: string;
@@ -26,10 +29,76 @@ type Product = {
 
 export default function ProductCard({ product }: { product: Product }) {
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const { user, accessToken } = useAuth();
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isWishlisting, setIsWishlisting] = useState(false);
+
+  // Check if product is in wishlist on mount/user change
+  useEffect(() => {
+    if (user && accessToken && product.slug) {
+      axios
+        .get(`/api/wishlist/check/${product.slug}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        .then((res) => {
+          setIsInWishlist(!!res.data.is_in_wishlist);
+        })
+        .catch((err) => {
+          console.error("Error checking wishlist:", err);
+          setIsInWishlist(false);
+        });
+    } else {
+      setIsInWishlist(false);
+    }
+  }, [user, accessToken, product.slug]);
+
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast.error("Please login to add product in wishlist");
+      return;
+    }
+
+    if (isWishlisting) return;
+
+    setIsWishlisting(true);
+    try {
+      if (isInWishlist) {
+        // Remove from wishlist
+        const res = await axios.get(`/api/wishlist/remove/${product.slug}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.data.is_in_wishlist === false) {
+          setIsInWishlist(false);
+          toast.success("Product removed from wishlist");
+        }
+      } else {
+        // Add to wishlist
+        const res = await axios.get(`/api/wishlist/add/${product.slug}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.data.is_in_wishlist === true) {
+          setIsInWishlist(true);
+          toast.success("Product added to wishlist");
+        }
+      }
+    } catch (error: unknown) {
+      console.error("Wishlist operation failed:", error);
+      let message = "Something went wrong";
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || message;
+      }
+      toast.error(message);
+    } finally {
+      setIsWishlisting(false);
+    }
+  };
 
   return (
     <>
-      <div className="bg-white border border-gray-200 rounded-md shadow-lg hover:shadow-md transition relative flex flex-col justify-between w-full max-w-sm mx-auto">
+      <div className="bg-white border border-gray-200 rounded-md shadow-lg hover:shadow-md transition relative flex flex-col justify-between w-full max-w-sm mx-auto group">
 
         {/* ---------- IMAGE ---------- */}
         <Link
@@ -48,7 +117,7 @@ export default function ProductCard({ product }: { product: Product }) {
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain sm:scale-95 md:scale-100"
+              className="object-contain sm:scale-95 md:scale-100 group-hover:scale-105 transition-transform duration-300"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
 
@@ -68,18 +137,26 @@ export default function ProductCard({ product }: { product: Product }) {
 
             {/* Wishlist */}
             <button
-              className="
+              onClick={handleWishlistToggle}
+              disabled={isWishlisting}
+              className={`
                 absolute top-1 right-1
-                text-red-400 bg-red-100
                 p-1 sm:p-1.5 md:p-2
                 rounded-md
-                hover:text-red-500 transition
-              "
+                transition shadow-sm
+                ${isInWishlist
+                  ? "text-white bg-red-500 hover:bg-red-600"
+                  : "text-red-400 bg-red-50"
+                }
+                ${isWishlisting ? "opacity-50 cursor-not-allowed" : "hover:scale-110"}
+              `}
+              title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <FaHeart className="w-2 h-2 sm:w-3 sm:h-3" />
+              <FaHeart className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </Link>
+
 
         {/* ---------- TITLE ---------- */}
         <Link href={`/${product.slug}`}>

@@ -1,9 +1,9 @@
 import Image from "next/image";
 import {
-  FaStar, FaRegStar, FaStarHalfAlt, FaHeart,
+  FaHeart,
   FaCreditCard, FaShieldAlt, FaFacebookF, FaInstagram, FaTwitter, FaYoutube
 } from "react-icons/fa";
-import { MdStars } from "react-icons/md";
+import ProductRating from "./ProductRating";
 import Specifications from "./Specifications";
 import ProductList from "./ProductList";
 import FAQ from "./FAQ";
@@ -28,41 +28,40 @@ type FeaturedSpec = {
 
 export default async function ProductPage({ params }: PageParams) {
   const { slug } = params;
-  
+
   // Get auth token from cookie (set by client-side login)
   const cookieStore = cookies();
   const authToken = cookieStore.get('like_auth_token')?.value;
-  
+
   // Call backend API directly with System-Key and Authorization (if available)
   // This ensures the backend records last-viewed products for logged-in users
   const API_BASE = process.env.API_BASE!;
   const SYSTEM_KEY = process.env.SYSTEM_KEY!;
-  
+
   const headers: Record<string, string> = {
     'Accept': 'application/json',
     'System-Key': SYSTEM_KEY,
     ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
   };
-  
+
   const res = await fetch(`${API_BASE}/products/${slug}`, {
     cache: 'no-store',
     headers,
   });
-  
+
   if (!res.ok) return notFound();
-  
+
   const json = await res.json();
-  
+
   if (!json.success || !json.data || json.data.length === 0) {
     return notFound();
   }
-  
+
   const product = json.data[0];
 
 
 
-  const rating = product.rating; // e.g. 4.2
-const ratingCount = product.rating_count; // e.g. 123
+
 
   // Helper function to determine category slug from product
   const getCategorySlug = (product: { category?: { slug?: string }; tags?: string[]; brand?: { name?: string; slug?: string }; name?: string }): string | undefined => {
@@ -70,24 +69,24 @@ const ratingCount = product.rating_count; // e.g. 123
     if (product.category?.slug) {
       return product.category.slug;
     }
-    
+
     // Use tags array if available (e.g., ["iphone"] -> "iphone")
     if (product.tags && Array.isArray(product.tags) && product.tags.length > 0) {
       return product.tags[0]; // Use first tag as category slug
     }
-    
+
     // If brand is Apple or product name contains iPhone, try common iPhone category slugs
-    if (product.brand?.name?.toLowerCase().includes('apple') || 
-        product.name?.toLowerCase().includes('iphone')) {
+    if (product.brand?.name?.toLowerCase().includes('apple') ||
+      product.name?.toLowerCase().includes('iphone')) {
       // Try common iPhone category slugs
       return 'iphone'; // Use 'iphone' as category slug
     }
-    
+
     // Try to infer from brand slug if available
     if (product.brand?.slug) {
       return product.brand.slug;
     }
-    
+
     return undefined;
   };
 
@@ -105,7 +104,7 @@ const ratingCount = product.rating_count; // e.g. 123
           {/* Left Column - Product Images */}
 
           <ImageGallery photos={product.photos} />
-         
+
           {/* Middle Column - Product Details & Options */}
           <div className="w-full max-w-[550px] mx-auto">
             <div className="w-full h-auto bg-white rounded-lg border border-gray-200 shadow-sm p-6 flex flex-col overflow-hidden">
@@ -115,18 +114,18 @@ const ratingCount = product.rating_count; // e.g. 123
               <div className="">
                 <div className="flex items-baseline gap-3 mb-2 flex-wrap">
                   <span className="md:text-[26px] text-[22px] font-bold text-orange-600">{product.main_price}</span>
-                  {product.discount && 
-                   product.discount !== "0%" && 
-                   product.discount !== "0" && 
-                   product.discount !== "" && 
-                   product.discount !== 0 && (
-                    <>
-                      <span className="text-[16px] text-gray-400 line-through">{product.stroked_price}</span>
-                      <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
-                        {product.discount} off
-                      </span>
-                    </>
-                  )}
+                  {product.discount &&
+                    product.discount !== "0%" &&
+                    product.discount !== "0" &&
+                    product.discount !== "" &&
+                    product.discount !== 0 && (
+                      <>
+                        <span className="text-[16px] text-gray-400 line-through">{product.stroked_price}</span>
+                        <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
+                          {product.discount} off
+                        </span>
+                      </>
+                    )}
                   {/* <span className="px-3 py-1 bg-[#FFEFCC] text-[#FFB20B] text-sm font-semibold rounded-2xl">
                     Earn 200-Points
                   </span> */}
@@ -160,49 +159,23 @@ const ratingCount = product.rating_count; // e.g. 123
 
               {/* Viewer Count */}
               {product.featured_specs?.map((item: FeaturedSpec, index: number) => (
-  <div
-    key={index}
-    className="flex font-medium items-center gap-2 text-sm bg-[#F4F4F4] p-4 text-gray-700 "
-  >
-    <Image
-      src={item.icon}
-      alt=""
-      width={500}
-      height={500}
-      className="w-5 h-5 object-contain"
-    />
-    <span>{item.text}</span>
-  </div>
-))}
+                <div
+                  key={index}
+                  className="flex font-medium items-center gap-2 text-sm bg-[#F4F4F4] p-4 text-gray-700 "
+                >
+                  <Image
+                    src={item.icon}
+                    alt=""
+                    width={500}
+                    height={500}
+                    className="w-5 h-5 object-contain"
+                  />
+                  <span>{item.text}</span>
+                </div>
+              ))}
 
               {/* Rating and Reviews */}
-              <div className="flex items-center p-4 mb-3 bg-[#f4f4f4] gap-2">
-  <div className="flex items-center font-medium text-sm text-gray-700 mr-3">
-    <MdStars className="w-5 h-5 text-black mr-2" />
-    Rating:
-  </div>
-
-  <div className="flex">
-    {[1, 2, 3, 4, 5].map((star) => {
-      if (rating >= star) {
-        // full star
-        return <FaStar key={star} className="w-5 h-5 text-orange-500" />;
-      }
-
-      if (rating >= star - 0.5) {
-        // half star
-        return <FaStarHalfAlt key={star} className="w-5 h-5 text-orange-500" />;
-      }
-
-      // empty star
-      return <FaRegStar key={star} className="w-5 h-5 text-gray-300" />;
-    })}
-  </div>
-
-  <span className="text-sm text-gray-700">
-    ({rating.toFixed(1)}) / {ratingCount > 0 ? `${ratingCount}+ Reviews` : "No reviews"}
-  </span>
-</div>
+              <ProductRating product={product} />
 
               {/* Secondary Action Buttons */}
               <div className="flex gap-2 mb-3">
@@ -220,14 +193,14 @@ const ratingCount = product.rating_count; // e.g. 123
               </Link>
 
               {/* Payment & Shipping Info */}
-               <div className="flex gap-2 mb-3">
+              <div className="flex gap-2 mb-3">
                 <Link href="/footer/terms" className="flex-1 px-4 py-4 border border-gray-300 rounded text-sm font-medium bg-[#f4f4f4] hover:bg-gray-50 transition flex items-center justify-center gap-2">
                   <FaShieldAlt className="w-5 h-5 text-black" />
                   <span>Secure Payments</span>
                 </Link>
                 <ShippingButton />
               </div>
-             
+
 
               {/* Share Options */}
               <div className="pt-4 flex items-center border-t border-gray-200">
@@ -255,37 +228,37 @@ const ratingCount = product.rating_count; // e.g. 123
       {/* Product Summary Section ends */}
 
       {/* Specifications Section */}
-     <div className="w-11/12 mx-auto gap-8 flex justify-between  pb-4">
-      <div className="w-[59.375vw] max-w-[1140px] min-w-[700px] ">
-       <Specifications specifications={product.specifications || []} />
-       <FAQ faqs={product.faqs || []} />
-       </div>
+      <div className="w-11/12 mx-auto gap-8 flex justify-between  pb-4">
+        <div className="w-[59.375vw] max-w-[1140px] min-w-[700px] ">
+          <Specifications specifications={product.specifications || []} />
+          <FAQ faqs={product.faqs || []} />
+        </div>
 
-  <div className="w-[28.645vw] max-w-[550px] rounded-xl  min-w-[320px] ">
-    <ProductList
-       relatedProducts={product.frequently_bought_products || []}
-       recentlyViewed={product.recentlyViewed || []}
-    />
-  </div>
-</div>
-{/* Product Details */}
-<div className="bg-white w-11/12 mx-auto p-8">
-<div>
-  <ProductDetails description={product.description || ''} />
-</div>
-<div className="">
-      <PriceTable
-        categoryName={product.category_info?.category_name || product.brand?.name || product.name}
-        categorySlug={categorySlug}
-        location="Bangladesh"
-        year={new Date().getFullYear()}
-        data={product.priceTableData || []}
-        latestPriceList={product.latest_price_list || []}
-        categoryInfo={product.category_info}
-      />
-    </div>
-    </div>
-   
+        <div className="w-[28.645vw] max-w-[550px] rounded-xl  min-w-[320px] ">
+          <ProductList
+            relatedProducts={product.frequently_bought_products || []}
+            recentlyViewed={product.recentlyViewed || []}
+          />
+        </div>
+      </div>
+      {/* Product Details */}
+      <div className="bg-white w-11/12 mx-auto p-8">
+        <div>
+          <ProductDetails description={product.description || ''} />
+        </div>
+        <div className="">
+          <PriceTable
+            categoryName={product.category_info?.category_name || product.brand?.name || product.name}
+            categorySlug={categorySlug}
+            location="Bangladesh"
+            year={new Date().getFullYear()}
+            data={product.priceTableData || []}
+            latestPriceList={product.latest_price_list || []}
+            categoryInfo={product.category_info}
+          />
+        </div>
+      </div>
+
     </div>
   )
 }

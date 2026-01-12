@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import axios from "axios";
 
+export const dynamic = "force-dynamic";
+
 // Proxies external pickup-list API - fetches from like.test/api/v2/pickup-list
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function GET(_req: NextRequest) {
+export async function GET() {
   const API_BASE = process.env.API_BASE;
   const SYSTEM_KEY = process.env.SYSTEM_KEY;
 

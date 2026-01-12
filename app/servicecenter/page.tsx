@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
-import { FaPhoneAlt, FaMapMarkerAlt, FaTools, FaCheckCircle, FaChevronRight } from "react-icons/fa";
+import { FaPhoneAlt } from "react-icons/fa";
 
 // export const dynamic = 'force-dynamic';
 

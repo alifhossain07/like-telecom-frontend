@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { RefObject } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   FiChevronLeft,
@@ -23,6 +24,8 @@ import FAQ from "./FAQ";
 import Reviews from "./Reviews";
 
 const Page = () => {
+  const searchParams = useSearchParams();
+  const productId = searchParams.get("id") ? parseInt(searchParams.get("id")!) : 15; // Default to 15 for demo
   const [activeTab, setActiveTab] = useState("spec");
   const specRef = useRef<HTMLDivElement | null>(null);
   const detailsRef = useRef<HTMLDivElement | null>(null);
@@ -160,11 +163,10 @@ const Page = () => {
               <div
                 key={index}
                 onClick={() => setSelectedImage(index)}
-                className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${
-                  selectedImage === index
-                    ? "border-orange-500"
-                    : "border-transparent hover:border-orange-400"
-                }`}
+                className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${selectedImage === index
+                  ? "border-orange-500"
+                  : "border-transparent hover:border-orange-400"
+                  }`}
               >
                 <Image
                   src={img}
@@ -428,11 +430,10 @@ const Page = () => {
                   <button
                     key={variant}
                     onClick={() => setSelectedVariant(variant)}
-                    className={`px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200 ${
-                      selectedVariant === variant
-                        ? "bg-gray-200 text-orange-500 border-orange-400"
-                        : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
-                    }`}
+                    className={`px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200 ${selectedVariant === variant
+                      ? "bg-gray-200 text-orange-500 border-orange-400"
+                      : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
+                      }`}
                   >
                     {variant}
                   </button>
@@ -450,11 +451,10 @@ const Page = () => {
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${
-                      selectedColor === color
-                        ? "border-orange-500 scale-110"
-                        : "border-gray-300 hover:scale-105"
-                    }`}
+                    className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${selectedColor === color
+                      ? "border-orange-500 scale-110"
+                      : "border-gray-300 hover:scale-105"
+                      }`}
                     style={{ backgroundColor: color }}
                   ></button>
                 ))}
@@ -620,11 +620,10 @@ const Page = () => {
                       scrollToSection(faqRef);
                     }
                   }}
-                  className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-black text-white shadow-sm"
-                      : "bg-white text-gray-800 hover:bg-gray-200"
-                  }`}
+                  className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${activeTab === tab.id
+                    ? "bg-black text-white shadow-sm"
+                    : "bg-white text-gray-800 hover:bg-gray-200"
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -828,7 +827,7 @@ const Page = () => {
               <FAQ />
             </div>
             <div className="scroll-mt-36" ref={reviewRef}>
-              <Reviews />
+              <Reviews productId={productId} />
             </div>
           </div>
         </div>

@@ -213,8 +213,8 @@ const CorporatePage = () => {
                     <div className="relative flex overflow-hidden group">
                         <div className="flex animate-marquee whitespace-nowrap gap-8 2xl:gap-16 items-center py-4">
                             {data.client_logos.concat(data.client_logos).map((logo, index) => (
-                                <div key={index} className="flex-shrink-0 border p-2 2xl:p-6 rounded w-48 h-16 2xl:w-80 2xl:h-32 flex items-center justify-center shadow-sm border-gray-100 bg-white">
-                                    <img src={logo} alt={`Client ${index}`} className="max-w-full max-h-full object-contain" />
+                                <div key={index} className="flex-shrink-0 border p-2 2xl:p-6 rounded w-48 h-16 2xl:w-80 2xl:h-32 flex items-center justify-center shadow-sm border-gray-100 bg-white relative">
+                                    <Image src={logo} alt={`Client ${index}`} fill className="object-contain p-2" />
                                 </div>
                             ))}
                         </div>

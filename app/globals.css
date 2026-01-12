@@ -6,7 +6,8 @@
 @import "@glidejs/glide/dist/css/glide.core.min.css";
 
 /* Use Poppins globally */
-html, body {
+html,
+body {
   font-family: var(--font-poppins), sans-serif;
 }
 
@@ -41,7 +42,8 @@ body {
 }
 
 @keyframes pulseScaleColor {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     color: white;
   }
@@ -88,8 +90,14 @@ body {
 }
 
 @keyframes fadeDown {
-  0% { opacity: 0; transform: translateY(-10px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .highlight-banner-text {
@@ -110,7 +118,7 @@ body {
     opacity: 1;
   }
 }
-.prose img:nth-of-type(n+2) {
+.prose img:nth-of-type(n + 2) {
   width: 100% !important;
   height: 300px !important; /* Fixed height */
   object-fit: cover !important; /* Ensure the image covers the area */
@@ -119,23 +127,45 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Container for the rendered HTML */
@@ -157,7 +187,7 @@ body {
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem !important;
-  border-bottom: 1px solid #000000 !important; 
+  border-bottom: 1px solid #000000 !important;
 }
 
 .dynamic-content-renderer h1 {
@@ -207,7 +237,6 @@ body {
   border-radius: 4px;
 }
 
-
 /* Lists */
 .dynamic-content-renderer ul {
   list-style-type: disc;
@@ -231,32 +260,49 @@ body {
 /* Print styles for invoice */
 @media print {
   @page {
-    margin: 1cm;
+    margin: 0;
+    size: auto;
   }
 
   body {
     background: white !important;
+    font-size: 12pt;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* Hide navigation and non-essential elements when printing */
+  /* Hide navigation, sidebar, and non-essential elements */
   nav,
   header,
   footer,
-  button:not(.print-button),
-  a[href]:not(.print-link) {
-    display: none !important;
+  aside,
+  .sidebar,
+  .no-print,
+  button,
+  a[href^="/"] { /* Hide navigation links but keep text clear */
+     display: none !important;
   }
 
-  /* Ensure content fits on page */
-  .bg-white {
-    background: white !important;
-    box-shadow: none !important;
-    border: none !important;
+  /* Wrapper to hide everything by default if needed, 
+     but usually hiding headers/footers/aside is enough if the main content is clean. 
+     Better approach: Make the print container fixed and full screen.
+  */
+
+  /* Specific Invoice Container Styling */
+  .invoice-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100%;
+    background: white;
+    z-index: 9999;
+    padding: 40px !important;
+    margin: 0 !important;
   }
 
-  /* Prevent page breaks inside important sections */
-  .space-y-4 > div,
-  .grid {
-    page-break-inside: avoid;
+  /* Restore visibility for specific elements inside invoice */
+  .invoice-container * {
+    visibility: visible;
   }
 }

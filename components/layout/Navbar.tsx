@@ -19,7 +19,7 @@ import { IoSearch, IoCartOutline } from "react-icons/io5";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { MdOutlineHeadsetMic, MdOutlineLocalShipping } from "react-icons/md";
+import { MdOutlineHeadsetMic, MdOutlineLocalShipping, MdPhoneIphone } from "react-icons/md";
 
 // ------------------ TYPES ------------------
 // type Subcategory = {
@@ -259,18 +259,18 @@ const Navbar = () => {
           <div className="w-11/12 mx-auto flex flex-col md:flex-row justify-between gap-3 md:gap-0">
             {/* Left - Info Links */}
             <div className="flex flex-wrap justify-center md:justify-start font-semibold text-green-800 gap-4 text-sm">
-              <div className="flex items-center gap-2">
+              <Link href="/trackorder" className="flex items-center gap-2">
                 <MdOutlineLocalShipping className="text-lg" />
                 <span className="hidden sm:inline">Order Tracking</span>
-              </div>
+              </Link>
               <Link href="/servicecenter" className="flex items-center gap-2">
                 <MdOutlineHeadsetMic className="text-lg" />
                 <span className="hidden sm:inline">Service Center</span>
               </Link >
-              <div className="flex items-center gap-2">
+              <Link href="/store" className="flex items-center gap-2">
                 <FaMapMarkerAlt className="text-lg" />
                 <span className="hidden sm:inline">Store Locations</span>
-              </div>
+              </Link>
             </div>
 
             {/* Right - Contact */}
@@ -553,9 +553,9 @@ const Navbar = () => {
             </div> */}
 
             {/* CART */}
-            <button className="bg-[#eaeaea] px-6 py-1 h-[40px] rounded-md flex items-center  text-sm">
+            <Link href="/exclusivedeals" className="bg-[#eaeaea] px-6 py-1 h-[40px] rounded-md flex items-center  text-sm">
               <span className="2xl:text-base text-[14px] ">Exclusive Sales</span>
-            </button>
+            </Link>
             <Link href="/corporate" className="bg-[#eaeaea]  px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
               <span className="2xl:text-base text-[14px] ">Corporate</span>
             </Link>
@@ -695,6 +695,16 @@ const Navbar = () => {
                 </li>
               ))}
 
+              {/* ALL PRODUCTS LINK */}
+              <li className="relative group cursor-pointer">
+                <Link
+                  href="/products/search"
+                  className="flex items-center gap-1 hover:text-gray-300"
+                >
+                  All
+                </Link>
+              </li>
+
               {/* ⭐ SIMPLE LINKS (NO DROPDOWNS) */}
               {simplePages.map((page, i) => (
                 <li key={i}>
@@ -704,6 +714,14 @@ const Navbar = () => {
                 </li>
               ))}
             </ul>
+            {/* Used Device Button - Desktop */}
+            <Link
+              href="/used-device"
+              className="hidden lg:flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-1.5 h-full text-sm font-medium transition-colors"
+            >
+              <MdPhoneIphone className="text-lg" />
+              Used Device
+            </Link>
           </div>
         </div>
       </header>
@@ -1064,6 +1082,15 @@ const Navbar = () => {
                   {page.name}
                 </Link>
               ))}
+
+              <Link
+                href="/used-device"
+                onClick={handleCloseMenu}
+                className="flex items-center gap-2 py-2 text-sm font-medium text-orange-600 hover:text-orange-700"
+              >
+                <MdPhoneIphone className="text-lg" />
+                Used Device
+              </Link>
             </ul>
           </div>
         </>

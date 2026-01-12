@@ -16,6 +16,7 @@ interface AuthContextValue {
     password_confirmation: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -32,7 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Rehydrate from localStorage on mount
   useEffect(() => {
     let isMounted = true;
-    
+
     const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     const storedTime = typeof window !== "undefined" ? localStorage.getItem(SESSION_TIMESTAMP_KEY) : null;
     if (!stored || !storedTime) {
@@ -94,7 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (typeof window !== "undefined") {
           document.cookie = `${STORAGE_KEY}=; path=/; max-age=0`;
         }
-        
+
         // Optionally call logout API
         if (token) {
           apiLogout(token).catch(() => {
@@ -103,7 +104,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     }, timeRemaining);
-    
+
     return () => {
       isMounted = false;
       clearTimeout(timeout);
@@ -116,7 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await apiLogin(args);
       if (!res.result) throw new Error(res.message || "Login failed");
-      
+
       // Store token and timestamp in localStorage and cookie
       const token = res.access_token;
       setAccessToken(token);
@@ -124,7 +125,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
       // Also store in cookie for Server Components to access
       document.cookie = `${STORAGE_KEY}=${token}; path=/; max-age=${SESSION_DURATION_MS / 1000}; SameSite=Lax`;
-      
+
       // Fetch full user profile using Bearer token
       try {
         const fullUserProfile = await fetchProfile(token);
@@ -150,7 +151,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await apiSignup(args);
       if (!res.result) throw new Error(res.message || "Signup failed");
-      
+
       // Store token and timestamp in localStorage and cookie
       const token = res.access_token;
       setAccessToken(token);
@@ -158,7 +159,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
       // Also store in cookie for Server Components to access
       document.cookie = `${STORAGE_KEY}=${token}; path=/; max-age=${SESSION_DURATION_MS / 1000}; SameSite=Lax`;
-      
+
       // Fetch full user profile using Bearer token
       try {
         const fullUserProfile = await fetchProfile(token);
@@ -176,7 +177,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     const token = accessToken;
-    
+
     // Clear local state first for immediate UI update
     setUser(null);
     setAccessToken(null);
@@ -198,6 +199,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const refreshUser = async () => {
+    if (!accessToken) return;
+
+    try {
+      const userData = await fetchProfile(accessToken);
+      setUser(userData);
+    } catch (error) {
+      console.error("Failed to refresh user profile:", error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -207,6 +219,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         login: handleLogin,
         signup: handleSignup,
         logout,
+        refreshUser,
       }}
     >
       {children}

@@ -21,6 +21,18 @@ type ProductType = {
   featured_specs?: { text: string; icon: string }[];
   current_stock: number;
   product_compatible?: string[];
+  variants?: { variant: string; sku?: string }[];
+};
+
+type FilteringAttributeValue = {
+  id: number;
+  value: string;
+};
+
+type FilteringAttribute = {
+  id: number;
+  name: string;
+  values: FilteringAttributeValue[];
 };
 
 const CategoryPage = () => {
@@ -28,12 +40,24 @@ const CategoryPage = () => {
   const params = useParams();
   const category = params.category;
   const searchParams = useSearchParams();
-  
+
+  // Parse dynamic attributes from URL
+  // We look for keys starting with "attribute_"
+  // Parse dynamic attributes from URL
+  const getInitialSelectedValues = () => {
+    const selected = new Set<number>();
+    const attrValues = searchParams.get("attribute_values");
+    if (attrValues) {
+      attrValues.split(",").map(Number).filter(n => !isNaN(n)).forEach(id => selected.add(id));
+    }
+    return selected;
+  };
+
   const searchQuery = typeof category === "string" && category === "search"
     ? searchParams.get("q") || ""
     : "";
   const isSearchMode = category === "search";
-  
+
   const [products, setProducts] = useState<ProductType[]>([]);
   const [subtitle, setSubtitle] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -41,9 +65,12 @@ const CategoryPage = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
+  const [filteringAttributes, setFilteringAttributes] = useState<FilteringAttribute[]>([]);
+  const [selectedAttributeValues, setSelectedAttributeValues] = useState<Set<number>>(getInitialSelectedValues);
+
   const MIN = 0;
-  const MAX = 12000;
-  
+  const MAX = 500000; // Updated to 500k to cover iPhones
+
   // Get initial values from URL
   const [minPrice, setMinPrice] = useState(() => {
     const min = searchParams.get("min");
@@ -68,11 +95,12 @@ const CategoryPage = () => {
     return (searchParams.get("availability") as AvailabilityStatus) || null;
   });
 
-  type DeviceType = "I Phone" | "Oppo" | "Samsung" | "Redmi";
-  const [deviceFilters, setDeviceFilters] = useState<DeviceType[]>(() => {
-    const devices = searchParams.get("devices");
-    return devices ? (devices.split(",") as DeviceType[]) : [];
-  });
+  // Device filters removed as per user edit
+  // type DeviceType = "I Phone" | "Oppo" | "Samsung" | "Redmi";
+  // const [deviceFilters, setDeviceFilters] = useState<DeviceType[]>(() => {
+  //   const devices = searchParams.get("devices");
+  //   return devices ? (devices.split(",") as DeviceType[]) : [];
+  // });
 
   // Update URL with current filters - FIXED to preserve search query
   const updateURL = useCallback((updates: Record<string, string | number | null>) => {
@@ -91,6 +119,17 @@ const CategoryPage = () => {
       }
     });
 
+    // START: Dynamic Attribute Handling in URL Update
+    // We need to keep existing attributes if they are not being actively toggled here,
+    // OR we need to ensure "updates" contains the new state of the toggled attribute.
+    // The safest way is to rebuild attribute params from current state if not passed, 
+    // BUT updateURL is generic.
+    // Instead, let's rely on the caller to pass null for cleared attributes or we check state.
+    // actually, let's just make sure we don't accidentally wipe them if this function is called for page change.
+    // The caller usually passes the specific change.
+    // We should probably just merge current searchParams with updates.
+    // However, for attributes, we might want to pass the simplified key "attribute_ID".
+
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     router.push(newUrl, { scroll: false });
   }, [searchParams, router, isSearchMode, searchQuery]);
@@ -106,7 +145,7 @@ const CategoryPage = () => {
       } else {
         setIsFilterLoading(true);
       }
-      
+
       try {
         let url: string;
         const params = new URLSearchParams();
@@ -117,18 +156,24 @@ const CategoryPage = () => {
         }
 
         // Add filters to API call (for both search and category)
-        if (minPrice > MIN) params.set("min", String(minPrice));
-        if (maxPrice < MAX) params.set("max", String(maxPrice));
-        
+        // Client-side filtering for price: do NOT send min/max to API so we get all products
+        // if (minPrice > MIN) params.set("min", String(minPrice));
+        // if (maxPrice < MAX) params.set("max", String(maxPrice));
+
         // Map sort option to backend key
         if (sortOption === "price-low-high") {
           params.set("sort_key", "price_low_to_high");
         } else if (sortOption === "price-high-low") {
           params.set("sort_key", "price_high_to_low");
         }
-        
+
         // Add page
         params.set("page", String(currentPage));
+
+        // Add selected attributes - REMOVED for client-side filtering
+        // if (selectedAttributeValues.size > 0) {
+        //   params.set("attribute_values", Array.from(selectedAttributeValues).join(","));
+        // }
 
         if (isSearchMode) {
           url = `/api/products/search?${params.toString()}`;
@@ -141,6 +186,12 @@ const CategoryPage = () => {
         setSubtitle(res.data.subtitle || "");
         setTotalProducts(res.data.meta?.total || res.data.products?.length || 0);
         setTotalPages(res.data.meta?.last_page || 1);
+
+        // Only set filtering attributes if provided and we haven't loaded them yet OR if we want to update counts (if API supported it)
+        // For now, let's just update them if provided.
+        if (res.data.filtering_attributes) {
+          setFilteringAttributes(res.data.filtering_attributes);
+        }
       } catch (err) {
         console.error("Error fetching products:", err);
       } finally {
@@ -150,11 +201,12 @@ const CategoryPage = () => {
     };
 
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, isSearchMode, searchQuery, minPrice, maxPrice, sortOption, currentPage]);
 
   // Client-side filtering for availability and device (since API doesn't support these)
   const filteredProducts = products.filter((p) => {
-    // Availability filter
+    // 1. Availability Filter
     if (availabilityFilter) {
       const isInStock = p.current_stock > 0;
       const isOutOfStock = p.current_stock === 0;
@@ -165,12 +217,62 @@ const CategoryPage = () => {
       if (availabilityFilter === "upcoming") return false;
     }
 
-    // Device compatibility filter
-    if (deviceFilters.length > 0) {
-      const compatList = p.product_compatible ?? [];
-      const matches = deviceFilters.some(device => compatList.includes(device));
-      if (!matches) return false;
+    // 2. Dynamic Attribute Filtering (Client-side)
+    if (selectedAttributeValues.size > 0) {
+      const selectedValueStrings: string[] = [];
+
+      // Find the string values for selected IDs
+      filteringAttributes.forEach(attr => {
+        attr.values.forEach(val => {
+          if (selectedAttributeValues.has(val.id)) {
+            selectedValueStrings.push(val.value); // e.g. "6GB"
+          }
+        });
+      });
+
+      if (selectedValueStrings.length > 0) {
+        // If product has no variants, it can't match strict variant attributes
+        if (!p.variants || p.variants.length === 0) return false;
+
+        // DEBUG: Log for first product to see what's happening
+        // eslint-disable-next-line no-console
+        console.log(`Checking product: ${p.name}`, {
+          variants: p.variants.map(v => v.variant),
+          filters: selectedValueStrings
+        });
+
+        // Check if ANY variant matches ANY selected attribute
+        // User instruction: "like jekono ekta attribute string... match korlei show korbe"
+        const hasMatchingVariant = p.variants.some(variantObj => {
+          const vName = (variantObj.variant || "").toLowerCase();
+          const vSku = (variantObj.sku || "").toLowerCase();
+
+          // Check if any filter string is present in this variant string or SKU
+          return selectedValueStrings.some(valStr => {
+            const lowerVal = valStr.toLowerCase();
+            const match = vName.includes(lowerVal) || vSku.includes(lowerVal);
+            // console.log(`    Variant "${vName}" contains "${lowerVal}"? ${match}`);
+            return match;
+          });
+        });
+
+        if (!hasMatchingVariant) return false;
+      }
     }
+
+    // 3. Price Filter (Client-side)
+    if (p.price < minPrice || p.price > maxPrice) {
+      return false;
+    }
+
+    // 4. Device compatibility filter (Removed UI, but keeping logic commented out or just return true)
+    // if (deviceFilters.length > 0) {
+    //   const compatList = p.product_compatible ?? [];
+    //   const matches = deviceFilters.some(device => compatList.includes(device));
+    //   if (!matches) return false;
+    // }
+
+    return true;
 
     return true;
   });
@@ -189,10 +291,10 @@ const CategoryPage = () => {
 
   const applyPriceFilter = () => {
     setCurrentPage(1);
-    updateURL({ 
-      min: minPrice > MIN ? minPrice : null, 
+    updateURL({
+      min: minPrice > MIN ? minPrice : null,
       max: maxPrice < MAX ? maxPrice : null,
-      page: null 
+      page: null
     });
   };
 
@@ -202,18 +304,21 @@ const CategoryPage = () => {
     updateURL({ sort: value !== "default" ? value : null, page: null });
   };
 
+  /* Device toggle removed */
+  /*
   const toggleDevice = (device: DeviceType) => {
     const newDevices = deviceFilters.includes(device)
       ? deviceFilters.filter(d => d !== device)
       : [...deviceFilters, device];
-    
+
     setDeviceFilters(newDevices);
     setCurrentPage(1);
-    updateURL({ 
+    updateURL({
       devices: newDevices.length > 0 ? newDevices.join(",") : null,
-      page: null 
+      page: null
     });
   };
+  */
 
   const toggleAvailability = (key: Exclude<AvailabilityStatus, null>) => {
     const newValue = availabilityFilter === key ? null : key;
@@ -226,19 +331,40 @@ const CategoryPage = () => {
     setMinPrice(MIN);
     setMaxPrice(MAX);
     setAvailabilityFilter(null);
-    setDeviceFilters([]);
+    // setDeviceFilters([]);
     setSortOption("default");
     setCurrentPage(1);
-    
+    setSelectedAttributeValues(new Set()); // Clear dynamic attributes
+
     const params = new URLSearchParams();
-    
+
     // CRITICAL FIX: Preserve search query when clearing filters
     if (isSearchMode && searchQuery) {
       params.set("q", searchQuery);
     }
-    
+
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     router.push(newUrl, { scroll: false });
+  };
+
+  const toggleAttributeValue = (valueId: number) => {
+    const newSelected = new Set(selectedAttributeValues);
+
+    if (newSelected.has(valueId)) {
+      newSelected.delete(valueId);
+    } else {
+      newSelected.add(valueId);
+    }
+
+    setSelectedAttributeValues(newSelected);
+    setCurrentPage(1);
+
+    // Update URL
+    const valuesArray = Array.from(newSelected);
+    updateURL({
+      attribute_values: valuesArray.length > 0 ? valuesArray.join(",") : null,
+      page: null
+    });
   };
 
   const SidebarContent = (
@@ -255,7 +381,6 @@ const CategoryPage = () => {
         </button>
       </div>
 
-      {/* Availability */}
       <div className="border-t py-3">
         <h3 className="font-medium text-base md:text-[18px] mb-2">
           Availability
@@ -299,6 +424,31 @@ const CategoryPage = () => {
           </label>
         </div>
       </div>
+
+      {/* Dynamic Attributes */}
+      {filteringAttributes.map((attr) => (
+        <div key={attr.id} className="border-t py-3">
+          <h3 className="font-medium text-base md:text-[18px] mb-2">
+            {attr.name}
+          </h3>
+          <div className="space-y-1 text-[#626262] text-sm md:text-[16px]">
+            {attr.values.map((val) => {
+              const isChecked = selectedAttributeValues.has(val.id);
+              return (
+                <label key={val.id} className="flex gap-2 items-center cursor-pointer">
+                  <input
+                    className="accent-orange-500 cursor-pointer"
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleAttributeValue(val.id)}
+                  />{" "}
+                  {val.value}
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      ))}
 
       {/* Price Range */}
       <div className="border-t py-3">
@@ -357,50 +507,7 @@ const CategoryPage = () => {
         </button>
       </div>
 
-      {/* Device List */}
-      <div className="border-t py-3">
-        <h3 className="font-semibold text-black text-base md:text-[18px] mb-2">
-          Device List
-        </h3>
-        <div className="space-y-1 text-sm md:text-[16px] text-[#626262]">
-          <label className="flex gap-2 items-center cursor-pointer">
-            <input
-              className="accent-orange-500 cursor-pointer"
-              type="checkbox"
-              checked={deviceFilters.includes("I Phone")}
-              onChange={() => toggleDevice("I Phone")}
-            />{" "}
-            I Phone
-          </label>
-          <label className="flex gap-2 items-center cursor-pointer">
-            <input
-              className="accent-orange-500 cursor-pointer"
-              type="checkbox"
-              checked={deviceFilters.includes("Oppo")}
-              onChange={() => toggleDevice("Oppo")}
-            />{" "}
-            Oppo
-          </label>
-          <label className="flex gap-2 items-center cursor-pointer">
-            <input
-              className="accent-orange-500 cursor-pointer"
-              type="checkbox"
-              checked={deviceFilters.includes("Samsung")}
-              onChange={() => toggleDevice("Samsung")}
-            />{" "}
-            Samsung
-          </label>
-          <label className="flex gap-2 items-center cursor-pointer">
-            <input
-              className="accent-orange-500 cursor-pointer"
-              type="checkbox"
-              checked={deviceFilters.includes("Redmi")}
-              onChange={() => toggleDevice("Redmi")}
-            />{" "}
-            Redmi
-          </label>
-        </div>
-      </div>
+
 
       {/* Best Selling */}
       {isSearchMode && (
@@ -435,7 +542,7 @@ const CategoryPage = () => {
           Search results for &quot;{searchQuery}&quot;
         </h1>
       )}
-      
+
       {subtitle && (
         <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
           {subtitle}
@@ -470,16 +577,14 @@ const CategoryPage = () => {
 
           {/* Mobile Filter Drawer */}
           <div
-            className={`fixed inset-0 bg-black/40 z-40 xl:hidden transition-opacity duration-300 ${
-              isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-            }`}
+            className={`fixed inset-0 bg-black/40 z-40 xl:hidden transition-opacity duration-300 ${isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              }`}
             onClick={() => setIsFilterOpen(false)}
           />
 
           <div
-            className={`fixed inset-y-0 left-0 w-[80%] max-w-xs bg-white z-50 xl:hidden flex flex-col transform transition-transform duration-300 ${
-              isFilterOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+            className={`fixed inset-y-0 left-0 w-[80%] max-w-xs bg-white z-50 xl:hidden flex flex-col transform transition-transform duration-300 ${isFilterOpen ? "translate-x-0" : "-translate-x-full"
+              }`}
           >
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <span className="font-semibold text-base">Filters</span>
@@ -560,11 +665,10 @@ const CategoryPage = () => {
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className={`px-3 py-1.5 border rounded-md text-xs md:text-sm font-medium ${
-                        currentPage === 1
-                          ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                          : "hover:bg-gray-100"
-                      }`}
+                      className={`px-3 py-1.5 border rounded-md text-xs md:text-sm font-medium ${currentPage === 1
+                        ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                        : "hover:bg-gray-100"
+                        }`}
                     >
                       &lt; Back
                     </button>
@@ -574,11 +678,10 @@ const CategoryPage = () => {
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
-                          className={`px-3 py-1.5 border rounded-md text-xs md:text-sm font-medium ${
-                            currentPage === page
-                              ? "bg-black text-white border-black"
-                              : "hover:bg-gray-100 border-gray-300"
-                          }`}
+                          className={`px-3 py-1.5 border rounded-md text-xs md:text-sm font-medium ${currentPage === page
+                            ? "bg-black text-white border-black"
+                            : "hover:bg-gray-100 border-gray-300"
+                            }`}
                         >
                           {page}
                         </button>
@@ -588,11 +691,10 @@ const CategoryPage = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className={`px-3 py-1.5 border rounded-md text-xs md:text-sm font-medium ${
-                        currentPage === totalPages
-                          ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                          : "hover:bg-gray-100"
-                      }`}
+                      className={`px-3 py-1.5 border rounded-md text-xs md:text-sm font-medium ${currentPage === totalPages
+                        ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                        : "hover:bg-gray-100"
+                        }`}
                     >
                       Next &gt;
                     </button>
@@ -603,6 +705,7 @@ const CategoryPage = () => {
           </div>
         </>
       )}
+      {/* Debug Overlay Removed */}
     </div>
   );
 };
