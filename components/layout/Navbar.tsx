@@ -695,15 +695,7 @@ const Navbar = () => {
                 </li>
               ))}
 
-              {/* ALL PRODUCTS LINK */}
-              <li className="relative group cursor-pointer">
-                <Link
-                  href="/products/search"
-                  className="flex items-center gap-1 hover:text-gray-300"
-                >
-                  All
-                </Link>
-              </li>
+
 
               {/* ⭐ SIMPLE LINKS (NO DROPDOWNS) */}
               {simplePages.map((page, i) => (
