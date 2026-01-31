@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { FiPlus, FiMinus } from "react-icons/fi";
 import { useCart } from "@/app/context/CartContext";
-import toast from "react-hot-toast";
 
 type Brand = {
   id: number;
@@ -583,15 +582,15 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
             }
             onClick={handleConfirmAdd}
             className={`w-1/2 py-2 rounded-xl text-xs md:text-sm font-semibold text-white transition ${adding ||
-                loading ||
-                !product ||
-                product.current_stock === 0 ||
-                (() => {
-                  const matchedVariant = findMatchingVariant();
-                  return matchedVariant ? matchedVariant.qty <= 0 : false;
-                })()
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-orange-500 hover:bg-orange-600"
+              loading ||
+              !product ||
+              product.current_stock === 0 ||
+              (() => {
+                const matchedVariant = findMatchingVariant();
+                return matchedVariant ? matchedVariant.qty <= 0 : false;
+              })()
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-orange-500 hover:bg-orange-600"
               }`}
           >
             {adding ? "Adding..." : "Add to Cart"}
