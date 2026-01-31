@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { FiMail } from "react-icons/fi";
+import Image from "next/image";
 import NewsLetterBannerSkeleton from "@/components/Skeletons/NewsLetterBannerSkeleton";
 
 type HomeBottomBanner = {
@@ -54,39 +55,39 @@ const NewsletterBanner: React.FC = () => {
 
   return (
     <div className="w-11/12 pb-10 mx-auto mt-12">
-      <div
-        className="bg-gradient-to-r from-orange-400 to-orange-600 rounded-xl flex flex-col md:flex-row items-center justify-between px-6 sm:px-10 md:px-20 py-12 md:py-20 text-white relative overflow-hidden"
-        style={{
-          backgroundImage: `url(${data.image})`,
-          backgroundSize: "contain",
-          backgroundPosition: "center bottom",
-          backgroundRepeat: "no-repeat"
-        }}
-      >
-        {/* Overlay (keeps text readable) */}
-       
+      <div className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-orange-400 to-orange-600 lg:aspect-[1746/292]">
+        <Image
+          src={data.image}
+          alt="Newsletter Background"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Overlay (keeps text readable if needed, or just specific styles) */}
 
-        {/* Left Side */}
-        <div className="relative z-10 flex flex-col items-start gap-5 max-w-lg text-center md:text-left">
-          <h2
-            className="text-xl sm:text-2xl md:text-3xl font-semibold leading-snug"
-            dangerouslySetInnerHTML={{ __html: formatTitle(data.title) }}
-          />
+        <div className="relative z-10 h-full flex flex-col md:flex-row items-center justify-between px-6 sm:px-10 md:px-20 py-12 md:py-16 text-white">
+          {/* Left Side */}
+          <div className="flex flex-col items-start gap-5 max-w-lg text-center md:text-left">
+            <h2
+              className="text-xl sm:text-2xl md:text-3xl font-semibold leading-snug"
+              dangerouslySetInnerHTML={{ __html: formatTitle(data.title) }}
+            />
 
-          {/* Input + Button */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <div className="flex items-center bg-transparent border border-white/60 rounded-full px-4 py-2 w-full sm:w-auto">
-              <FiMail className="text-white/80 mr-2 text-lg" />
-              <input
-                type="email"
-                placeholder="Email address"
-                className="bg-transparent outline-none placeholder-white/70 text-white text-sm w-full sm:w-64"
-              />
+            {/* Input + Button */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center bg-transparent border border-white/60 rounded-full px-4 py-2 w-full sm:w-auto">
+                <FiMail className="text-white/80 mr-2 text-lg" />
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  className="bg-transparent outline-none placeholder-white/70 text-white text-sm w-full sm:w-64"
+                />
+              </div>
+
+              <button className="bg-white text-orange-600 font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition w-full sm:w-auto">
+                Submit
+              </button>
             </div>
-
-            <button className="bg-white text-orange-600 font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition w-full sm:w-auto">
-              Submit
-            </button>
           </div>
         </div>
       </div>

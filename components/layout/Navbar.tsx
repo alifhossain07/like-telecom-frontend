@@ -113,6 +113,22 @@ const Navbar = () => {
   const submenuRef = useRef<HTMLUListElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
+  const [responsivePlaceholder, setResponsivePlaceholder] = useState("Search your Favourite Accessories.");
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Shorten placeholder for screens between 1024px and 1440px (lg to xl range)
+      if (window.innerWidth >= 1024 && window.innerWidth < 1440) {
+        setResponsivePlaceholder("Search your favourite...");
+      } else {
+        setResponsivePlaceholder("Search your Favourite Accessories.");
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleCloseMenu = () => {
     setClosing(true);
     setTimeout(() => {
@@ -253,7 +269,7 @@ const Navbar = () => {
   return (
     <>
       {/* ========= HEADER ========= */}
-      <header className="fixed top-0 left-0 w-full bg-white z-50 shadow-md">
+      <header className="fixed top-0 left-0 w-full bg-white z-[9999] shadow-md">
         {/* TOP BAR */}
         <div className="py-2 hidden md:block shadow-md border-b border-gray-100 bg-white">
           <div className="w-11/12 mx-auto flex flex-col md:flex-row justify-between gap-3 md:gap-0">
@@ -289,10 +305,10 @@ const Navbar = () => {
             <Link href="/">
               <Image
                 src={logoUrl || "/images/likelogo.png"}
-                width={120}
-                height={120}
+                width={500}
+                height={500}
                 alt="Logo"
-                className="xl:w-40 xl:h-20 w-32 h-16 "
+                className="xl:w-36 xl:h-[75px] py-1 w-28 h-14 "
               />
             </Link>
 
@@ -320,7 +336,7 @@ const Navbar = () => {
           {/* DESKTOP BUTTONS */}
           <div className="hidden lg:flex items-center gap-3">
             {/* SEARCH */}
-            <div ref={desktopSearchRef} className="relative w-full md:w-96 xl:w-[280px] 2xl:w-[550px] mr-6">
+            <div ref={desktopSearchRef} className="relative w-full md:w-96 xl:w-[290px] 2xl:w-[550px]  mr-3">
               <input
                 type="text"
                 value={searchTerm}
@@ -438,17 +454,17 @@ const Navbar = () => {
                     handleSearchSubmit(searchTerm);
                   }
                 }}
-                placeholder="Search your Favourite Accessories."
-                className="w-full text-white bg-black border border-black rounded-xl py-2 px-4"
+                placeholder={responsivePlaceholder}
+                className="w-full text-black bg-[#F3F5F9]  border border-black rounded-xl py-2 px-3 "
               />
               <div className="absolute top-1/2 right-1 transform -translate-y-1/2 flex items-center gap-2">
                 {isSuggestLoading && (
-                  <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
                 )}
                 <button
                   type="button"
                   onClick={() => handleSearchSubmit(searchTerm)}
-                  className="bg-white text-black p-2 rounded-md"
+                  className="bg-orange-500 text-white p-2 mr-1 rounded-md"
                 >
                   <FiSearch />
                 </button>
@@ -527,7 +543,7 @@ const Navbar = () => {
 
             <Link
               href="/flash-deals"
-              className="flex items-center gap-1 text-white px-5 mr-5 py-2 rounded-xl text-sm"
+              className="flex items-center gap-1 text-white px-4 mr-3 py-2 rounded-xl text-sm"
               style={{ background: "linear-gradient(to bottom, #FFD522, #FF6B01)" }}
             >
               <FiGift className="text-base mr-1 animate-pulseScaleColor" /> Offers
@@ -553,13 +569,13 @@ const Navbar = () => {
             </div> */}
 
             {/* CART */}
-            <Link href="/exclusivedeals" className="bg-[#eaeaea] px-6 py-1 h-[40px] rounded-md flex items-center  text-sm">
+            <Link href="/exclusivedeals" className="bg-[#eaeaea] px-3 2xl:px-6 py-1 h-[40px] rounded-md flex items-center  text-sm">
               <span className="2xl:text-base text-[14px] ">Exclusive Sales</span>
             </Link>
-            <Link href="/corporate" className="bg-[#eaeaea]  px-5 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
+            <Link href="/corporate" className="bg-[#eaeaea]  px-3 2xl:px-6 py-1 h-[40px] rounded-md flex items-center gap-3 text-sm">
               <span className="2xl:text-base text-[14px] ">Corporate</span>
             </Link>
-            <button onClick={() => setCartOpen(true)} className="bg-[#eaeaea] px-5 py-1 h-[40px] rounded-md flex items-center 2xl:gap-3 gap-1 text-sm">
+            <button onClick={() => setCartOpen(true)} className="bg-[#eaeaea] px-3 2xl:px-6 py-1 h-[40px] rounded-md flex items-center 2xl:gap-3 gap-1 text-sm">
               <FiShoppingCart className="text-2xl" />
               <div>
 
@@ -572,7 +588,7 @@ const Navbar = () => {
             {user ? (
               <div className="relative" ref={profileRef}>
                 <button
-                  className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-2 text-sm bg-white"
+                  className="border border-gray-400 px-3 2xl:px-6 py-1 h-[46px] rounded-md flex items-center gap-2 text-sm bg-white"
                   onClick={() => setShowDesktopLogout(prev => !prev)}
                 >
                   <FiUser className="text-2xl" />
@@ -921,7 +937,7 @@ const Navbar = () => {
       <div className="pt-[70px] xl:pt-[150px]"></div>
 
       {/* ========= MOBILE BOTTOM NAV ========= */}
-      <div className="bg-orange-400 rounded-t-2xl   fixed bottom-0 left-0 w-full flex justify-around items-center py-2 text-white lg:hidden z-50">
+      <div className="bg-orange-400 rounded-t-2xl fixed bottom-0 left-0 w-full flex justify-around items-center pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] text-white lg:hidden z-[9999]">
         <Link href="/" className="flex flex-col items-center text-sm">
           <FiHome className="text-xl" />
           Home
@@ -972,7 +988,7 @@ const Navbar = () => {
 
           {/* SIDEBAR */}
           <div
-            className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-50 overflow-y-auto ${closing ? "animate-slideOut" : "animate-slideIn"
+            className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-[10000] overflow-y-auto ${closing ? "animate-slideOut" : "animate-slideIn"
               }`}
           >
             <div className="flex justify-between items-center px-5 py-4 border-b">

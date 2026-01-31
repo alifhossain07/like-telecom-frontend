@@ -85,7 +85,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <body className={`${poppins.variable} antialiased`}>
+      <body className={`${poppins.variable} antialiased overflow-x-hidden`}>
         <AuthProvider>
           <CartProvider>
             <DynamicPopup />

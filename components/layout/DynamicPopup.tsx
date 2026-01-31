@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { IoClose } from "react-icons/io5";
 import Image from "next/image";
 
 interface PopupData {
@@ -93,6 +94,13 @@ const DynamicPopup = () => {
           priority
           unoptimized
         />
+        <button
+          onClick={handleClose}
+          className="absolute -top-3 -right-3 p-1 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors z-10"
+          aria-label="Close popup"
+        >
+          <IoClose size={24} className="text-gray-800" />
+        </button>
       </div>
     </div>
   );

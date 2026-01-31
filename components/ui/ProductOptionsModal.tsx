@@ -158,20 +158,24 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       '#C0C0C0': 'Silver',
       '#FFD700': 'Gold',
     };
-    
+
     const normalizedHex = hex.startsWith('#') ? hex.toUpperCase() : `#${hex.toUpperCase()}`;
     return colorMap[normalizedHex] || normalizedHex;
   };
 
   // Find matching variant based on selected attributes
   const findMatchingVariant = (): ProductVariant | null => {
-    if (!product || !selectedColor || !selectedStorage || !selectedRegion) {
-      return null;
-    }
+    if (!product) return null;
 
-    const colorName = getColorName(selectedColor);
-    const variantString = `${colorName}-${selectedStorage}-${selectedRegion}`;
-    
+    const parts: string[] = [];
+    if (selectedColor) parts.push(getColorName(selectedColor));
+    if (selectedStorage) parts.push(selectedStorage);
+    if (selectedRegion) parts.push(selectedRegion);
+
+    if (parts.length === 0) return null;
+
+    const variantString = parts.join("-");
+
     return product.variants.find((v) => v.variant === variantString) || null;
   };
 
@@ -180,12 +184,12 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
     const matchedVariant = findMatchingVariant();
     const productMainPrice = parsePrice(product?.main_price);
     const productStrokedPrice = parsePrice(product?.stroked_price);
-    
+
     if (matchedVariant && product) {
       // Variant price is the original/stroked price
       const variantPrice = matchedVariant.price;
       let discountedPrice: number;
-      
+
       // Calculate discounted price from variant price using discount percentage
       if (product.discount) {
         const discountMatch = String(product.discount).match(/-?(\d+)/);
@@ -198,13 +202,13 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       } else {
         discountedPrice = variantPrice;
       }
-      
+
       return {
         price: discountedPrice,
         oldPrice: variantPrice
       };
     }
-    
+
     // No variant selected, use product prices
     return {
       price: productMainPrice,
@@ -225,20 +229,20 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       }
 
       const matchedVariant = findMatchingVariant();
-      
+
       // Variant-based pricing: variant.price is the original/stroked price
       // Calculate discounted price from variant price
       const productMainPrice = parsePrice(product.main_price);
       const productStrokedPrice = parsePrice(product.stroked_price);
-      
+
       let price: number;
       let oldPrice: number;
-      
+
       if (matchedVariant) {
         // Variant price is the original/stroked price (line-through price)
         const variantPrice = matchedVariant.price;
         oldPrice = variantPrice;
-        
+
         // Calculate discounted price from variant price using discount percentage
         if (product.discount) {
           const discountMatch = String(product.discount).match(/-?(\d+)/);
@@ -262,11 +266,15 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
         product.photos[0]?.path ||
         "/images/placeholder.png";
 
-      // Build variant string only if all selections are present, otherwise null
+      // Build variant string dynamically based on selections
       let variantString: string | undefined = undefined;
-      if (selectedColor && selectedStorage && selectedRegion) {
-        const colorName = getColorName(selectedColor);
-        variantString = `${colorName}-${selectedStorage}-${selectedRegion}`;
+      const parts: string[] = [];
+      if (selectedColor) parts.push(getColorName(selectedColor));
+      if (selectedStorage) parts.push(selectedStorage);
+      if (selectedRegion) parts.push(selectedRegion);
+
+      if (parts.length > 0) {
+        variantString = parts.join("-");
       }
 
       addToCart({
@@ -414,11 +422,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                           <button
                             onClick={() => setSelectedColor(color)}
                             style={{ backgroundColor: color }}
-                            className={`w-8 h-8 rounded-md border-2 transition ${
-                              isSelected
-                                ? 'border-gray-800 scale-110'
-                                : 'border-gray-300 hover:border-gray-400'
-                            }`}
+                            className={`w-8 h-8 rounded-md border-2 transition ${isSelected
+                              ? 'border-gray-800 scale-110'
+                              : 'border-gray-300 hover:border-gray-400'
+                              }`}
                           />
                           {/* Tooltip */}
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
@@ -438,10 +445,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                   <p className="text-xs font-medium text-gray-700">{choice.title}</p>
                   <div className="flex flex-wrap gap-2">
                     {choice.options.map((option: string, optionIndex: number) => {
-                      const isSelected = 
+                      const isSelected =
                         (choice.title === 'Storage' && option === selectedStorage) ||
                         (choice.title === 'Region' && option === selectedRegion);
-                      
+
                       return (
                         <button
                           key={optionIndex}
@@ -452,11 +459,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                               setSelectedRegion(option);
                             }
                           }}
-                          className={`px-3 py-1 rounded-full border text-xs transition ${
-                            isSelected
-                              ? "bg-black text-white border-black"
-                              : "bg-white text-gray-700 border-gray-300 hover:border-black"
-                          }`}
+                          className={`px-3 py-1 rounded-full border text-xs transition ${isSelected
+                            ? "bg-black text-white border-black"
+                            : "bg-white text-gray-700 border-gray-300 hover:border-black"
+                            }`}
                         >
                           {option}
                         </button>
@@ -491,7 +497,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
               </div>
 
               {/* Small specs preview */}
-              
+
             </>
           )}
         </div>
@@ -507,11 +513,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
           <button
             disabled={adding || loading || !product || product.current_stock === 0}
             onClick={handleConfirmAdd}
-            className={`w-1/2 py-2 rounded-xl text-xs md:text-sm font-semibold text-white transition ${
-              adding || loading || !product || product.current_stock === 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-orange-500 hover:bg-orange-600"
-            }`}
+            className={`w-1/2 py-2 rounded-xl text-xs md:text-sm font-semibold text-white transition ${adding || loading || !product || product.current_stock === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-orange-500 hover:bg-orange-600"
+              }`}
           >
             {adding ? "Adding..." : "Add to Cart"}
           </button>

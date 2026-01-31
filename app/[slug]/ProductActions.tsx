@@ -38,8 +38,9 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [selectedColor, setSelectedColor] = useState<string>("");
-  const [selectedStorage, setSelectedStorage] = useState<string>("");
-  const [selectedRegion, setSelectedRegion] = useState<string>("");
+
+  // Dynamic options state (e.g., { "Storage": "128GB", "Region": "China", "RAM": "6GB" })
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   // Initialize color selection
   useEffect(() => {
@@ -48,19 +49,24 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
     }
   }, [product.colors, selectedColor]);
 
-  // Initialize storage and region from choice options
+  // Initialize dynamic options from choice_options
   useEffect(() => {
     if (product.choice_options) {
+      const initialOptions: Record<string, string> = {};
+      let hasUpdates = false;
+
       product.choice_options.forEach((choice) => {
-        if (choice.title === "Storage" && choice.options.length > 0 && !selectedStorage) {
-          setSelectedStorage(choice.options[0]);
-        }
-        if (choice.title === "Region" && choice.options.length > 0 && !selectedRegion) {
-          setSelectedRegion(choice.options[0]);
+        if (choice.options.length > 0 && !selectedOptions[choice.title]) {
+          initialOptions[choice.title] = choice.options[0];
+          hasUpdates = true;
         }
       });
+
+      if (hasUpdates) {
+        setSelectedOptions((prev) => ({ ...prev, ...initialOptions }));
+      }
     }
-  }, [product.choice_options, selectedStorage, selectedRegion]);
+  }, [product.choice_options, selectedOptions]);
 
   const increment = () => setQuantity((q) => q + 1);
   const decrement = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
@@ -121,6 +127,26 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
     };
   };
 
+  const constructVariantString = () => {
+    // Use selectedVariant if available
+    if (selectedVariant?.variant) {
+      return selectedVariant.variant;
+    }
+
+    const colorName = selectedColor ? getColorName(selectedColor) : "";
+
+    // Helper to get option values in correct order based on product.choice_options definition
+    const orderedOptionValues = product.choice_options
+      ? product.choice_options.map(choice => selectedOptions[choice.title])
+      : [];
+
+    const variantString = [colorName, ...orderedOptionValues]
+      .filter((part) => part && part.trim() !== "")
+      .join("-");
+
+    return variantString;
+  };
+
   const handleAddToCart = () => {
     if (!product) return;
 
@@ -133,12 +159,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
       product.photos?.[0]?.path ||
       "/images/placeholder.png";
 
-    // Build variant string
-    let variantString: string | undefined = undefined;
-    if (selectedColor && selectedStorage && selectedRegion) {
-      const colorName = getColorName(selectedColor);
-      variantString = `${colorName}-${selectedStorage}-${selectedRegion}`;
-    }
+    const variantString = constructVariantString();
 
     addToCart({
       id: product.id.toString(),
@@ -151,8 +172,11 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
       variant: variantString || undefined,
       variantImage: image,
       variantColor: selectedColor || undefined,
-      variantStorage: selectedStorage || undefined,
-      variantRegion: selectedRegion || undefined,
+      // For dynamic options, we might need to store them in a more generic way if CartItem supported it
+      // For now, CartItem defines variantStorage and variantRegion explicitly.
+      // We can map them if they exist for backward compatibility, but the 'variant' string is the source of truth.
+      variantStorage: selectedOptions["Storage"] || undefined,
+      variantRegion: selectedOptions["Region"] || undefined,
     });
 
     // Open cart sidebar
@@ -195,12 +219,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
       product.photos?.[0]?.path ||
       "/images/placeholder.png";
 
-    // Build variant string
-    let variantString: string | undefined = undefined;
-    if (selectedColor && selectedStorage && selectedRegion) {
-      const colorName = getColorName(selectedColor);
-      variantString = `${colorName}-${selectedStorage}-${selectedRegion}`;
-    }
+    const variantString = constructVariantString();
 
     // Add to cart
     addToCart({
@@ -214,8 +233,8 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
       variant: variantString || undefined,
       variantImage: image,
       variantColor: selectedColor || undefined,
-      variantStorage: selectedStorage || undefined,
-      variantRegion: selectedRegion || undefined,
+      variantStorage: selectedOptions["Storage"] || undefined,
+      variantRegion: selectedOptions["Region"] || undefined,
     });
 
     // Ensure this item is selected for checkout
@@ -225,9 +244,16 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
     router.push("/checkout");
   };
 
+  const handleOptionChange = (title: string, value: string) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [title]: value
+    }));
+  };
+
   return (
     <>
-      {/* Product Variants - Color, Storage, Region */}
+      {/* Product Variants - Dynamic */}
       <ProductVariants
         choiceOptions={product.choice_options || []}
         colors={product.colors || []}
@@ -235,18 +261,20 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
         currentStock={product.current_stock}
         sku={product.model_number || ""}
         variants={product.variants || []}
+
+        // Pass initial state if needed, though ProductVariants re-initializes too
+        initialColor={selectedColor}
+        initialOptions={selectedOptions}
+
         onVariantChange={(variant) => {
           setSelectedVariant(variant);
         }}
         onColorChange={(color) => {
           setSelectedColor(color);
         }}
-        onStorageChange={(storage) => {
-          setSelectedStorage(storage);
-        }}
-        onRegionChange={(region) => {
-          setSelectedRegion(region);
-        }}
+
+        // Use generic handler
+        onOptionChange={handleOptionChange}
       />
 
       {/* Quantity Selector */}

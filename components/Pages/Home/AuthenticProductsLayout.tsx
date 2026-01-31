@@ -68,7 +68,7 @@ const AuthenticProductsLayout: React.FC = () => {
   const rightText2 = extractTitleAndParagraph(data.info_rows[4]);
 
   return (
-    <div className="w-11/12 mx-auto py-12">
+    <div className="w-11/12 mx-auto 2xl:py-12">
       {/* Two equal-height columns */}
       <div className="grid md:grid-cols-2 gap-8 items-stretch">
         {/* LEFT COLUMN */}

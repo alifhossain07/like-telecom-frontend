@@ -99,7 +99,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-black text-white pt-20 pb-6">
+    <footer className="bg-[#F3F5F9] text-black pt-20 pb-6">
       {/* Outer Wrapper */}
       <div className="w-10/12 mx-auto border-b border-gray-700 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
@@ -111,9 +111,9 @@ const Footer = () => {
                 <Image
                   src={footerData.footer_logo}
                   alt="Footer Logo"
-                  width={150}
-                  height={50}
-                  className="object-contain"
+                  width={500}
+                  height={500}
+                  className="object-contain xl:w-36 xl:h-[75px] py-1 w-28 h-14"
                 />
               </div>
             )}
@@ -121,7 +121,7 @@ const Footer = () => {
             {/* About Description */}
             {footerData.about_us_description && (
               <p
-                className="text-gray-400 text-sm leading-relaxed mb-4"
+                className="text-gray-900 text-sm leading-relaxed mb-4"
                 dangerouslySetInnerHTML={{
                   __html: footerData.about_us_description,
                 }}
@@ -136,7 +136,7 @@ const Footer = () => {
                     href={footerData.facebook_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                    className="bg-gray-900 hover:bg-gray-700 p-2 rounded-full transition"
                   >
                     <FaFacebookF className="text-white text-sm" />
                   </a>
@@ -146,7 +146,7 @@ const Footer = () => {
                     href={footerData.instagram_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                    className="bg-gray-900 hover:bg-gray-700 p-2 rounded-full transition"
                   >
                     <FaInstagram className="text-white text-sm" />
                   </a>
@@ -156,7 +156,7 @@ const Footer = () => {
                     href={footerData.youtube_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                    className="bg-gray-900 hover:bg-gray-700 p-2 rounded-full transition"
                   >
                     <FaYoutube className="text-white text-sm" />
                   </a>
@@ -166,7 +166,7 @@ const Footer = () => {
                     href={footerData.twitter_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                    className="bg-gray-900 hover:bg-gray-700 p-2 rounded-full transition"
                   >
                     <FaTwitter className="text-white text-sm" />
                   </a>
@@ -195,7 +195,7 @@ const Footer = () => {
             {/* About Us - Static */}
             <div>
               <h3 className="text-md font-semibold mb-3">About Us</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
+              <ul className="space-y-2 text-gray-900 text-sm">
                 <li>
                   <Link href="/about-us" className="hover:text-white transition">
                     Regarding Us
@@ -220,7 +220,7 @@ const Footer = () => {
                 <h3 className="text-md font-semibold mb-3">
                   {footerData.widget_one}
                 </h3>
-                <ul className="space-y-2 text-gray-400 text-sm">
+                <ul className="space-y-2 text-gray-900 text-sm">
                   {widgetOneLabels.map((label, index) => (
                     <li key={index}>
                       <Link
@@ -241,7 +241,7 @@ const Footer = () => {
                 <h3 className="text-md font-semibold mb-3">
                   {footerData.widget_two}
                 </h3>
-                <ul className="space-y-2 text-gray-400 text-sm">
+                <ul className="space-y-2 text-gray-900 text-sm">
                   {widgetTwoLabels.map((label, index) => (
                     <li key={index}>
                       <Link
@@ -259,7 +259,7 @@ const Footer = () => {
             {/* Contact Us */}
             <div>
               <h3 className="text-md font-semibold mb-3">Contact Us</h3>
-              <ul className="space-y-2 text-gray-400 text-sm mb-4">
+              <ul className="space-y-2 text-gray-900 text-sm mb-4">
                 {footerData.helpline_number && (
                   <li>
                     <a
