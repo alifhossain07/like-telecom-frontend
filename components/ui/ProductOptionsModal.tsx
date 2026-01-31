@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { FiPlus, FiMinus } from "react-icons/fi";
 import { useCart } from "@/app/context/CartContext";
+import toast from "react-hot-toast";
 
 type Brand = {
   id: number;
@@ -84,10 +85,11 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string>("");
-  const [selectedStorage, setSelectedStorage] = useState<string>("");
-  const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [mounted, setMounted] = useState(false);
+
+  // Dynamic options state (e.g., { "Storage": "128GB", "Region": "China", "RAM": "6GB" })
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setMounted(true);
@@ -103,8 +105,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       setProduct(null);
       setQuantity(1);
       setSelectedColor("");
-      setSelectedStorage("");
-      setSelectedRegion("");
+      setSelectedOptions({});
 
       try {
         const res = await fetch(`/api/products/${slug}`);
@@ -115,17 +116,20 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
         // Initialize selections
         if (data.colors && data.colors.length > 0) {
+          console.log("Initializing color:", data.colors[0]);
           setSelectedColor(data.colors[0]);
         }
+
+        // Initialize dynamic options
         if (data.choice_options) {
+          const initialOptions: Record<string, string> = {};
           data.choice_options.forEach((choice) => {
-            if (choice.title === 'Storage' && choice.options.length > 0) {
-              setSelectedStorage(choice.options[0]);
-            }
-            if (choice.title === 'Region' && choice.options.length > 0) {
-              setSelectedRegion(choice.options[0]);
+            if (choice.options.length > 0) {
+              initialOptions[choice.title] = choice.options[0];
             }
           });
+          console.log("Initializing options:", initialOptions);
+          setSelectedOptions(initialOptions);
         }
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Something went wrong");
@@ -143,23 +147,25 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
   // Helper function to get color name from hex code
   const getColorName = (hex: string): string => {
     const colorMap: Record<string, string> = {
-      '#9966CC': 'Amethyst',
-      '#7FFFD4': 'Aquamarine',
-      '#000000': 'Midnight',
-      '#FFFFFF': 'White',
-      '#FF0000': 'Red',
-      '#0000FF': 'Blue',
-      '#FFC0CB': 'Pink',
-      '#FFA500': 'Orange',
-      '#800080': 'Purple',
-      '#008000': 'Green',
-      '#FFFF00': 'Yellow',
-      '#808080': 'Gray',
-      '#C0C0C0': 'Silver',
-      '#FFD700': 'Gold',
+      "#9966CC": "Amethyst",
+      "#7FFFD4": "Aquamarine",
+      "#000000": "Midnight",
+      "#FFFFFF": "White",
+      "#FF0000": "Red",
+      "#0000FF": "Blue",
+      "#FFC0CB": "Pink",
+      "#FFA500": "Orange",
+      "#800080": "Purple",
+      "#008000": "Green",
+      "#FFFF00": "Yellow",
+      "#808080": "Gray",
+      "#C0C0C0": "Silver",
+      "#FFD700": "Gold",
     };
 
-    const normalizedHex = hex.startsWith('#') ? hex.toUpperCase() : `#${hex.toUpperCase()}`;
+    const normalizedHex = hex.startsWith("#")
+      ? hex.toUpperCase()
+      : `#${hex.toUpperCase()}`;
     return colorMap[normalizedHex] || normalizedHex;
   };
 
@@ -169,14 +175,26 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
     const parts: string[] = [];
     if (selectedColor) parts.push(getColorName(selectedColor));
-    if (selectedStorage) parts.push(selectedStorage);
-    if (selectedRegion) parts.push(selectedRegion);
+
+    // Append options in consistent order (implicit from choice_options array order)
+    if (product.choice_options) {
+      product.choice_options.forEach(choice => {
+        if (selectedOptions[choice.title]) {
+          parts.push(selectedOptions[choice.title]);
+        }
+      });
+    }
 
     if (parts.length === 0) return null;
 
     const variantString = parts.join("-");
+    const matched = product.variants.find((v) => v.variant === variantString) || null;
 
-    return product.variants.find((v) => v.variant === variantString) || null;
+    // Debug logging for variant matching
+    // console.log("Constructed variant string:", variantString);
+    // console.log("Matched variant:", matched);
+
+    return matched;
   };
 
   // Get current prices based on selected variant (memoized for performance)
@@ -205,21 +223,32 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
       return {
         price: discountedPrice,
-        oldPrice: variantPrice
+        oldPrice: variantPrice,
       };
     }
 
     // No variant selected, use product prices
     return {
       price: productMainPrice,
-      oldPrice: productStrokedPrice
+      oldPrice: productStrokedPrice,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product, selectedColor, selectedStorage, selectedRegion]);
+  }, [product, selectedColor, selectedOptions]);
 
   const handleConfirmAdd = () => {
     if (!product || !slug) return;
-    if (product.current_stock === 0) return;
+
+    const matchedVariant = findMatchingVariant();
+
+    // Check variant stock if a specific variant is matched
+    if (matchedVariant && matchedVariant.qty <= 0) {
+      return; // Don't proceed, inline message will show
+    }
+
+    // Check general product stock if no variant logic applies
+    if (!matchedVariant && product.current_stock <= 0) {
+      return; // Don't proceed, inline message will show
+    }
 
     setAdding(true);
     setTimeout(() => {
@@ -230,8 +259,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
       const matchedVariant = findMatchingVariant();
 
-      // Variant-based pricing: variant.price is the original/stroked price
-      // Calculate discounted price from variant price
+      // Variant-based pricing logic
       const productMainPrice = parsePrice(product.main_price);
       const productStrokedPrice = parsePrice(product.stroked_price);
 
@@ -239,11 +267,9 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       let oldPrice: number;
 
       if (matchedVariant) {
-        // Variant price is the original/stroked price (line-through price)
         const variantPrice = matchedVariant.price;
         oldPrice = variantPrice;
 
-        // Calculate discounted price from variant price using discount percentage
         if (product.discount) {
           const discountMatch = String(product.discount).match(/-?(\d+)/);
           const discountPercent = discountMatch ? parseFloat(discountMatch[1]) : 0;
@@ -256,7 +282,6 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
           price = variantPrice;
         }
       } else {
-        // No variant selected, use product prices
         price = productMainPrice;
         oldPrice = productStrokedPrice;
       }
@@ -270,12 +295,27 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       let variantString: string | undefined = undefined;
       const parts: string[] = [];
       if (selectedColor) parts.push(getColorName(selectedColor));
-      if (selectedStorage) parts.push(selectedStorage);
-      if (selectedRegion) parts.push(selectedRegion);
+
+      if (product.choice_options) {
+        product.choice_options.forEach(choice => {
+          if (selectedOptions[choice.title]) {
+            parts.push(selectedOptions[choice.title]);
+          }
+        });
+      }
 
       if (parts.length > 0) {
         variantString = parts.join("-");
       }
+
+      console.log("----- ADD TO CART (Modal) -----");
+      console.log("Product ID:", product.id);
+      console.log("Name:", product.name);
+      console.log("Selected Color:", selectedColor);
+      console.log("Selected Options:", selectedOptions);
+      console.log("Constructed Variant String:", variantString);
+      console.log("Matched Variant Object:", matchedVariant);
+      console.log("-------------------------------");
 
       addToCart({
         id: product.id.toString(),
@@ -288,8 +328,9 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
         variant: variantString || undefined,
         variantImage: image,
         variantColor: selectedColor || undefined,
-        variantStorage: selectedStorage || undefined,
-        variantRegion: selectedRegion || undefined,
+        // Using dynamic options for both generic storage/region fields for backward compatibility
+        variantStorage: selectedOptions["Storage"] || undefined,
+        variantRegion: selectedOptions["Region"] || undefined,
       });
 
       if (typeof window !== "undefined") {
@@ -321,6 +362,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
     }, 500);
   };
 
+  const handleOptionClick = (title: string, value: string) => {
+    setSelectedOptions(prev => ({ ...prev, [title]: value }));
+  };
+
   if (!open || !mounted) return null;
 
   return createPortal(
@@ -335,9 +380,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       <div className="relative z-[20001] w-11/12 max-w-md bg-white rounded-2xl shadow-xl overflow-hidden animate-[fadeIn_0.2s_ease-out]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h2 className="text-sm md:text-base font-semibold">
-            Choose Options
-          </h2>
+          <h2 className="text-sm md:text-base font-semibold">Choose Options</h2>
           <button
             onClick={onClose}
             className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-sm"
@@ -364,7 +407,11 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
               <div className="flex gap-3">
                 <div className="w-24 h-24 flex-shrink-0 bg-[#f5f5f5] rounded-lg flex items-center justify-center overflow-hidden">
                   <Image
-                    src={product.thumbnail_image || product.photos[0]?.path || "/images/placeholder.png"}
+                    src={
+                      product.thumbnail_image ||
+                      product.photos[0]?.path ||
+                      "/images/placeholder.png"
+                    }
                     alt={product.name}
                     width={96}
                     height={96}
@@ -390,9 +437,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                         In Stock
                       </span>
                     )}
-                    <span className="text-gray-400">
-                      • ID: {product.id}
-                    </span>
+                    <span className="text-gray-400">• ID: {product.id}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -409,6 +454,29 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                 </div>
               </div>
 
+              {/* Stock Warning Message */}
+              {(() => {
+                const matchedVariant = findMatchingVariant();
+                const isOutOfStock = matchedVariant
+                  ? matchedVariant.qty <= 0
+                  : product.current_stock <= 0;
+
+                if (isOutOfStock) {
+                  return (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                      <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-red-800">This variant is out of stock</p>
+                        <p className="text-xs text-red-600 mt-0.5">Please select a different combination or check back later.</p>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
               {/* Color Options */}
               {product.colors && product.colors.length > 0 && (
                 <div className="space-y-1">
@@ -423,8 +491,8 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                             onClick={() => setSelectedColor(color)}
                             style={{ backgroundColor: color }}
                             className={`w-8 h-8 rounded-md border-2 transition ${isSelected
-                              ? 'border-gray-800 scale-110'
-                              : 'border-gray-300 hover:border-gray-400'
+                              ? "border-gray-800 scale-110"
+                              : "border-gray-300 hover:border-gray-400"
                               }`}
                           />
                           {/* Tooltip */}
@@ -439,44 +507,41 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                 </div>
               )}
 
-              {/* Storage and Region Options */}
-              {product.choice_options && product.choice_options.map((choice: ChoiceOption, choiceIndex: number) => (
-                <div key={choiceIndex} className="space-y-1">
-                  <p className="text-xs font-medium text-gray-700">{choice.title}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {choice.options.map((option: string, optionIndex: number) => {
-                      const isSelected =
-                        (choice.title === 'Storage' && option === selectedStorage) ||
-                        (choice.title === 'Region' && option === selectedRegion);
+              {/* Dynamic Choice Options (Storage, Region, RAM, etc.) */}
+              {product.choice_options &&
+                product.choice_options.map(
+                  (choice: ChoiceOption, choiceIndex: number) => (
+                    <div key={choiceIndex} className="space-y-1">
+                      <p className="text-xs font-medium text-gray-700">
+                        {choice.title}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {choice.options.map(
+                          (option: string, optionIndex: number) => {
+                            const isSelected = selectedOptions[choice.title] === option;
 
-                      return (
-                        <button
-                          key={optionIndex}
-                          onClick={() => {
-                            if (choice.title === 'Storage') {
-                              setSelectedStorage(option);
-                            } else if (choice.title === 'Region') {
-                              setSelectedRegion(option);
-                            }
-                          }}
-                          className={`px-3 py-1 rounded-full border text-xs transition ${isSelected
-                            ? "bg-black text-white border-black"
-                            : "bg-white text-gray-700 border-gray-300 hover:border-black"
-                            }`}
-                        >
-                          {option}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+                            return (
+                              <button
+                                key={optionIndex}
+                                onClick={() => handleOptionClick(choice.title, option)}
+                                className={`px-3 py-1 rounded-full border text-xs transition ${isSelected
+                                  ? "bg-black text-white border-black"
+                                  : "bg-white text-gray-700 border-gray-300 hover:border-black"
+                                  }`}
+                              >
+                                {option}
+                              </button>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                  )
+                )}
 
               {/* Quantity selector */}
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-gray-700">
-                  Quantity
-                </p>
+                <p className="text-xs font-medium text-gray-700">Quantity</p>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={decrement}
@@ -497,7 +562,6 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
               </div>
 
               {/* Small specs preview */}
-
             </>
           )}
         </div>
@@ -511,11 +575,23 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
             Cancel
           </button>
           <button
-            disabled={adding || loading || !product || product.current_stock === 0}
+            disabled={
+              adding || loading || !product || product.current_stock === 0 || (() => {
+                const matchedVariant = findMatchingVariant();
+                return matchedVariant ? matchedVariant.qty <= 0 : false;
+              })()
+            }
             onClick={handleConfirmAdd}
-            className={`w-1/2 py-2 rounded-xl text-xs md:text-sm font-semibold text-white transition ${adding || loading || !product || product.current_stock === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-orange-500 hover:bg-orange-600"
+            className={`w-1/2 py-2 rounded-xl text-xs md:text-sm font-semibold text-white transition ${adding ||
+                loading ||
+                !product ||
+                product.current_stock === 0 ||
+                (() => {
+                  const matchedVariant = findMatchingVariant();
+                  return matchedVariant ? matchedVariant.qty <= 0 : false;
+                })()
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-orange-500 hover:bg-orange-600"
               }`}
           >
             {adding ? "Adding..." : "Add to Cart"}

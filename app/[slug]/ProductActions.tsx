@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
 import ProductVariants from "./ProductVariants";
+import toast from "react-hot-toast";
 
 interface Variant {
   variant: string;
@@ -150,6 +151,34 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
   const handleAddToCart = () => {
     if (!product) return;
 
+    // Check variant stock if a specific variant is matched
+    if (selectedVariant && selectedVariant.qty <= 0) {
+      toast.error("Selected variant is out of stock", {
+        position: "top-right",
+        style: {
+          background: "#ef4444",
+          color: "#fff",
+          fontWeight: "500",
+          borderRadius: "8px",
+        },
+      });
+      return;
+    }
+
+    // Check general product stock if no variant logic applies (fallback)
+    if (!selectedVariant && (product.current_stock ?? 0) <= 0) {
+      toast.error("Product is out of stock", {
+        position: "top-right",
+        style: {
+          background: "#ef4444",
+          color: "#fff",
+          fontWeight: "500",
+          borderRadius: "8px",
+        },
+      });
+      return;
+    }
+
     const { price, oldPrice } = getPrices();
 
     // Get image - prefer variant image, then thumbnail, then first photo
@@ -172,9 +201,6 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
       variant: variantString || undefined,
       variantImage: image,
       variantColor: selectedColor || undefined,
-      // For dynamic options, we might need to store them in a more generic way if CartItem supported it
-      // For now, CartItem defines variantStorage and variantRegion explicitly.
-      // We can map them if they exist for backward compatibility, but the 'variant' string is the source of truth.
       variantStorage: selectedOptions["Storage"] || undefined,
       variantRegion: selectedOptions["Region"] || undefined,
     });
@@ -209,6 +235,34 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
 
   const handleBuyNow = () => {
     if (!product) return;
+
+    // Check variant stock
+    if (selectedVariant && selectedVariant.qty <= 0) {
+      toast.error("Selected variant is out of stock", {
+        position: "top-right",
+        style: {
+          background: "#ef4444",
+          color: "#fff",
+          fontWeight: "500",
+          borderRadius: "8px",
+        },
+      });
+      return;
+    }
+
+    // Check general product stock
+    if (!selectedVariant && (product.current_stock ?? 0) <= 0) {
+      toast.error("Product is out of stock", {
+        position: "top-right",
+        style: {
+          background: "#ef4444",
+          color: "#fff",
+          fontWeight: "500",
+          borderRadius: "8px",
+        },
+      });
+      return;
+    }
 
     const { price, oldPrice } = getPrices();
 
@@ -349,4 +403,3 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
 };
 
 export default ProductActions;
-

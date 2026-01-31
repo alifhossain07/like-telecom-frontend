@@ -64,15 +64,25 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [selectedItems]);
 
   const addToCart = (item: CartItem) => {
+    console.log("----- CART CONTEXT: addToCart -----");
+    console.log("Adding Item:", item.name);
+    console.log("Variant String:", item.variant);
+    console.log("Variant Options:", {
+      color: item.variantColor,
+      storage: item.variantStorage,
+      region: item.variantRegion
+    });
+    console.log("-----------------------------------");
+
     // Create unique key: id + variant (treat different variants as separate items)
     const itemKey = item.variant ? `${item.id}-${item.variant}` : `${item.id}`;
-    
+
     // Check if the exact same product with same variant already exists
     const exists = cart.find((i) => {
       const existingKey = i.variant ? `${i.id}-${i.variant}` : `${i.id}`;
       return existingKey === itemKey;
     });
-    
+
     if (exists) {
       // Same product + same variant: increase quantity
       setCart((prev) =>

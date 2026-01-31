@@ -101,6 +101,7 @@ export default function RootLayout({
                   fontWeight: 500,
                   borderRadius: "8px",
                   boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                  zIndex: 99999,
                 },
               }}
             />

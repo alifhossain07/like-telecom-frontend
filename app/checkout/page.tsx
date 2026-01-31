@@ -147,20 +147,20 @@ const CheckoutPage: React.FC = () => {
   // ------------------------- Districts & States (Two-step selection) -------------------------
   type DistrictOption = { id: number; name: string; code: string; status: number };
   type StateOption = { id: number; country_id: number; name: string };
-  
+
   // Districts state
   const [districts, setDistricts] = React.useState<DistrictOption[]>([]);
   const [districtQuery, setDistrictQuery] = React.useState<string>("");
   const [districtsLoading, setDistrictsLoading] = React.useState<boolean>(false);
   const [districtOpen, setDistrictOpen] = React.useState<boolean>(false);
-  
+
   // States/Upazilas state
   const [states, setStates] = React.useState<StateOption[]>([]);
   const [stateQuery, setStateQuery] = React.useState<string>("");
   const [statesLoading, setStatesLoading] = React.useState<boolean>(false);
   const [stateOpen, setStateOpen] = React.useState<boolean>(false);
   const stateDebounceRef = React.useRef<number | undefined>(undefined);
-  
+
   const selectedDistrictId = watch("districtId");
 
   // Filter districts locally
@@ -194,11 +194,11 @@ const CheckoutPage: React.FC = () => {
         const json = await res.json();
         // API returns {data: [...], success: true, status: 200}
         // Extract the data array which contains all districts
-        const list: DistrictOption[] = Array.isArray(json?.data) 
-          ? json.data 
-          : Array.isArray(json) 
-          ? json 
-          : [];
+        const list: DistrictOption[] = Array.isArray(json?.data)
+          ? json.data
+          : Array.isArray(json)
+            ? json
+            : [];
         if (!cancelled) {
           setDistricts(list);
           console.log(`✅ Districts loaded successfully: ${list.length} districts from API`);
@@ -294,7 +294,7 @@ const CheckoutPage: React.FC = () => {
             set_default: number;
           };
           const defaultAddress = data.data.find((addr: ShippingAddress) => addr.set_default === 1) || data.data[0];
-          
+
           if (defaultAddress && !cancelled) {
             // Populate form with default address
             setValue("mobile", defaultAddress.phone || user.phone || "");
@@ -303,11 +303,11 @@ const CheckoutPage: React.FC = () => {
             setValue("districtName", defaultAddress.country_name || "");
             setValue("stateId", defaultAddress.state_id, { shouldValidate: true });
             setValue("stateName", defaultAddress.state_name || "");
-            
+
             // Set the display values for dropdowns
             setDistrictQuery(defaultAddress.country_name || "");
             setStateQuery(defaultAddress.state_name || "");
-            
+
             // Load states for the selected district
             if (defaultAddress.country_id) {
               try {
@@ -385,7 +385,15 @@ const CheckoutPage: React.FC = () => {
     setValue("stateName", "");
     setStateQuery("");
     setDistrictOpen(false);
+
+    // Reset delivery method to appropriate default when district changes
+    const isDhaka = district.name.toLowerCase().includes("dhaka");
+    setValue("deliveryMethod", isDhaka ? "inside" : "outside");
   };
+
+  // Determine if selected district is Dhaka
+  const selectedDistrictName = watch("districtName");
+  const isDhakaSelected = selectedDistrictName?.toLowerCase().includes("dhaka") ?? false;
 
   const handleStateInputChange = (val: string) => {
     setStateQuery(val);
@@ -405,7 +413,7 @@ const CheckoutPage: React.FC = () => {
   };
 
   const deliveryMethod = watch("deliveryMethod");
-  
+
   // ------------------------- Pickup Stores -------------------------
   const [pickupStores, setPickupStores] = React.useState<PickupStore[]>([]);
   const [pickupStoresLoading, setPickupStoresLoading] = React.useState<boolean>(false);
@@ -493,7 +501,7 @@ const CheckoutPage: React.FC = () => {
     if (user) {
       // Only pre-fill if fields are currently empty (don't overwrite user input)
       const currentValues = getValues();
-      
+
       if (!currentValues.name && user.name) {
         setValue("name", user.name, { shouldValidate: false });
       }
@@ -533,66 +541,66 @@ const CheckoutPage: React.FC = () => {
   const [isValidatingPromo, setIsValidatingPromo] = React.useState(false);
 
   // Real API promo validation
- const validatePromoCode = async (code: string) => {
-  try {
-    setIsValidatingPromo(true);
-    const response = await axios.post<{ result: boolean; data?: CouponData; message?: string }>("/api/coupon-apply", {
-      code: code.toUpperCase(),
-    });
-
-    if (response.data.result) {
-      setCouponData(response.data.data!); // "!" because data exists if result is true
-      setAppliedPromo(code.toUpperCase());
-      toast.success(`Promo code "${code.toUpperCase()}" applied! 🎉`, {
-        style: {
-          background: "#22c55e",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
+  const validatePromoCode = async (code: string) => {
+    try {
+      setIsValidatingPromo(true);
+      const response = await axios.post<{ result: boolean; data?: CouponData; message?: string }>("/api/coupon-apply", {
+        code: code.toUpperCase(),
       });
-      return true;
-    } else {
-      throw new Error(response.data.message || "Invalid coupon");
+
+      if (response.data.result) {
+        setCouponData(response.data.data!); // "!" because data exists if result is true
+        setAppliedPromo(code.toUpperCase());
+        toast.success(`Promo code "${code.toUpperCase()}" applied! 🎉`, {
+          style: {
+            background: "#22c55e",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+        return true;
+      } else {
+        throw new Error(response.data.message || "Invalid coupon");
+      }
+    } catch (error: unknown) {
+      setAppliedPromo(null);
+      setCouponData(null);
+      setPromoDiscount(0);
+
+      if (axios.isAxiosError(error)) {
+        // Axios-specific error
+        toast.error(error.response?.data?.message || "Invalid promo code ❌", {
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+      } else if (error instanceof Error) {
+        // Regular JS error
+        toast.error(error.message || "Invalid promo code ❌", {
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+      } else {
+        // Fallback
+        toast.error("Invalid promo code ❌", {
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+      }
+
+      return false;
+    } finally {
+      setIsValidatingPromo(false);
     }
-  } catch (error: unknown) {
-    setAppliedPromo(null);
-    setCouponData(null);
-    setPromoDiscount(0);
-
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error
-      toast.error(error.response?.data?.message || "Invalid promo code ❌", {
-        style: {
-          background: "#ef4444",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
-      });
-    } else if (error instanceof Error) {
-      // Regular JS error
-      toast.error(error.message || "Invalid promo code ❌", {
-        style: {
-          background: "#ef4444",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
-      });
-    } else {
-      // Fallback
-      toast.error("Invalid promo code ❌", {
-        style: {
-          background: "#ef4444",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
-      });
-    }
-
-    return false;
-  } finally {
-    setIsValidatingPromo(false);
-  }
-};
+  };
 
   const handleApplyPromo = async () => {
     const code = watch("promoCode")?.toUpperCase().trim();
@@ -609,13 +617,13 @@ const CheckoutPage: React.FC = () => {
     if (couponData) {
       const baseAmount = subtotal - discount;
       let discountAmount = 0;
-      
+
       if (couponData.type === "percentage") {
         discountAmount = baseAmount * (couponData.value / 100);
       } else {
         discountAmount = couponData.value;
       }
-      
+
       setPromoDiscount(Math.min(discountAmount, baseAmount)); // Don't exceed base amount
     } else {
       setPromoDiscount(0);
@@ -694,18 +702,23 @@ const CheckoutPage: React.FC = () => {
       carrier_id: null,
     };
 
+    console.log("----- CHECKOUT: submitOrder -----");
+    console.log("Payload:", JSON.stringify(payload, null, 2));
+    console.log("Items Variants:", payload.items.map(i => i.variant));
+    console.log("---------------------------------");
+
     try {
       setIsLoading(true);
-      
+
       // Get the bearer token from AuthContext (stored in localStorage as like_auth_token)
       const token = accessToken;
-      
+
       // Build headers with Authorization if user is logged in
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
       };
-      
+
       const response = await axios.post("/api/orders", payload, { headers });
 
       if (response.data.success && response.data.data?.result) {
@@ -733,20 +746,20 @@ const CheckoutPage: React.FC = () => {
             const shipping = effectiveDelivery;
             const value = subtotal - discount - promoDiscount + shipping;
 
-           window.dataLayer = window.dataLayer || [];
-window.dataLayer.push({
-  event: "purchase",
-  ecommerce: {
-    transaction_id: transactionId,
-    affiliation: "Online Store",
-    value,
-    tax: 0,
-    shipping,
-    currency: "BDT",
-    coupon: appliedPromo || "",
-    items: itemsForAnalytics,
-  },
-});
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+              event: "purchase",
+              ecommerce: {
+                transaction_id: transactionId,
+                affiliation: "Online Store",
+                value,
+                tax: 0,
+                shipping,
+                currency: "BDT",
+                coupon: appliedPromo || "",
+                items: itemsForAnalytics,
+              },
+            });
 
             // Persist minimal order summary for order-complete page
             let shippingMethodLabel = "";
@@ -792,7 +805,7 @@ window.dataLayer.push({
 
             try {
               sessionStorage.setItem("lastOrder", JSON.stringify(orderSummary));
-            } catch {}
+            } catch { }
 
             // Clear cart and show order complete modal
             clearCart();
@@ -872,10 +885,10 @@ window.dataLayer.push({
                 <div className="flex-1 space-y-1">
                   <h3 className="text-sm md:text-lg">{item.name}</h3>
                   {item.variant && (
-  <p className="text-xs text-gray-500 mt-1">
-    {item.variant}
-  </p>
-)}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {item.variant}
+                    </p>
+                  )}
                   <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
                     ৳{item.price}
                     <span className="line-through text-gray-400 ml-2 text-xs">৳{item.oldPrice}</span>
@@ -943,7 +956,7 @@ window.dataLayer.push({
                 {...register("email")}
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-              
+
               {/* District & State Selection */}
               <div className="mb-2 gap-4 flex flex-row">
                 <div className="flex-1">
@@ -992,7 +1005,7 @@ window.dataLayer.push({
                     <p className="text-red-500 text-sm">{String(errors.districtId.message)}</p>
                   )}
                 </div>
-                
+
                 <div className="flex-1">
                   <label>Upazila/Thana*</label>
                   <div className="relative">
@@ -1037,7 +1050,7 @@ window.dataLayer.push({
                   )}
                 </div>
               </div>
-              
+
               <label>Address*</label>
               <input
                 type="text"
@@ -1051,25 +1064,25 @@ window.dataLayer.push({
 
           {/* Payment Method */}
           <div className="border rounded-md p-4 bg-white shadow-sm">
-  <h2 className="text-lg font-semibold mb-4">Select a Payment Method</h2>
+            <h2 className="text-lg font-semibold mb-4">Select a Payment Method</h2>
 
-  <Controller
-    name="payment"
-    control={control}
-    defaultValue="cod" // Default selection
-    render={({ field }) => (
-      <>
-        {/* Dropdown for payment selection */}
-        <select
-          {...field}
-          className="w-full border rounded-md p-2 text-lg cursor-pointer"
-        >
-          <option value="cod"> <FaMoneyBillWave className="inline mr-2" /> Cash On Delivery</option>
-          {/* <option value="online">Online Payment</option> */}
-        </select>
+            <Controller
+              name="payment"
+              control={control}
+              defaultValue="cod" // Default selection
+              render={({ field }) => (
+                <>
+                  {/* Dropdown for payment selection */}
+                  <select
+                    {...field}
+                    className="w-full border rounded-md p-2 text-lg cursor-pointer"
+                  >
+                    <option value="cod"> <FaMoneyBillWave className="inline mr-2" /> Cash On Delivery</option>
+                    {/* <option value="online">Online Payment</option> */}
+                  </select>
 
-        {/* Online payment logos (hidden for now, but ready for future) */}
-        {/* {field.value === "online" && (
+                  {/* Online payment logos (hidden for now, but ready for future) */}
+                  {/* {field.value === "online" && (
           <div className="mt-4 gap-2 mb-5 flex flex-col">
             <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
             <div className="flex items-center gap-2">
@@ -1081,97 +1094,105 @@ window.dataLayer.push({
           </div>
         )} */}
 
-        {errors.payment && (
-          <p className="text-red-500 text-sm mt-2">{errors.payment.message}</p>
-        )}
-      </>
-    )}
-  />
-          <div className="flex flex-col md:flex-row gap-4 mt-4 mb-4">
-            <div className="flex-1">
-              <label className="block mb-1 font-medium">Select a delivery method*</label>
-              <select
-                className="border p-2 rounded w-full cursor-pointer"
-                {...register("deliveryMethod")}
-              >
-                <option value="inside">Inside Dhaka – Home Delivery ({currencySymbol} {insideDhaka.toLocaleString()})</option>
-                <option value="outside">Outside Dhaka – Home Delivery ({currencySymbol} {outsideDhaka.toLocaleString()})</option>
-                <option value="shop_pickup">Shop Pickup (No Delivery Charge)</option>
-              </select>
-              {errors.deliveryMethod && (
-                <p className="text-red-500 text-sm">{errors.deliveryMethod.message}</p>
+                  {errors.payment && (
+                    <p className="text-red-500 text-sm mt-2">{errors.payment.message}</p>
+                  )}
+                </>
               )}
-            </div>
-            <div className="flex-1">
-              <label className="block mb-1 font-medium">Choose a pickup store*</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={deliveryMethod === "shop_pickup" ? "Select pickup store" : "Select delivery method first"}
-                  className="border p-2 rounded w-full mb-1 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  value={selectedPickupStoreId ? pickupStores.find(s => String(s.id) === selectedPickupStoreId)?.name || "" : ""}
-                  onFocus={() => deliveryMethod === "shop_pickup" && setPickupStoreOpen(true)}
-                  onBlur={() => setTimeout(() => setPickupStoreOpen(false), 150)}
-                  readOnly
-                  disabled={deliveryMethod !== "shop_pickup"}
-                />
-                {/* Hidden field for RHF */}
-                <input type="hidden" {...register("pickupStore")} />
-
-                {pickupStoreOpen && deliveryMethod === "shop_pickup" && (
-                  <div className="absolute z-20 w-full max-h-64 overflow-auto bg-white border rounded shadow mt-1">
-                    {pickupStoresLoading ? (
-                      <div className="p-2 text-sm text-gray-500">Loading stores...</div>
-                    ) : pickupStores.length === 0 ? (
-                      <div className="p-2 text-sm text-gray-500">No pickup stores available</div>
-                    ) : (
-                      pickupStores.map((store) => (
-                        <button
-                          type="button"
-                          key={store.id}
-                          className="w-full text-left px-3 py-2 hover:bg-orange-50 border-b last:border-b-0 transition-colors"
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => handleSelectPickupStore(store)}
-                        >
-                          <div className="text-xs text-gray-700 truncate">
-                            <span className="font-semibold">{store.name}</span>
-                            <span className="mx-1">-</span>
-                            <span>{store.address}</span>
-                            <span className="mx-1">-</span>
-                            <span className="truncate">{store.phone}</span>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
+            />
+            <div className="flex flex-col md:flex-row gap-4 mt-4 mb-4">
+              <div className="flex-1">
+                <label className="block mb-1 font-medium">Select a delivery method*</label>
+                <select
+                  className="border p-2 rounded w-full cursor-pointer"
+                  {...register("deliveryMethod")}
+                >
+                  {isDhakaSelected ? (
+                    <>
+                      <option value="inside">Inside Dhaka – Home Delivery ({currencySymbol} {insideDhaka.toLocaleString()})</option>
+                      <option value="shop_pickup">Shop Pickup (No Delivery Charge)</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="outside">Outside Dhaka – Home Delivery ({currencySymbol} {outsideDhaka.toLocaleString()})</option>
+                      <option value="shop_pickup">Shop Pickup (No Delivery Charge)</option>
+                    </>
+                  )}
+                </select>
+                {errors.deliveryMethod && (
+                  <p className="text-red-500 text-sm">{errors.deliveryMethod.message}</p>
                 )}
               </div>
-              {errors.pickupStore && (
-                <p className="text-red-500 text-sm">{errors.pickupStore.message}</p>
-              )}
+              <div className="flex-1">
+                <label className="block mb-1 font-medium">Choose a pickup store*</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder={deliveryMethod === "shop_pickup" ? "Select pickup store" : "Select delivery method first"}
+                    className="border p-2 rounded w-full mb-1 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    value={selectedPickupStoreId ? pickupStores.find(s => String(s.id) === selectedPickupStoreId)?.name || "" : ""}
+                    onFocus={() => deliveryMethod === "shop_pickup" && setPickupStoreOpen(true)}
+                    onBlur={() => setTimeout(() => setPickupStoreOpen(false), 150)}
+                    readOnly
+                    disabled={deliveryMethod !== "shop_pickup"}
+                  />
+                  {/* Hidden field for RHF */}
+                  <input type="hidden" {...register("pickupStore")} />
+
+                  {pickupStoreOpen && deliveryMethod === "shop_pickup" && (
+                    <div className="absolute z-20 w-full max-h-64 overflow-auto bg-white border rounded shadow mt-1">
+                      {pickupStoresLoading ? (
+                        <div className="p-2 text-sm text-gray-500">Loading stores...</div>
+                      ) : pickupStores.length === 0 ? (
+                        <div className="p-2 text-sm text-gray-500">No pickup stores available</div>
+                      ) : (
+                        pickupStores.map((store) => (
+                          <button
+                            type="button"
+                            key={store.id}
+                            className="w-full text-left px-3 py-2 hover:bg-orange-50 border-b last:border-b-0 transition-colors"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleSelectPickupStore(store)}
+                          >
+                            <div className="text-xs text-gray-700 truncate">
+                              <span className="font-semibold">{store.name}</span>
+                              <span className="mx-1">-</span>
+                              <span>{store.address}</span>
+                              <span className="mx-1">-</span>
+                              <span className="truncate">{store.phone}</span>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+                {errors.pickupStore && (
+                  <p className="text-red-500 text-sm">{errors.pickupStore.message}</p>
+                )}
+              </div>
             </div>
+            <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+              <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
+              <span className="flex-1">
+                I have read & agree to the{" "}
+                <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
+                <span className="text-orange-500">Return Policy</span>.
+              </span>
+            </label>
+            {errors.agreeTerms && (
+              <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
+            )}
           </div>
-<label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
-    <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
-    <span className="flex-1">
-      I have read & agree to the{" "}
-      <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
-      <span className="text-orange-500">Return Policy</span>.
-    </span>
-  </label>
-  {errors.agreeTerms && (
-    <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
-  )}
-          </div>
-  
-        {/* Shipping Method */}
+
+          {/* Shipping Method */}
 
           {/* Shipping Method removed, now handled by delivery method dropdown */}
         </div>
 
-        
+
         <div className="flex flex-col gap-6">
-          
+
 
 
           {/* Promo Code */}
@@ -1234,9 +1255,8 @@ window.dataLayer.push({
             </div>
             <button
               type="submit"
-              className={`w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center mt-4 ${
-                !isValid ? "opacity-60 cursor-not-allowed" : ""
-              }`}
+              className={`w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center mt-4 ${!isValid ? "opacity-60 cursor-not-allowed" : ""
+                }`}
               disabled={!isValid || isLoading}
             >
               {isLoading ? "Processing..." : "Confirm Order"}
