@@ -34,11 +34,26 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
   const [compareCount, setCompareCount] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
   const [showChatBubble, setShowChatBubble] = useState(true);
+  const [socialLinks, setSocialLinks] = useState<{ type: string; value: string }[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
     updateCompareCount();
+
+    // Fetch social numbers
+    const fetchSocialLinks = async () => {
+      try {
+        const response = await fetch("/api/social-numbers", { cache: 'no-store' });
+        if (response.ok) {
+          const data = await response.json();
+          setSocialLinks(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch social links:", error);
+      }
+    };
+    fetchSocialLinks();
 
     // Listen for storage changes to update count (for cross-tab updates)
     const handleStorageChange = () => {
@@ -210,27 +225,28 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           }`}>
           {/* Messenger */}
           <a
-            href="#" // dynamic messenger link here
+            href={socialLinks.find(link => link.type === "messenger_link")?.value || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
-            onClick={(e) => { e.preventDefault(); /* Add logic */ }}
           >
             <FaFacebookMessenger className="text-2xl" />
           </a>
 
           {/* WhatsApp */}
           <a
-            href="#" // dynamic whatsapp link here
+            href={`https://wa.me/${socialLinks.find(link => link.type === "whatsapp_number")?.value?.replace(/\D/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
-            onClick={(e) => { e.preventDefault(); /* Add logic */ }}
           >
             <FaWhatsapp className="text-2xl" />
           </a>
 
           {/* Phone */}
           <a
-            href="#" // dynamic phone link here
+            href={`tel:${socialLinks.find(link => link.type === "phone_number")?.value?.replace(/\D/g, '')}`}
             className="w-12 h-12 rounded-full bg-teal-500 hover:bg-teal-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
-            onClick={(e) => { e.preventDefault(); /* Add logic */ }}
           >
             <FaPhoneAlt className="text-xl" />
           </a>
