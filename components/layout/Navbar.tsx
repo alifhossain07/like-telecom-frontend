@@ -304,11 +304,11 @@ const Navbar = () => {
             </button>
             <Link href="/">
               <Image
-                src={logoUrl || "/images/likelogo.png"}
+                src={logoUrl || "/images/logolike.png"}
                 width={500}
                 height={500}
                 alt="Logo"
-                className="xl:w-36 xl:h-[75px] py-1 w-28 h-14 "
+                className="xl:h-auto xl:w-[140px] h-[80px] w-auto "
               />
             </Link>
 
@@ -992,7 +992,7 @@ const Navbar = () => {
               }`}
           >
             <div className="flex justify-between items-center px-5 py-4 border-b">
-              <Image src="/images/likelogo.png" width={120} height={120} alt="Logo" />
+              <Image src={logoUrl || "/images/logolike.png"} width={120} height={120} alt="Logo" />
               <button className="text-3xl text-orange-500" onClick={handleCloseMenu}>
                 <FiX />
               </button>

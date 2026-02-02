@@ -60,7 +60,7 @@ const HeroSlider = () => {
   const goTo = (index: number) => setCurrent(index);
 
   return (
-    <div className="w-11/12 mx-auto pt-5 xl:pt-10 pb-4">
+    <div className="w-11/12 mx-auto pt-5 xl:pt-7 pb-4">
       <div className="flex gap-3 md:gap-5 w-full justify-center items-stretch">
 
         {/* LEFT SIDE BANNER (466x450) */}
@@ -86,9 +86,8 @@ const HeroSlider = () => {
           ) : (
             <>
               <div
-                className={`relative w-full h-full transition-opacity duration-500 ${
-                  isLoaded ? "opacity-100" : "opacity-0"
-                }`}
+                className={`relative w-full h-full transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"
+                  }`}
               >
                 <div className="overflow-hidden w-full h-full">
                   <div
@@ -134,11 +133,10 @@ const HeroSlider = () => {
                     <button
                       key={i}
                       onClick={() => goTo(i)}
-                      className={`w-3 h-3 rounded-full transition ${
-                        i === current
-                          ? "bg-white"
-                          : "bg-white/40 hover:bg-white/70"
-                      }`}
+                      className={`w-3 h-3 rounded-full transition ${i === current
+                        ? "bg-white"
+                        : "bg-white/40 hover:bg-white/70"
+                        }`}
                     />
                   ))}
                 </div>

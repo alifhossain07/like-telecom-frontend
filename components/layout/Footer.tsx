@@ -113,7 +113,7 @@ const Footer = () => {
                   alt="Footer Logo"
                   width={500}
                   height={500}
-                  className="object-contain xl:w-36 xl:h-[75px] py-1 w-28 h-14"
+                  className="object-contain h-auto w-[140px] "
                 />
               </div>
             )}
