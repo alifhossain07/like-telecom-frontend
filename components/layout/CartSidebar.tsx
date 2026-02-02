@@ -247,7 +247,9 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
           {/* Phone */}
           <a
-            href={`tel:${socialLinks.find(link => link.type === "phone_number")?.value?.replace(/\D/g, '')}`}
+            href={`tel:${socialLinks.find(link => link.type === "phone_number")?.value
+              ?.replace(/\D/g, '') || "01625435055"
+              }`}
             className="w-12 h-12 rounded-full bg-teal-500 hover:bg-teal-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
           >
             <FaPhoneAlt className="text-xl" />
