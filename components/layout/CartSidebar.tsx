@@ -225,7 +225,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           }`}>
           {/* Messenger */}
           <a
-            href={socialLinks.find(link => link.type === "messenger_link")?.value || "#"}
+            href={socialLinks.find(link => link.type === "messenger_link")?.value || "https://m.me/liketelecombd?ref=Hello%20from%20our%20website"}
             target="_blank"
             rel="noopener noreferrer"
             className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
@@ -235,7 +235,9 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
           {/* WhatsApp */}
           <a
-            href={`https://wa.me/${socialLinks.find(link => link.type === "whatsapp_number")?.value?.replace(/\D/g, '')}`}
+            href={`https://wa.me/${socialLinks.find(link => link.type === "whatsapp_number")?.value
+              ?.replace(/\D/g, '') || "01625435055"
+              }`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
