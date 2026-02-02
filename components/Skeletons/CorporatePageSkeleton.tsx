@@ -126,7 +126,7 @@ const CorporatePageSkeleton = () => {
 
             {/* FAQ Skeleton */}
             <section className="py-20 2xl:py-40 bg-[#f4f4f4]">
-                <div className="w-11/12 max-w-[1440px] 2xl:max-w-[1800px] mx-auto px-4 bg-white py-12 2xl:py-24 px-8 2xl:px-16 rounded-lg shadow-sm border border-gray-200">
+                <div className="w-11/12 max-w-[1440px] 2xl:max-w-[1800px] mx-auto  bg-white py-12 2xl:py-24 px-8 2xl:px-16 rounded-lg shadow-sm border border-gray-200">
                     <div className="h-8 2xl:h-14 bg-gray-100 rounded mx-auto mb-12 2xl:mb-24 w-48"></div>
                     <div className="space-y-3 2xl:space-y-6">
                         {[1, 2, 3, 4, 5].map((i) => (
