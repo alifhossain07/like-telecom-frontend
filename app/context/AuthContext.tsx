@@ -17,6 +17,7 @@ interface AuthContextValue {
   }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -210,6 +211,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...userData });
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -220,6 +227,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signup: handleSignup,
         logout,
         refreshUser,
+        updateUser,
       }}
     >
       {children}

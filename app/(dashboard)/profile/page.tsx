@@ -5,7 +5,7 @@ import { formatImageUrl } from '@/app/lib/auth-utils';
 import React, { useState } from 'react';
 
 export default function ProfilePage() {
-  const { user, loading, refreshUser, accessToken } = useAuth();
+  const { user, loading, refreshUser, accessToken, updateUser } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -98,7 +98,7 @@ export default function ProfilePage() {
 
   // Image handling functions
   const openImageModal = () => {
-    setProfileImage(user?.avatar || null);
+    setProfileImage(user?.avatar_original || user?.avatar || null);
     setSelectedImageFile(null);
     setImageMessage(null);
     setIsImageModalOpen(true);
@@ -107,7 +107,7 @@ export default function ProfilePage() {
   const closeImageModal = () => {
     setIsImageModalOpen(false);
     setSelectedImageFile(null);
-    setProfileImage(user?.avatar || null);
+    setProfileImage(user?.avatar_original || user?.avatar || null);
     setImageMessage(null);
   };
 
@@ -160,9 +160,17 @@ export default function ProfilePage() {
       if (response.ok && data.success !== false) {
         setImageMessage({ type: 'success', text: 'Profile image updated successfully!' });
 
-        // Refresh user data
+        // Update user state immediately with the returned path
+        if (data.path && updateUser) {
+          updateUser({
+            avatar: data.path,
+            avatar_original: data.path
+          });
+        }
+
+        // Also refresh from server to be safe, but UI should update instantly from above
         if (refreshUser) {
-          await refreshUser();
+          refreshUser();
         }
 
         // Close modal after a short delay
@@ -207,7 +215,7 @@ export default function ProfilePage() {
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-100 relative bg-gray-50">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={formatImageUrl(user.avatar)}
+                src={formatImageUrl(user.avatar_original || user.avatar)}
                 alt={user.name}
                 className="w-full h-full object-cover"
               />
