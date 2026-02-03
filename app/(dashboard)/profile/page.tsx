@@ -125,6 +125,7 @@ export default function ProfilePage() {
     }
   };
 
+  /* 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -132,7 +133,8 @@ export default function ProfilePage() {
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
     });
-  };
+  }; 
+  */
 
   const handleImageSubmit = async () => {
     if (!selectedImageFile || !accessToken) return;
@@ -141,20 +143,16 @@ export default function ProfilePage() {
     setImageMessage(null);
 
     try {
-      const base64Image = await fileToBase64(selectedImageFile);
-
-      const payload = {
-        image: base64Image,
-        filename: selectedImageFile.name
-      };
+      const formData = new FormData();
+      formData.append('filename', selectedImageFile);
 
       const response = await fetch('/api/profile/update-image', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
+          // Content-Type must strictly be undefined so the browser sets the boundary
         },
-        body: JSON.stringify(payload)
+        body: formData
       });
 
       const data = await response.json();
@@ -207,7 +205,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-6 mb-8">
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-100 relative bg-gray-50">
-                // eslint-disable-next-line @next/next/no-img-element
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={formatImageUrl(user.avatar)}
                 alt={user.name}

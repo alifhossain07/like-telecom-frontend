@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-export const forceDynamic = true;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
@@ -23,10 +23,11 @@ export async function GET() {
     });
 
     return NextResponse.json(response.data);
-  } catch (error: any) {
-    console.error("Error fetching payment types:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error fetching payment types:", errorMessage);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to fetch payment types" },
+      { success: false, message: errorMessage || "Failed to fetch payment types" },
       { status: 500 }
     );
   }

@@ -107,7 +107,7 @@ const CheckoutPage: React.FC = () => {
     useCart();
   const { user, accessToken } = useAuth();
   const router = useRouter();
-  const [completedOrderId, setCompletedOrderId] = React.useState<string | null>(null);
+  // const [completedOrderId, setCompletedOrderId] = React.useState<string | null>(null);
 
   // Filter selected items
   const selectedCart: CartItem[] = cart.filter((item) =>
@@ -854,10 +854,50 @@ const CheckoutPage: React.FC = () => {
               return;
             }
 
+
             // Detect if it's an online payment method
             const selectedMethod = paymentTypes.find(m => m.payment_type_key === data.payment);
             const isOnline = selectedMethod?.payment_type === "online_payment";
             const finalRedirectId = backendData?.combined_order_id || transactionId;
+
+            // --- SSLCOMMERZ INTEGRATION START ---
+            if (data.payment === "sslcommerz") {
+              try {
+                let sslUrl = `/api/sslcommerz/begin?combined_order_id=${finalRedirectId}`;
+                if (user && user.id) {
+                  sslUrl += `&user_id=${user.id}`;
+                }
+
+                toast.loading("Initiating SSLCommerz Payment...");
+
+                // Fetch redirect URL from proxy
+                const sslResponse = await fetch(sslUrl, {
+                  headers: {
+                    ...(token && { Authorization: `Bearer ${token}` }),
+                  }
+                });
+                const sslData = await sslResponse.json();
+
+                if (sslData.result && sslData.url) {
+                  toast.dismiss();
+                  toast.success("Redirecting to SSLCommerz...");
+                  window.location.href = sslData.url;
+                  return; // Stop further execution, let redirect happen
+                } else {
+                  toast.dismiss();
+                  toast.error(sslData.message || "Failed to initiate payment");
+                  router.push(`/checkout/fail?order_id=${finalRedirectId}`);
+                  return;
+                }
+              } catch (sslErr) {
+                console.error("SSLCommerz Error:", sslErr);
+                toast.dismiss();
+                toast.error("Payment initiation failed");
+                router.push(`/checkout/fail?order_id=${finalRedirectId}`);
+                return;
+              }
+            }
+            // --- SSLCOMMERZ INTEGRATION END ---
 
             if (isOnline && !backendData?.payment_url) {
               // Failure case: Online payment but no URL provided by backend

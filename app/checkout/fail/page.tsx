@@ -80,7 +80,7 @@ function OrderFailContent() {
                             Order Payment Failed!
                         </h1>
                         <p className="text-gray-500 text-sm md:text-base mb-8">
-                            We're sorry, but there was an issue processing your payment. Please try again or use a different method.
+                            We&apos;re sorry, but there was an issue processing your payment. Please try again or use a different method.
                         </p>
 
                         {/* Order Brief Info */}

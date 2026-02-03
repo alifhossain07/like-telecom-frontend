@@ -13,11 +13,8 @@ export const dynamic = "force-dynamic";
  * Headers:
  * - Authorization: Bearer {token} (required)
  * 
- * Body:
- * {
- *   "image": "base64_encoded_image_string",
- *   "filename": "profile.jpg"
- * }
+ * Body (FormData):
+ * - filename: File (image)
  * 
  * Backend: POST /api/v2/profile/update-image
  */
@@ -39,20 +36,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Parse request body
-    const body = await req.json();
-
-    // Validate body
-    if (!body.image || !body.filename) {
+    // Parse request body as FormData
+    let formData;
+    try {
+      formData = await req.formData();
+    } catch (e) {
+      console.error("Error parsing form data:", e);
       return NextResponse.json(
-        { success: false, message: "Image and filename are required" },
+        { success: false, message: "Invalid form data" },
         { status: 400 }
       );
     }
 
+    const file = formData.get("filename");
+
+    // Validate body
+    if (!file) {
+      return NextResponse.json(
+        { success: false, message: "Image file (filename) is required" },
+        { status: 400 }
+      );
+    }
+
+    // Prepare FormData for the backend request
+    const backendFormData = new FormData();
+    backendFormData.append("filename", file);
+
     // Build headers
+    // Note: Do NOT set Content-Type header when sending FormData, 
+    // fetch will automatically set it with the correct boundary.
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
       Accept: "application/json",
       "System-Key": SYSTEM_KEY,
       Authorization: `Bearer ${bearerToken}`,
@@ -62,7 +75,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch(`${API_BASE}/profile/update-image`, {
       method: "POST",
       headers,
-      body: JSON.stringify(body),
+      body: backendFormData,
       cache: "no-cache",
     });
 
