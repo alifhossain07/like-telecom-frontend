@@ -10,7 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React from "react";
 import { FaMoneyBillWave } from "react-icons/fa";
-import OrderCompleteModal from "@/components/checkout/OrderCompleteModal";
+import { useRouter } from "next/navigation";
 // ------------------------- Types -------------------------
 interface CartItem {
   id: string | number;
@@ -29,7 +29,7 @@ interface CheckoutFormData {
   email?: string;
   address: string;
   // shipping removed, now handled by deliveryMethod
-  payment: "online" | "cod";
+  payment: string; // Changed to string to support dynamic payment_type_key
   agreeTerms: boolean;
   promoCode?: string;
   districtId?: number | null;
@@ -38,6 +38,16 @@ interface CheckoutFormData {
   stateName?: string;
   deliveryMethod: "inside" | "outside" | "shop_pickup";
   pickupStore?: string;
+}
+
+interface PaymentType {
+  payment_type: string;
+  payment_type_key: string;
+  image: string;
+  name: string;
+  title: string;
+  offline_payment_id: number;
+  details: string;
 }
 
 interface CouponData {
@@ -96,7 +106,7 @@ const CheckoutPage: React.FC = () => {
   const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart, clearCart } =
     useCart();
   const { user, accessToken } = useAuth();
-  const [showOrderCompleteModal, setShowOrderCompleteModal] = React.useState(false);
+  const router = useRouter();
   const [completedOrderId, setCompletedOrderId] = React.useState<string | null>(null);
 
   // Filter selected items
@@ -133,7 +143,7 @@ const CheckoutPage: React.FC = () => {
       email: "",
       address: "",
       deliveryMethod: "inside",
-      payment: "cod",
+      payment: "cash_on_delivery", // Changed default to cash_on_delivery key
       agreeTerms: true,
       promoCode: "",
       districtId: null,
@@ -147,6 +157,28 @@ const CheckoutPage: React.FC = () => {
   // ------------------------- Districts & States (Two-step selection) -------------------------
   type DistrictOption = { id: number; name: string; code: string; status: number };
   type StateOption = { id: number; country_id: number; name: string };
+
+  // ------------------------- Payment Types -------------------------
+  const [paymentTypes, setPaymentTypes] = React.useState<PaymentType[]>([]);
+  const [paymentTypesLoading, setPaymentTypesLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchPaymentTypes = async () => {
+      try {
+        setPaymentTypesLoading(true);
+        const res = await fetch("/api/payment-types");
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setPaymentTypes(data);
+        }
+      } catch (error) {
+        console.error("Error fetching payment types:", error);
+      } finally {
+        setPaymentTypesLoading(false);
+      }
+    };
+    fetchPaymentTypes();
+  }, []);
 
   // Districts state
   const [districts, setDistricts] = React.useState<DistrictOption[]>([]);
@@ -307,6 +339,10 @@ const CheckoutPage: React.FC = () => {
             // Set the display values for dropdowns
             setDistrictQuery(defaultAddress.country_name || "");
             setStateQuery(defaultAddress.state_name || "");
+
+            // Automate delivery method selection based on district name
+            const isDhaka = (defaultAddress.country_name || "").toLowerCase().includes("dhaka");
+            setValue("deliveryMethod", isDhaka ? "inside" : "outside");
 
             // Load states for the selected district
             if (defaultAddress.country_id) {
@@ -648,11 +684,7 @@ const CheckoutPage: React.FC = () => {
     setCouponData(null);
     setPromoDiscount(0);
 
-    if (data.payment === "cod") {
-      submitOrder(data);
-    } else {
-      toast.error("Online payment is coming soon. Please use Cash On Delivery.");
-    }
+    submitOrder(data);
   };
 
   const submitOrder = async (data: CheckoutFormData) => {
@@ -694,7 +726,8 @@ const CheckoutPage: React.FC = () => {
           ? "home_delivery"
           : "pickup_point",
       shipping_zone: data.deliveryMethod === "shop_pickup" ? null : shipping_zone,
-      payment_method: "Cash on Delivery",
+      payment_method: paymentTypes.find(p => p.payment_type_key === data.payment)?.name || "Cash on Delivery",
+      payment_type: data.payment,
       payment_number: null,
       promo_code: appliedPromo || null,
       note: "",
@@ -722,7 +755,6 @@ const CheckoutPage: React.FC = () => {
       const response = await axios.post("/api/orders", payload, { headers });
 
       if (response.data.success && response.data.data?.result) {
-        toast.success(response.data.data.message || "Order placed successfully! 🎉");
         try {
           if (typeof window !== "undefined") {
             const backendData = response.data.data;
@@ -767,8 +799,16 @@ const CheckoutPage: React.FC = () => {
             else if (data.deliveryMethod === "outside") shippingMethodLabel = "Outside Dhaka – Home Delivery";
             else if (data.deliveryMethod === "shop_pickup") shippingMethodLabel = "Shop Pickup";
 
+            const orderCode =
+              backendData?.orders?.[0]?.code ||
+              backendData?.order?.code ||
+              backendData?.order_code ||
+              backendData?.code ||
+              "";
+
             const orderSummary = {
               orderId: transactionId || null,
+              orderCode: orderCode,
               customer: {
                 name: data.name,
                 mobile: data.mobile,
@@ -807,19 +847,36 @@ const CheckoutPage: React.FC = () => {
               sessionStorage.setItem("lastOrder", JSON.stringify(orderSummary));
             } catch { }
 
-            // Clear cart and show order complete modal
-            clearCart();
-            setCompletedOrderId(transactionId || null);
-            setShowOrderCompleteModal(true);
+            // If backend provides a payment URL, redirect the user
+            if (backendData?.payment_url) {
+              toast.success("Order initiated! Redirecting to payment...");
+              window.location.href = backendData.payment_url;
+              return;
+            }
+
+            // Detect if it's an online payment method
+            const selectedMethod = paymentTypes.find(m => m.payment_type_key === data.payment);
+            const isOnline = selectedMethod?.payment_type === "online_payment";
+            const finalRedirectId = backendData?.combined_order_id || transactionId;
+
+            if (isOnline && !backendData?.payment_url) {
+              // Failure case: Online payment but no URL provided by backend
+              toast.error("Offline payment URL missing. Redirecting to failure page...");
+              router.push(`/checkout/fail?order_id=${finalRedirectId}`);
+            } else {
+              // Success case: CoD or successfully resolved flow
+              toast.success(backendData.message || "Order placed successfully! 🎉");
+              clearCart();
+              router.push(`/checkout/success?order_id=${finalRedirectId}`);
+            }
             return;
           }
         } catch (e) {
           console.error("Failed to push purchase event", e);
         }
-        // Fallback: show modal even if analytics failed
+        // Fallback: redirect even if analytics failed
         clearCart();
-        setCompletedOrderId(null);
-        setShowOrderCompleteModal(true);
+        router.push("/checkout/success");
       } else {
         toast.error(response.data.message || "Failed to place order ❌");
       }
@@ -1069,35 +1126,60 @@ const CheckoutPage: React.FC = () => {
             <Controller
               name="payment"
               control={control}
-              defaultValue="cod" // Default selection
               render={({ field }) => (
-                <>
-                  {/* Dropdown for payment selection */}
-                  <select
-                    {...field}
-                    className="w-full border rounded-md p-2 text-lg cursor-pointer"
-                  >
-                    <option value="cod"> <FaMoneyBillWave className="inline mr-2" /> Cash On Delivery</option>
-                    {/* <option value="online">Online Payment</option> */}
-                  </select>
-
-                  {/* Online payment logos (hidden for now, but ready for future) */}
-                  {/* {field.value === "online" && (
-          <div className="mt-4 gap-2 mb-5 flex flex-col">
-            <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
-            <div className="flex items-center gap-2">
-              <Image src="/images/visa.png" alt="Visa" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
-              <Image src="/images/mastercard.png" alt="Mastercard" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
-              <Image src="/images/bkash.png" alt="bKash" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
-              <Image src="/images/nagad.png" alt="Nagad" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
-            </div>
-          </div>
-        )} */}
+                <div className="space-y-3">
+                  {paymentTypesLoading ? (
+                    <div className="p-4 text-center text-gray-500">Loading payment methods...</div>
+                  ) : paymentTypes.length > 0 ? (
+                    paymentTypes.map((method) => (
+                      <label
+                        key={method.payment_type_key}
+                        className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-all ${field.value === method.payment_type_key
+                          ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500"
+                          : "border-gray-200 hover:border-orange-200"
+                          }`}
+                      >
+                        <input
+                          type="radio"
+                          {...field}
+                          value={method.payment_type_key}
+                          checked={field.value === method.payment_type_key}
+                          className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                        />
+                        <div className="flex-1 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-8 relative">
+                              <Image
+                                src={method.image}
+                                alt={method.name}
+                                fill
+                                className="object-contain"
+                                unoptimized // Images from external API
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {method.payment_type_key === "sslcommerz" ? "Online Payment" : method.name}
+                              </p>
+                              {method.details && (
+                                <p className="text-xs text-gray-500">{method.details}</p>
+                              )}
+                            </div>
+                          </div>
+                          {method.payment_type_key === "cash_on_delivery" && (
+                            <FaMoneyBillWave className="text-green-600 text-xl" />
+                          )}
+                        </div>
+                      </label>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-gray-500">No payment methods available.</div>
+                  )}
 
                   {errors.payment && (
-                    <p className="text-red-500 text-sm mt-2">{errors.payment.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{errors.payment.message}</p>
                   )}
-                </>
+                </div>
               )}
             />
             <div className="flex flex-col md:flex-row gap-4 mt-4 mb-4">
@@ -1259,22 +1341,17 @@ const CheckoutPage: React.FC = () => {
                 }`}
               disabled={!isValid || isLoading}
             >
-              {isLoading ? "Processing..." : "Confirm Order"}
+              {isLoading ? "Processing..." : (watch("payment") === "sslcommerz" ? "Pay Now" : "Confirm Order")}
             </button>
           </div>
         </div>
-      </form>
+      </form >
 
       {/* ------------------------- Payment Modal ------------------------- */}
       {/* Online payment modal removed. Future implementation can be added here. */}
 
-      {/* ------------------------- Order Complete Modal ------------------------- */}
-      <OrderCompleteModal
-        isOpen={showOrderCompleteModal}
-        onClose={() => setShowOrderCompleteModal(false)}
-        orderId={completedOrderId}
-      />
-    </div>
+      {/* ------------------------- Order Complete Modal Removed ------------------------- */}
+    </div >
   );
 };
 

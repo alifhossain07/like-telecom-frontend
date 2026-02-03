@@ -1,6 +1,7 @@
 
 "use client";
 import { useAuth } from '@/app/context/AuthContext';
+import { formatImageUrl } from '@/app/lib/auth-utils';
 import React, { useState } from 'react';
 
 export default function ProfilePage() {
@@ -206,20 +207,12 @@ export default function ProfilePage() {
         <div className="flex items-center gap-6 mb-8">
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-100 relative bg-gray-50">
-              {user.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
-                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-              )}
+              <img
+                src={formatImageUrl(user.avatar)}
+                alt={user.name}
+                className="w-full h-full object-cover"
+              />
             </div>
             <button
               onClick={openImageModal}
@@ -404,7 +397,7 @@ export default function ProfilePage() {
                 {profileImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={profileImage}
+                    src={formatImageUrl(profileImage)}
                     alt="Profile Preview"
                     className="w-full h-full object-cover"
                   />

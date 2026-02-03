@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 export default function OrderComplete() {
   const [loading, setLoading] = useState(true);
   const [orderIdState, setOrderIdState] = useState<string | null>(null);
+  const [orderCodeState, setOrderCodeState] = useState<string | null>(null);
   const [customer, setCustomer] = useState<{ name: string; mobile: string; address?: string } | null>(null);
   const [items, setItems] = useState<Array<{ id: string | number; name: string; qty: number; price: number; variant?: string | null }>>([]);
   const [totals, setTotals] = useState<{
@@ -24,7 +25,7 @@ export default function OrderComplete() {
     charge: number;
   } | null>(null);
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId");
+  const orderId = searchParams.get("order_id") || searchParams.get("orderId");
 
   useEffect(() => {
     try {
@@ -32,9 +33,10 @@ export default function OrderComplete() {
       if (raw) {
         const parsed = JSON.parse(raw);
         setOrderIdState(orderId || parsed?.orderId || null);
+        setOrderCodeState(parsed?.orderCode || null);
         if (parsed?.customer) {
-          setCustomer({ 
-            name: parsed.customer.name || "", 
+          setCustomer({
+            name: parsed.customer.name || "",
             mobile: parsed.customer.mobile || "",
             address: parsed.customer.address || ""
           });
@@ -69,7 +71,7 @@ export default function OrderComplete() {
     <Suspense fallback={<div className="w-full py-10 text-center">Loading...</div>}>
       <div className="w-full flex justify-center py-10 px-4">
         <div className="w-full max-w-3xl border rounded-2xl p-6 md:p-12 bg-white shadow-sm text-center">
-          
+
           {/* Loading Spinner */}
           {loading && (
             <div className="w-full flex justify-center py-6">
@@ -101,12 +103,18 @@ export default function OrderComplete() {
               <div className="w-full bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden text-left mb-8">
                 {/* Header/Customer Info Section */}
                 <div className="p-5 border-b border-gray-200 bg-gray-100/50">
-                   <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Order Details</h3>
-                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Order Details</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
                       <p className="text-[10px] uppercase text-gray-400 font-bold">Order ID</p>
                       <p className="text-sm font-semibold text-gray-800">{orderIdState || "N/A"}</p>
                     </div>
+                    {orderCodeState && (
+                      <div>
+                        <p className="text-[10px] uppercase text-gray-400 font-bold">Order Code</p>
+                        <p className="text-sm font-semibold text-gray-800">{orderCodeState}</p>
+                      </div>
+                    )}
                     <div>
                       <p className="text-[10px] uppercase text-gray-400 font-bold">Customer</p>
                       <p className="text-sm font-semibold text-gray-800 line-clamp-1">{customer?.name || "N/A"}</p>

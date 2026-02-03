@@ -76,11 +76,11 @@ export default function AddressPage() {
   const stateDebounceRef = useRef<number | undefined>(undefined);
 
   // Get selected district ID based on modal type
-  const selectedDistrictId = districtModalType === 'add' 
-    ? addFormData.districtId 
-    : districtModalType === 'update' 
-    ? updateFormData.districtId 
-    : null;
+  const selectedDistrictId = districtModalType === 'add'
+    ? addFormData.districtId
+    : districtModalType === 'update'
+      ? updateFormData.districtId
+      : null;
 
   // Filter districts locally
   const filteredDistricts = useMemo(() => {
@@ -116,7 +116,7 @@ export default function AddressPage() {
       }
 
       const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
+      if ((data.success || data.result) && Array.isArray(data.data)) {
         setAddresses(data.data);
       }
     } catch (error) {
@@ -139,11 +139,11 @@ export default function AddressPage() {
           return;
         }
         const json = await res.json();
-        const list: DistrictOption[] = Array.isArray(json?.data) 
-          ? json.data 
-          : Array.isArray(json) 
-          ? json 
-          : [];
+        const list: DistrictOption[] = Array.isArray(json?.data)
+          ? json.data
+          : Array.isArray(json)
+            ? json
+            : [];
         if (!cancelled) setDistricts(list);
       } catch (error) {
         console.error('Error loading districts:', error);
@@ -309,7 +309,7 @@ export default function AddressPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.success || data.result) {
         toast.success('Address created successfully! 🎉');
         await fetchAddresses();
         setIsAddModalOpen(false);
@@ -359,7 +359,7 @@ export default function AddressPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.success || data.result) {
         toast.success('Address updated successfully! ✅');
         await fetchAddresses();
         setIsUpdateModalOpen(false);
@@ -403,7 +403,7 @@ export default function AddressPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.success || data.result) {
         toast.success('Address deleted successfully! 🗑️');
         await fetchAddresses();
         setIsDeleteModalOpen(false);
@@ -452,7 +452,7 @@ export default function AddressPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.success || data.result) {
         toast.success('Default address updated successfully! ⭐');
         await fetchAddresses();
       } else {
@@ -524,7 +524,7 @@ export default function AddressPage() {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-50">
         <h1 className="text-2xl font-bold text-gray-900">Address Book</h1>
-        <button 
+        <button
           onClick={() => {
             resetAddForm();
             setIsAddModalOpen(true);
@@ -539,7 +539,7 @@ export default function AddressPage() {
       {addresses.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-600 mb-4">No addresses found</p>
-          <button 
+          <button
             onClick={() => {
               resetAddForm();
               setIsAddModalOpen(true);
@@ -555,14 +555,14 @@ export default function AddressPage() {
             <div key={address.id} className="bg-[#F9FAFB] rounded-xl p-6 border border-gray-100 relative">
               {/* Action Icons */}
               <div className="absolute top-6 right-6 flex gap-4 text-gray-600">
-                <button 
+                <button
                   onClick={() => handleEdit(address)}
                   className="hover:text-orange-600 transition-colors"
                   title="Edit"
                 >
                   <FiEdit size={20} />
                 </button>
-                <button 
+                <button
                   onClick={() => handleDeleteClick(address.id)}
                   className="hover:text-red-600 transition-colors"
                   title="Delete"
@@ -611,11 +611,11 @@ export default function AddressPage() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
-            
+
             {/* Modal Header */}
             <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-900">Add New Address</h2>
-              <button 
+              <button
                 onClick={() => {
                   setIsAddModalOpen(false);
                   resetAddForm();
@@ -631,8 +631,8 @@ export default function AddressPage() {
               {/* Phone Number */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">Phone number *</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter phone number (e.g., +1234567890)"
                   value={addFormData.phone}
                   onChange={(e) => setAddFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -646,8 +646,8 @@ export default function AddressPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-1.5">District *</label>
                   <div className="relative">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Select or search district"
                       value={districtModalType === 'add' && districtOpen ? districtQuery : (addFormData.districtName || '')}
                       onChange={(e) => handleDistrictInputChange(e.target.value, 'add')}
@@ -687,8 +687,8 @@ export default function AddressPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-1.5">Upazila / Thana *</label>
                   <div className="relative">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder={addFormData.districtId ? "Select or search upazila/thana" : "Select district first"}
                       value={stateModalType === 'add' && stateOpen ? stateQuery : (addFormData.stateName || '')}
                       onChange={(e) => handleStateInputChange(e.target.value, 'add')}
@@ -732,8 +732,8 @@ export default function AddressPage() {
               {/* Address Line */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">Address line *</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="road/ home number"
                   value={addFormData.address}
                   onChange={(e) => setAddFormData(prev => ({ ...prev, address: e.target.value }))}
@@ -744,7 +744,7 @@ export default function AddressPage() {
 
               {/* Submit Button */}
               <div className="flex justify-end pt-2">
-                <button 
+                <button
                   type="submit"
                   disabled={submitting}
                   className="bg-[#E9672B] hover:bg-[#d55b24] text-white px-10 py-2.5 rounded-lg font-semibold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -761,11 +761,11 @@ export default function AddressPage() {
       {isUpdateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
-            
+
             {/* Modal Header */}
             <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-900">Update address</h2>
-              <button 
+              <button
                 onClick={() => {
                   setIsUpdateModalOpen(false);
                   resetUpdateForm();
@@ -781,8 +781,8 @@ export default function AddressPage() {
               {/* Phone Number */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">Phone number *</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter phone number (e.g., +1234567890)"
                   value={updateFormData.phone}
                   onChange={(e) => setUpdateFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -796,8 +796,8 @@ export default function AddressPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-1.5">District *</label>
                   <div className="relative">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Select or search district"
                       value={districtModalType === 'update' && districtOpen ? districtQuery : (updateFormData.districtName || '')}
                       onChange={(e) => handleDistrictInputChange(e.target.value, 'update')}
@@ -837,8 +837,8 @@ export default function AddressPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-1.5">Upazila / Thana *</label>
                   <div className="relative">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder={updateFormData.districtId ? "Select or search upazila/thana" : "Select district first"}
                       value={stateModalType === 'update' && stateOpen ? stateQuery : (updateFormData.stateName || '')}
                       onChange={(e) => handleStateInputChange(e.target.value, 'update')}
@@ -882,8 +882,8 @@ export default function AddressPage() {
               {/* Address Line */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">Address line *</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="road/ home number"
                   value={updateFormData.address}
                   onChange={(e) => setUpdateFormData(prev => ({ ...prev, address: e.target.value }))}
@@ -894,7 +894,7 @@ export default function AddressPage() {
 
               {/* Submit Button */}
               <div className="flex justify-end pt-2">
-                <button 
+                <button
                   type="submit"
                   disabled={submitting}
                   className="bg-[#E9672B] hover:bg-[#d55b24] text-white px-10 py-2.5 rounded-lg font-semibold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -911,7 +911,7 @@ export default function AddressPage() {
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-            
+
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-900">Delete Address</h2>
@@ -925,14 +925,14 @@ export default function AddressPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-3 justify-end">
-                <button 
+                <button
                   onClick={handleDeleteCancel}
                   disabled={deleting}
                   className="bg-[#F3F4F6] hover:bg-gray-200 text-gray-800 px-6 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleDeleteConfirm}
                   disabled={deleting}
                   className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

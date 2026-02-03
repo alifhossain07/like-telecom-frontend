@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext"; // note the relative path
@@ -150,7 +150,7 @@ const Page = () => {
                   {loading ? "Processing..." : "Register"}
                 </button>
 
-                
+
               </form>
 
               {/* Divider */}
@@ -162,10 +162,10 @@ const Page = () => {
 
               {/* Social Logins */}
               <div className="space-y-3">
-                <button className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 w-full hover:bg-gray-100 transition text-sm sm:text-base">
+                {/* <button className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 w-full hover:bg-gray-100 transition text-sm sm:text-base">
                   <FcGoogle className="text-lg" />
                   <span className="text-gray-700">Sign up with Google</span>
-                </button>
+                </button> */}
                 <p className="mt-3 text-xs sm:text-sm text-center text-gray-500">
                   Already have an account?{" "}
                   <Link
@@ -176,7 +176,7 @@ const Page = () => {
                   </Link>
                 </p>
 
-               
+
               </div>
             </div>
           </div>

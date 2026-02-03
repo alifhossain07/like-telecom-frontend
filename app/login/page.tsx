@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
@@ -44,7 +44,7 @@ const Page = () => {
           <div className="w-full md:w-11/12 2xl:w-9/12 sm:w-[80%]">
             <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-1 text-center 2xl:text-3xl 2xl:mb-4 md:text-left">
               Sign In{" "}
-              
+
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mb-8 text-center md:text-left">
               Signup/login to enjoy the feature of Revolute
@@ -76,7 +76,7 @@ const Page = () => {
                     htmlFor="login"
                     className="absolute -top-2 left-3 bg-white px-1 text-xs text-orange-600"
                   >
-                   Password
+                    Password
                   </label>
                   <input
                     type="password"
@@ -105,7 +105,7 @@ const Page = () => {
                   {loading ? "Logging in..." : "Sign In"}
                 </button>
 
-               
+
               </form>
 
               {/* Divider */}
@@ -117,21 +117,21 @@ const Page = () => {
 
               {/* Social Logins */}
               <div className="space-y-3">
-                <button className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 w-full hover:bg-gray-100 transition text-sm sm:text-base">
+                {/* <button className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 w-full hover:bg-gray-100 transition text-sm sm:text-base">
                   <FcGoogle className="text-lg" />
                   <span className="text-gray-700">
                     Sign up / Login with Google
                   </span>
-                </button>
+                </button> */}
 
-                 <p className="mt-5 text-xs sm:text-sm text-center text-gray-500">
+                <p className="mt-5 text-xs sm:text-sm text-center text-gray-500">
                   Don&apos;t have an account?{" "}
                   <Link href="/registration" className="text-[#FF6B01] font-medium hover:underline">
                     Create One
                   </Link>
                 </p>
 
-                
+
               </div>
             </div>
           </div>

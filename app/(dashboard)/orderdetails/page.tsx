@@ -194,7 +194,8 @@ function OrderDetailsContent() {
               </div>
               <div className="text-right">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">INVOICE</h1>
-                <p className="text-gray-600 font-medium mb-1 text-sm">Invoice #: {orderDetails.code}</p>
+                <p className="text-gray-600 font-medium mb-1 text-sm">Order ID: #{orderDetails.id}</p>
+                <p className="text-gray-600 font-medium mb-1 text-sm">Order Code: {orderDetails.code}</p>
                 <p className="text-gray-600 text-sm">Date: {orderDetails.date}</p>
                 <div className="mt-3 inline-block bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide print:border print:border-orange-500">
                   {orderDetails.payment_status_string}
@@ -306,15 +307,31 @@ function OrderDetailsContent() {
       {/* Top Action Row */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         {/* Order ID with Dashed Border */}
-        <div className="border-2 border-dashed border-gray-400 rounded-xl p-3 flex items-center justify-between min-w-[280px]">
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              Order ID #{orderDetails.code}
-              <button onClick={() => handleCopy(orderDetails.code)} className="text-gray-400 hover:text-gray-600">
-                <LuCopy size={18} />
-              </button>
-            </h3>
-            <p className="text-sm text-gray-500 font-medium">Placed on {orderDetails.date}</p>
+        <div className="border-2 border-dashed border-gray-400 rounded-xl p-4 flex-1">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+                Order ID #{orderDetails.id}
+                <button
+                  onClick={() => handleCopy(String(orderDetails.id))}
+                  className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-xs border px-2 py-1 rounded-md"
+                  title="Copy ID"
+                >
+                  <LuCopy size={14} /> Copy ID
+                </button>
+              </h3>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-sm font-semibold text-gray-700">Code: {orderDetails.code}</p>
+                <button
+                  onClick={() => handleCopy(orderDetails.code)}
+                  className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-xs border px-2 py-1 rounded-md"
+                  title="Copy Code"
+                >
+                  <LuCopy size={14} /> Copy Code
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 font-medium mt-2">Placed on {orderDetails.date}</p>
+            </div>
           </div>
         </div>
 

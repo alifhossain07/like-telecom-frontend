@@ -48,31 +48,43 @@ const OrderCard = ({ order, onGenerateInvoice }: { order: Order; onGenerateInvoi
   return (
     <div className="bg-[#F3F4F6] rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
       {/* Order ID Section with Dashed Border */}
-      <div className="border-2 border-dashed border-gray-400 rounded-xl p-3 flex items-center justify-between min-w-[280px] bg-transparent">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            Order ID #{order.code}
-          </h3>
-          <p className="text-sm text-gray-500 font-medium">Placed on {order.date}</p>
+      <div className="border-2 border-dashed border-gray-400 rounded-xl p-3 flex-1 bg-transparent">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              Order ID #{order.id}
+            </h3>
+            <p className="text-sm font-semibold text-gray-700">Code: {order.code}</p>
+            <p className="text-sm text-gray-500 font-medium tracking-tight">Placed on {order.date}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleCopy(String(order.id))}
+              className="text-gray-500 hover:text-gray-800 transition-colors p-2 flex items-center gap-1 text-xs border rounded-md hover:bg-white"
+              title="Copy Order ID"
+            >
+              <LuCopy size={14} /> ID
+            </button>
+            <button
+              onClick={() => handleCopy(order.code)}
+              className="text-gray-500 hover:text-gray-800 transition-colors p-2 flex items-center gap-1 text-xs border rounded-md hover:bg-white"
+              title="Copy Order Code"
+            >
+              <LuCopy size={14} /> Code
+            </button>
+          </div>
         </div>
-        <button 
-          onClick={() => handleCopy(order.code)}
-          className="text-gray-500 hover:text-gray-800 transition-colors p-2"
-          title="Copy Order ID"
-        >
-          <LuCopy size={20} />
-        </button>
       </div>
 
       {/* Action Buttons */}
       <div className="flex items-center gap-3 w-full md:w-auto">
-        <Link  
+        <Link
           href={`/orderdetails?id=${order.id}`}
           className="flex-1 md:flex-none bg-[#D1D5DB] hover:bg-gray-400 text-gray-800 font-bold px-8 py-2.5 rounded-lg transition-colors"
         >
           Details
         </Link>
-        <button 
+        <button
           onClick={() => onGenerateInvoice(order.id)}
           className="flex-1 md:flex-none bg-[#E9672B] hover:bg-[#d55b24] text-white font-bold px-6 py-2.5 rounded-lg transition-colors shadow-sm"
         >
@@ -91,7 +103,7 @@ export default function OrdersPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       const token = typeof window !== "undefined" ? localStorage.getItem("like_auth_token") : null;
-      
+
       if (!token) {
         setError("Please login to view your orders");
         setLoading(false);

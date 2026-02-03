@@ -8,6 +8,7 @@ import {
 import { MdOutlineEdit } from "react-icons/md";
 import Image from "next/image";
 import { useAuth } from "@/app/context/AuthContext";
+import { formatImageUrl } from "@/app/lib/auth-utils";
 
 
 const menuItems = [
@@ -32,7 +33,7 @@ export default function Sidebar() {
       <div className="flex flex-row lg:flex-col items-center p-4 lg:py-8 border-b lg:border-none border-gray-50">
         <div className="relative">
           <Image
-            src={user?.avatar_original || user?.avatar || "/images/avatar.png"}
+            src={formatImageUrl(user?.avatar_original || user?.avatar)}
             alt={user?.name || "Avatar"}
             width={500}
             height={500}

@@ -35,7 +35,7 @@ const TrackOrderPage = () => {
     const handleTrackOrder = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!orderCode.trim()) {
-            toast.error("Please enter an order code");
+            toast.error("Please enter an order ID");
             return;
         }
 
@@ -108,7 +108,7 @@ const TrackOrderPage = () => {
                     </button>
                 </form>
                 <p className="text-[#888888] text-sm leading-relaxed max-w-2xl mx-auto md:text-center lg:text-left">
-                    To track your order please enter your Order ID in the box below and press the &apos;Track Oder&apos; button. This was given to you on your receipt and in the confirmation email you should have received.
+                    To track your order please enter your Order ID in the box below and press the &apos;Track Order&apos; button. This was given to you on your receipt and in the confirmation email you should have received.
                 </p>
             </div>
 
