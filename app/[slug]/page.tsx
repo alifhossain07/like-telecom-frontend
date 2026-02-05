@@ -75,8 +75,9 @@ export default async function ProductPage({ params }: PageParams) {
     if (socialRes.ok) {
       const socialJson = await socialRes.json();
       if (socialJson.data && Array.isArray(socialJson.data)) {
-        const mLink = socialJson.data.find((item: any) => item.type === 'messenger_link')?.value;
-        const wNum = socialJson.data.find((item: any) => item.type === 'whatsapp_number')?.value;
+        interface SocialLink { type: string; value: string }
+        const mLink = socialJson.data.find((item: SocialLink) => item.type === 'messenger_link')?.value;
+        const wNum = socialJson.data.find((item: SocialLink) => item.type === 'whatsapp_number')?.value;
 
         if (mLink) messengerLink = mLink;
         if (wNum) whatsappNumber = wNum;
