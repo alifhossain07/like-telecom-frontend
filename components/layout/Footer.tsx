@@ -315,6 +315,17 @@ const Footer = () => {
           }}
         />
       )}
+
+      {/* Payment Banner */}
+      <div className="flex justify-center mt-4 pb-10">
+        <Image
+          src="/images/payment_banner.png"
+          alt="Payment Methods"
+          width={800}
+          height={100}
+          className="h-auto w-auto object-contain"
+        />
+      </div>
     </footer>
   );
 };
