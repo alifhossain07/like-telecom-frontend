@@ -112,9 +112,7 @@ function renderContent(content: string | string[]) {
               white-space: normal !important;
               text-align: justify !important;
             }
-            .footer-content-wrapper h2 {
-              display: none !important;
-            }
+
             .footer-content-wrapper * {
               text-align: justify !important;
               word-wrap: break-word;
@@ -151,9 +149,7 @@ function renderContent(content: string | string[]) {
               white-space: normal !important;
               text-align: justify !important;
             }
-            .footer-content-wrapper h2 {
-              display: none !important;
-            }
+
             .footer-content-wrapper * {
               text-align: justify !important;
               word-wrap: break-word;
@@ -164,7 +160,7 @@ function renderContent(content: string | string[]) {
             }
           `
         }} />
-        <div 
+        <div
           className="footer-content-wrapper prose prose-lg max-w-none w-full"
         >
           {content.map((item, index) => {
@@ -211,13 +207,13 @@ export default async function FooterPage({
   }
 
   // Check if this is a bank account details page
-  const isBankDetailsPage = 
-    params.slug === "bank-account-details" || 
+  const isBankDetailsPage =
+    params.slug === "bank-account-details" ||
     pageData.type === "bank_account_details_page";
 
   // Check if this is an EMI page
-  const isEMIPage = 
-    params.slug === "emi" || 
+  const isEMIPage =
+    params.slug === "emi" ||
     pageData.type === "emi_page";
 
   // Check if this is a brands page

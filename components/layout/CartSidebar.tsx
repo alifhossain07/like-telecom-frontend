@@ -236,7 +236,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           {/* WhatsApp */}
           <a
             href={`https://wa.me/${socialLinks.find(link => link.type === "whatsapp_number")?.value
-              ?.replace(/\D/g, '') || "01625435055"
+              ?.replace(/\D/g, '') || "8801625435055"
               }`}
             target="_blank"
             rel="noopener noreferrer"

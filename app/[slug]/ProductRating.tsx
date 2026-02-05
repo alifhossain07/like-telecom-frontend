@@ -22,7 +22,7 @@ const ProductRating = ({ product }: ProductRatingProps) => {
             {/* Clickable Rating Section */}
             <div
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center p-6 mb-1 bg-[#f4f4f4] gap-2 cursor-pointer hover:bg-gray-200 transition"
+                className="flex items-center p-3 mb-1 bg-[#f4f4f4] gap-2 cursor-pointer hover:bg-gray-200 transition"
             >
                 <div className="flex items-center font-medium text-sm text-gray-700 mr-3">
                     <MdStars className="w-5 h-5 text-black mr-2" />
