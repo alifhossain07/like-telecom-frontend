@@ -308,7 +308,7 @@ const Navbar = () => {
                 width={500}
                 height={500}
                 alt="Logo"
-                className="xl:h-auto xl:w-[140px] h-[80px] w-auto "
+                className="xl:h-auto xl:w-[140px] h-[65px] w-auto "
               />
             </Link>
 
@@ -736,132 +736,98 @@ const Navbar = () => {
       {showMobileSearch && (
         <div
           ref={searchRef}
-          className="fixed top-[70px] left-0 w-full z-40 lg:hidden animate-[fadeDown_0.25s_ease-out]"
+          className="fixed top-[70px] pt-3 left-0 w-full bg-white z-40 lg:hidden animate-[fadeDown_0.25s_ease-out] px-4"
         >
-          <div className="relative w-full ">
-            <input
-              type="text"
-              value={mobileSearchTerm}
-              onChange={(e) => {
-                const value = e.target.value;
-                setMobileSearchTerm(value);
+          <div className="relative w-full mb-2">
+            <div className="relative w-full flex items-center bg-gray-200 rounded-full px-2 py-1 border border-gray-200 shadow-sm transition-all focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-200">
+              <input
+                type="text"
+                value={mobileSearchTerm}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setMobileSearchTerm(value);
 
-                if (suggestTimeoutRef.current) {
-                  clearTimeout(suggestTimeoutRef.current);
-                }
-
-                if (!value.trim()) {
-                  setSuggestions([]);
-                  setShowSuggestions(false);
-                  setIsSuggestLoading(false);
-                  return;
-                }
-
-                setIsSuggestLoading(true);
-                suggestTimeoutRef.current = setTimeout(async () => {
-                  try {
-                    const res = await fetch(
-                      `/api/products/search?suggest=1&query_key=${encodeURIComponent(
-                        value
-                      )}&type=product`
-                    );
-                    const json = await res.json();
-
-                    // 🔍 DEBUG: Log the Next.js API response
-                    console.log("=== NEXT.JS API RESPONSE (Mobile) ===");
-                    console.log("Full response:", json);
-                    console.log("Response structure:", {
-                      hasData: !!json.data,
-                      dataType: typeof json.data,
-                      isDataArray: Array.isArray(json.data),
-                      dataKeys: json.data && typeof json.data === 'object' ? Object.keys(json.data) : null
-                    });
-                    console.log("========================================");
-
-                    let items: SuggestionItem[] = [];
-                    if (Array.isArray(json.data)) {
-                      items = json.data;
-                      console.log("✅ Using json.data (array), count:", items.length);
-                    } else if (json.data && Array.isArray(json.data.items)) {
-                      items = json.data.items;
-                      console.log("✅ Using json.data.items, count:", items.length);
-                    } else if (json.data && Array.isArray(json.data.suggestions)) {
-                      items = json.data.suggestions;
-                      console.log("✅ Using json.data.suggestions, count:", items.length);
-                    } else if (json.data && Array.isArray(json.data.data)) {
-                      items = json.data.data;
-                      console.log("✅ Using json.data.data, count:", items.length);
-                    } else if (json.data && Array.isArray(json.data.products)) {
-                      items = json.data.products;
-                      console.log("✅ Using json.data.products, count:", items.length);
-                    } else {
-                      console.warn("⚠️ No suggestions array found in response structure");
-                      console.log("Available paths checked:", [
-                        "json.data",
-                        "json.data.items",
-                        "json.data.suggestions",
-                        "json.data.data",
-                        "json.data.products"
-                      ]);
-                    }
-
-                    // Log first item structure before normalization
-                    if (items.length > 0) {
-                      console.log("=== FIRST ITEM (Before Normalization - Mobile) ===");
-                      console.log("Item keys:", Object.keys(items[0]));
-                      console.log("Item:", JSON.stringify(items[0], null, 2));
-                      console.log("===================================================");
-                    }
-
-                    // Normalize items to ensure consistent structure
-                    items = items.map((item: SuggestionItem) => ({
-                      ...item,
-                      // Ensure we have name/title
-                      name: item.name || item.title || item.query || "",
-                      // Normalize image field
-                      image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
-                      // Normalize price field
-                      price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
-                    }));
-
-                    // Log first item after normalization
-                    if (items.length > 0) {
-                      console.log("=== FIRST ITEM (After Normalization - Mobile) ===");
-                      console.log("Normalized item:", {
-                        name: items[0].name,
-                        image: items[0].image,
-                        price: items[0].price,
-                        slug: items[0].slug
-                      });
-                      console.log("==================================================");
-                    }
-
-                    setSuggestions(items);
-                    setShowSuggestions(items.length > 0);
-                  } catch (err) {
-                    console.error("Mobile suggestion fetch error:", err);
-                  } finally {
-                    setIsSuggestLoading(false);
+                  if (suggestTimeoutRef.current) {
+                    clearTimeout(suggestTimeoutRef.current);
                   }
-                }, 300);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearchSubmit(mobileSearchTerm);
-                }
-              }}
-              placeholder="Search your Favourite Accessories..."
-              className="w-full bg-white text-black py-3 px-4 pr-12 rounded-md shadow-lg outline-none caret-black placeholder:text-gray-500"
-            />
-            {isSuggestLoading && (
-              <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
-                <div className="w-4 h-4 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            )}
+
+                  if (!value.trim()) {
+                    setSuggestions([]);
+                    setShowSuggestions(false);
+                    setIsSuggestLoading(false);
+                    return;
+                  }
+
+                  setIsSuggestLoading(true);
+                  suggestTimeoutRef.current = setTimeout(async () => {
+                    try {
+                      const res = await fetch(
+                        `/api/products/search?suggest=1&query_key=${encodeURIComponent(
+                          value
+                        )}&type=product`
+                      );
+                      const json = await res.json();
+
+                      // 🔍 DEBUG: Log the Next.js API response
+                      console.log("=== NEXT.JS API RESPONSE (Mobile) ===");
+                      console.log("Full response:", json);
+
+                      let items: SuggestionItem[] = [];
+                      if (Array.isArray(json.data)) {
+                        items = json.data;
+                      } else if (json.data && Array.isArray(json.data.items)) {
+                        items = json.data.items;
+                      } else if (json.data && Array.isArray(json.data.suggestions)) {
+                        items = json.data.suggestions;
+                      } else if (json.data && Array.isArray(json.data.data)) {
+                        items = json.data.data;
+                      } else if (json.data && Array.isArray(json.data.products)) {
+                        items = json.data.products;
+                      }
+
+                      // Normalize items to ensure consistent structure
+                      items = items.map((item: SuggestionItem) => ({
+                        ...item,
+                        name: item.name || item.title || item.query || "",
+                        image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
+                        price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
+                      }));
+
+                      setSuggestions(items);
+                      setShowSuggestions(items.length > 0);
+                    } catch (err) {
+                      console.error("Mobile suggestion fetch error:", err);
+                    } finally {
+                      setIsSuggestLoading(false);
+                    }
+                  }, 300);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearchSubmit(mobileSearchTerm);
+                  }
+                }}
+                placeholder="Search for products..."
+                className="w-full bg-transparent text-gray-700 py-2.5 px-3 outline-none placeholder:text-gray-500 text-sm font-medium"
+              />
+
+              {isSuggestLoading ? (
+                <div className="w-9 h-9 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleSearchSubmit(mobileSearchTerm)}
+                  className="bg-[#374151] text-white w-9 h-9 rounded-full hover:bg-gray-800 transition-colors flex items-center justify-center flex-shrink-0 shadow-md"
+                >
+                  <FiSearch className="text-sm" />
+                </button>
+              )}
+            </div>
 
             {/* 🔥 Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute left-0 right-0  bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-[60vh] overflow-y-auto z-50">
                 {suggestions.map((item: SuggestionItem, idx: number) => {
                   const label = item.name || item.title || item.query || "";
                   const slug = item.slug;
@@ -895,27 +861,26 @@ const Navbar = () => {
                         setShowSuggestions(false);
                         setShowMobileSearch(false);
                       }}
-                      className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${idx < suggestions.length - 1 ? 'border-b border-gray-50' : ''}`}
                     >
                       {image && image !== "" && (
-                        <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
+                        <div className="relative w-10 h-10 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
                           <Image
                             src={image}
                             alt={label}
                             fill
-                            sizes="48px"
-                            className="object-contain"
+                            sizes="40px"
+                            className="object-contain p-1"
                             onError={(e) => {
-                              // Hide image on error
                               (e.target as HTMLImageElement).style.display = 'none';
                             }}
                           />
                         </div>
                       )}
                       <div className="flex-1 flex flex-col items-start min-w-0">
-                        <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
+                        <span className="text-gray-900 line-clamp-1 font-medium">{label}</span>
                         {price !== null && price !== undefined && price !== "" && (
-                          <span className="text-xs text-orange-600 font-semibold mt-0.5">
+                          <span className="text-xs text-orange-600 font-bold mt-0.5">
                             ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
                           </span>
                         )}
@@ -923,9 +888,6 @@ const Navbar = () => {
                     </button>
                   );
                 })}
-                {isSuggestLoading && (
-                  <div className="px-3 py-2 text-xs text-gray-500">Loading…</div>
-                )}
               </div>
             )}
           </div>
@@ -978,159 +940,163 @@ const Navbar = () => {
       </div>
 
       {/* ========= MOBILE SIDEBAR ========= */}
-      {menuOpen && (
-        <>
-          {/* OVERLAY */}
-          <div
-            className={`fixed inset-0 bg-black bg-opacity-40 z-40 ${closing ? "opacity-0" : "opacity-100"}`}
-            onClick={handleCloseMenu}
-          ></div>
+      {
+        menuOpen && (
+          <>
+            {/* OVERLAY */}
+            <div
+              className={`fixed inset-0 bg-black bg-opacity-40 z-40 ${closing ? "opacity-0" : "opacity-100"}`}
+              onClick={handleCloseMenu}
+            ></div>
 
-          {/* SIDEBAR */}
-          <div
-            className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-[10000] overflow-y-auto ${closing ? "animate-slideOut" : "animate-slideIn"
-              }`}
-          >
-            <div className="flex justify-between items-center px-5 py-4 border-b">
-              <Image src={logoUrl || "/images/logolike.png"} width={120} height={120} alt="Logo" />
-              <button className="text-3xl text-orange-500" onClick={handleCloseMenu}>
-                <FiX />
-              </button>
-            </div>
+            {/* SIDEBAR */}
+            <div
+              className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-[10000] overflow-y-auto ${closing ? "animate-slideOut" : "animate-slideIn"
+                }`}
+            >
+              <div className="flex justify-between items-center px-5 py-4 border-b">
+                <Image src={logoUrl || "/images/logolike.png"} width={120} height={120} alt="Logo" />
+                <button className="text-3xl text-orange-500" onClick={handleCloseMenu}>
+                  <FiX />
+                </button>
+              </div>
 
-            <ul ref={submenuRef} className="p-4 space-y-3 text-gray-800">
-              <button className="mt-1 w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm">
-                Buy Dealer Products
-              </button>
+              <ul ref={submenuRef} className="p-4 space-y-3 text-gray-800">
+                <button className="mt-1 w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm">
+                  Buy Dealer Products
+                </button>
 
-              {/* MOBILE DROPDOWNS */}
-              {categories.map((cat, index) => (
-                <li key={index}>
-                  <button
-                    className="flex justify-between w-full items-center py-2 text-left"
-                  >
-                    <span
-                      onClick={() => {
-                        router.push(`/products/${cat.slug}`);
-                        handleCloseMenu();
-                      }}
+                {/* MOBILE DROPDOWNS */}
+                {categories.map((cat, index) => (
+                  <li key={index}>
+                    <button
+                      className="flex justify-between w-full items-center py-2 text-left"
                     >
-                      {cat.name}
-                    </span>
-
-                    {cat.subcategories.length > 0 && (
-                      <FiChevronDown
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedCategory(expandedCategory === cat.name ? null : cat.name);
+                      <span
+                        onClick={() => {
+                          router.push(`/products/${cat.slug}`);
+                          handleCloseMenu();
                         }}
-                        className={`transition-transform ${expandedCategory === cat.name ? "rotate-180" : ""
-                          }`}
-                      />
-                    )}
-                  </button>
+                      >
+                        {cat.name}
+                      </span>
 
-                  {/* FIRST LEVEL */}
-                  <div
-                    className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedCategory === cat.name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
-                      }`}
+                      {cat.subcategories.length > 0 && (
+                        <FiChevronDown
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedCategory(expandedCategory === cat.name ? null : cat.name);
+                          }}
+                          className={`transition-transform ${expandedCategory === cat.name ? "rotate-180" : ""
+                            }`}
+                        />
+                      )}
+                    </button>
+
+                    {/* FIRST LEVEL */}
+                    <div
+                      className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedCategory === cat.name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+                        }`}
+                    >
+                      <ul className="space-y-1">
+                        {cat.subcategories.map((sub, subIndex) => (
+                          <li key={subIndex}>
+                            <button
+                              className="flex justify-between w-full py-1 text-sm text-gray-600"
+                              onClick={() =>
+                                setExpandedSubcategory(
+                                  expandedSubcategory === sub.name ? null : sub.name
+                                )
+                              }
+                            >
+                              {sub.name}
+
+                              {sub.children?.length > 0 && (
+                                <FiChevronDown
+                                  className={`transition-transform ${expandedSubcategory === sub.name ? "rotate-180" : ""
+                                    }`}
+                                />
+                              )}
+                            </button>
+
+                            {/* SECOND LEVEL */}
+                            <div
+                              className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedSubcategory === sub.name
+                                ? "max-h-40 opacity-100"
+                                : "max-h-0 opacity-0"
+                                }`}
+                            >
+                              <ul className="space-y-1">
+                                {sub.children?.map((child, cidx) => (
+                                  <li key={cidx} className="py-1 text-sm text-gray-600">
+                                    {child.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                ))}
+
+                {/* ⭐ SIMPLE PAGE LINKS (NO DROPDOWNS) */}
+                <hr className="my-2" />
+                {simplePages.map((page, i) => (
+                  <Link
+                    key={i}
+                    href={page.href}
+                    onClick={handleCloseMenu}
+                    className="block py-2 text-sm hover:text-orange-500"
                   >
-                    <ul className="space-y-1">
-                      {cat.subcategories.map((sub, subIndex) => (
-                        <li key={subIndex}>
-                          <button
-                            className="flex justify-between w-full py-1 text-sm text-gray-600"
-                            onClick={() =>
-                              setExpandedSubcategory(
-                                expandedSubcategory === sub.name ? null : sub.name
-                              )
-                            }
-                          >
-                            {sub.name}
+                    {page.name}
+                  </Link>
+                ))}
 
-                            {sub.children?.length > 0 && (
-                              <FiChevronDown
-                                className={`transition-transform ${expandedSubcategory === sub.name ? "rotate-180" : ""
-                                  }`}
-                              />
-                            )}
-                          </button>
-
-                          {/* SECOND LEVEL */}
-                          <div
-                            className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedSubcategory === sub.name
-                              ? "max-h-40 opacity-100"
-                              : "max-h-0 opacity-0"
-                              }`}
-                          >
-                            <ul className="space-y-1">
-                              {sub.children?.map((child, cidx) => (
-                                <li key={cidx} className="py-1 text-sm text-gray-600">
-                                  {child.name}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </li>
-              ))}
-
-              {/* ⭐ SIMPLE PAGE LINKS (NO DROPDOWNS) */}
-              <hr className="my-2" />
-              {simplePages.map((page, i) => (
                 <Link
-                  key={i}
-                  href={page.href}
+                  href="/used-device"
                   onClick={handleCloseMenu}
-                  className="block py-2 text-sm hover:text-orange-500"
+                  className="flex items-center gap-2 py-2 text-sm font-medium text-orange-600 hover:text-orange-700"
                 >
-                  {page.name}
+                  <MdPhoneIphone className="text-lg" />
+                  Used Device
                 </Link>
-              ))}
-
-              <Link
-                href="/used-device"
-                onClick={handleCloseMenu}
-                className="flex items-center gap-2 py-2 text-sm font-medium text-orange-600 hover:text-orange-700"
-              >
-                <MdPhoneIphone className="text-lg" />
-                Used Device
-              </Link>
-            </ul>
-          </div>
-        </>
-      )}
+              </ul>
+            </div>
+          </>
+        )
+      }
 
       {/* Logout confirmation modal */}
-      {showLogoutConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-[1px] animate-[fadeIn_0.18s_ease-out]">
-          <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center transform animate-[scaleIn_0.18s_ease-out]">
-            <h2 className="text-lg font-semibold mb-2">
-              Are you sure you want to log out?
-            </h2>
-            <p className="text-sm text-gray-600 mb-4">
-              You will need to log in again to access your account.
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                onClick={() => setShowLogoutConfirm(false)}
-                className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmLogout}
-                className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600"
-              >
-                Yes, log out
-              </button>
+      {
+        showLogoutConfirm && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-[1px] animate-[fadeIn_0.18s_ease-out]">
+            <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center transform animate-[scaleIn_0.18s_ease-out]">
+              <h2 className="text-lg font-semibold mb-2">
+                Are you sure you want to log out?
+              </h2>
+              <p className="text-sm text-gray-600 mb-4">
+                You will need to log in again to access your account.
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmLogout}
+                  className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600"
+                >
+                  Yes, log out
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
 
     </>

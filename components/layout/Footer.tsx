@@ -99,21 +99,21 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-[#F3F5F9] text-black pt-20 pb-6">
+    <footer className="bg-[#F3F5F9] text-black md:pt-20 pt-10 pb-6">
       {/* Outer Wrapper */}
       <div className="w-10/12 mx-auto border-b border-gray-700 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* LEFT SECTION (4/12) */}
-          <div className="md:col-span-4">
+          <div className="md:col-span-4 text-center md:text-left">
             {/* Logo */}
             {footerData.footer_logo && (
-              <div className="mb-4">
+              <div className="mb-4 flex justify-center md:justify-start">
                 <Image
                   src={footerData.footer_logo}
                   alt="Footer Logo"
                   width={500}
                   height={500}
-                  className="object-contain h-auto w-[140px] "
+                  className="object-contain h-auto w-[140px]"
                 />
               </div>
             )}
@@ -121,7 +121,7 @@ const Footer = () => {
             {/* About Description */}
             {footerData.about_us_description && (
               <p
-                className="text-gray-900 text-sm leading-relaxed mb-4"
+                className="text-gray-900 text-sm leading-relaxed mb-4 mx-auto md:mx-0"
                 dangerouslySetInnerHTML={{
                   __html: footerData.about_us_description,
                 }}
@@ -130,7 +130,7 @@ const Footer = () => {
 
             {/* Social Icons */}
             {showSocialLinks && (
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex justify-center md:justify-start items-center gap-3 mb-4">
                 {footerData.facebook_link && (
                   <a
                     href={footerData.facebook_link}
@@ -141,6 +141,7 @@ const Footer = () => {
                     <FaFacebookF className="text-white text-sm" />
                   </a>
                 )}
+
                 {footerData.instagram_link && (
                   <a
                     href={footerData.instagram_link}
@@ -151,6 +152,7 @@ const Footer = () => {
                     <FaInstagram className="text-white text-sm" />
                   </a>
                 )}
+
                 {footerData.youtube_link && (
                   <a
                     href={footerData.youtube_link}
@@ -161,6 +163,7 @@ const Footer = () => {
                     <FaYoutube className="text-white text-sm" />
                   </a>
                 )}
+
                 {footerData.twitter_link && (
                   <a
                     href={footerData.twitter_link}
@@ -174,19 +177,20 @@ const Footer = () => {
               </div>
             )}
 
-            {/* Payment Method Image */}
-            <div className="flex flex-row items-center gap-2">
-              <p className="text-sm font-medium mb-2">Trade License No: TRAD/DNC/053383/2022 </p>
-
+            {/* Trade License */}
+            <div className="flex justify-center md:justify-start">
+              <p className="text-sm font-medium">
+                Trade License No: TRAD/DNC/053383/2022
+              </p>
             </div>
           </div>
 
           {/* RIGHT SECTION (8/12) */}
-          <div className="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* About Us - Static */}
-            <div>
+            <div className="text-center md:text-left">
               <h3 className="text-md font-semibold mb-3">About Us</h3>
-              <ul className="space-y-2 text-gray-900 text-sm">
+              <ul className="space-y-2 text-gray-900 text-sm mx-auto md:mx-0 w-fit">
                 <li>
                   <Link href="/about-us" className="hover:text-white transition">
                     Regarding Us
@@ -207,11 +211,11 @@ const Footer = () => {
 
             {/* Widget One */}
             {footerData.widget_one && widgetOneLabels.length > 0 && (
-              <div>
+              <div className="text-center md:text-left">
                 <h3 className="text-md font-semibold mb-3">
                   {footerData.widget_one}
                 </h3>
-                <ul className="space-y-2 text-gray-900 text-sm">
+                <ul className="space-y-2 text-gray-900 text-sm mx-auto md:mx-0 w-fit">
                   {widgetOneLabels.map((label, index) => (
                     <li key={index}>
                       <Link
@@ -228,11 +232,11 @@ const Footer = () => {
 
             {/* Widget Two */}
             {footerData.widget_two && widgetTwoLabels.length > 0 && (
-              <div>
+              <div className="text-center md:text-left">
                 <h3 className="text-md font-semibold mb-3">
                   {footerData.widget_two}
                 </h3>
-                <ul className="space-y-2 text-gray-900 text-sm">
+                <ul className="space-y-2 text-gray-900 text-sm mx-auto md:mx-0 w-fit">
                   {widgetTwoLabels.map((label, index) => (
                     <li key={index}>
                       <Link
@@ -248,9 +252,10 @@ const Footer = () => {
             )}
 
             {/* Contact Us */}
-            <div>
+            <div className="text-center md:text-left">
               <h3 className="text-md font-semibold mb-3">Contact Us</h3>
-              <ul className="space-y-2 text-gray-900 text-sm mb-4">
+
+              <ul className="space-y-2 text-gray-900 text-sm mb-4 mx-auto md:mx-0 w-fit">
                 {footerData.helpline_number && (
                   <li>
                     <a
@@ -261,6 +266,7 @@ const Footer = () => {
                     </a>
                   </li>
                 )}
+
                 {footerData.contact_email && (
                   <li>
                     <a
@@ -271,6 +277,7 @@ const Footer = () => {
                     </a>
                   </li>
                 )}
+
                 {footerData.contact_address && (
                   <li className="text-xs leading-relaxed">
                     {footerData.contact_address}
@@ -278,9 +285,9 @@ const Footer = () => {
                 )}
               </ul>
 
-              {/* Store Locator with Google Map */}
+              {/* Google Map */}
               {footerData.google_map_iframe && (
-                <div className="rounded-md overflow-hidden w-full h-[150px]">
+                <div className="rounded-md overflow-hidden w-full h-[150px] mx-auto md:mx-0">
                   <iframe
                     src={footerData.google_map_iframe}
                     width="100%"
@@ -289,11 +296,12 @@ const Footer = () => {
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                  ></iframe>
+                  />
                 </div>
               )}
             </div>
           </div>
+
         </div>
       </div>
 
