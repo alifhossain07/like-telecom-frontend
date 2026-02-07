@@ -27,11 +27,51 @@ type Product = {
   featured_specs?: Spec[];
 };
 
+type Variant = {
+  qty: number;
+  [key: string]: unknown; // Allow other properties
+};
+
+type ProductDetails = {
+  current_stock: number;
+  variants: Variant[];
+  [key: string]: unknown; // Allow other properties
+};
+
 export default function ProductCard({ product }: { product: Product }) {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const { user, accessToken } = useAuth();
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isWishlisting, setIsWishlisting] = useState(false);
+
+  const [productDetails, setProductDetails] = useState<ProductDetails | null>(null);
+
+  // Fetch full product details
+  useEffect(() => {
+    if (product.slug) {
+      const fetchProductDetails = async () => {
+        try {
+          // Use local proxy request to avoid CORS
+          const res = await axios.get(`/api/products/${product.slug}`);
+          // The proxy returns the product object directly
+          if (res.data) {
+            setProductDetails(res.data);
+          }
+        } catch (error) {
+          console.error("Error fetching product details:", error);
+        }
+      };
+
+      fetchProductDetails();
+    }
+  }, [product.slug]);
+
+  // Log product details as requested
+  useEffect(() => {
+    if (productDetails) {
+      console.log("Fetched Product Details:", productDetails);
+    }
+  }, [productDetails]);
 
   // Check if product is in wishlist on mount/user change
   useEffect(() => {
@@ -103,7 +143,7 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* ---------- IMAGE ---------- */}
         <Link
           href={`/${product.slug}`}
-          className="relative flex justify-center items-center bg-gray-50 rounded-xl overflow-hidden mx-2 mt-2"
+          className="relative flex justify-center items-center bg-gray-50  overflow-hidden mx-2 mt-2"
         >
           <div
             className="
@@ -154,6 +194,29 @@ export default function ProductCard({ product }: { product: Product }) {
             >
               <FaHeart className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
+
+            {/* Out of Stock Overlay */}
+            {(() => {
+              if (!productDetails) return null; // Wait for data
+
+              const stock = productDetails.current_stock ? Number(productDetails.current_stock) : 0;
+              const hasVariantStock = productDetails.variants && productDetails.variants.length > 0
+                ? productDetails.variants.some((v: Variant) => Number(v.qty) > 0)
+                : false;
+
+              // Show overlay only if both main stock and all variant stocks are 0
+              if (stock === 0 && !hasVariantStock) {
+                return (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                    <span className="text-white font-bold text-xs sm:text-sm md:text-base px-3 py-1 border-2 border-white rounded transform -rotate-12">
+                      OUT OF STOCK
+                    </span>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
           </div>
         </Link>
 

@@ -11,6 +11,7 @@ import * as yup from "yup";
 import React from "react";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 // ------------------------- Types -------------------------
 interface CartItem {
   id: string | number;
@@ -144,7 +145,7 @@ const CheckoutPage: React.FC = () => {
       address: "",
       deliveryMethod: "inside",
       payment: "cash_on_delivery", // Changed default to cash_on_delivery key
-      agreeTerms: true,
+      agreeTerms: false,
       promoCode: "",
       districtId: null,
       districtName: "",
@@ -1294,12 +1295,64 @@ const CheckoutPage: React.FC = () => {
                 )}
               </div>
             </div>
-            <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
-              <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
+            <label className="flex items-start gap-2 text-xs sm:text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                {...register("agreeTerms")}
+                className="peer sr-only"
+              />
+
+              {/* Custom checkbox */}
+              <span className="
+    w-5 h-5
+    border-2 border-orange-500
+    rounded
+    flex items-center justify-center
+    peer-checked:bg-orange-500
+    peer-checked:[&_svg]:block
+    transition
+  ">
+                <svg
+                  className="w-3 h-3 text-white hidden"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </span>
+
               <span className="flex-1">
                 I have read & agree to the{" "}
-                <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
-                <span className="text-orange-500">Return Policy</span>.
+                <Link
+                  href="/footer/terms"
+                  target="_blank"
+                  className="text-orange-500 hover:underline"
+                >
+                  Terms & Conditions
+                </Link>
+                ,{" "}
+                <Link
+                  href="/footer/privacy-policy"
+                  target="_blank"
+                  className="text-orange-500 hover:underline"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                and{" "}
+                <Link
+                  href="/footer/return-policy"
+                  target="_blank"
+                  className="text-orange-500 hover:underline"
+                >
+                  Return Policy
+                </Link>
+                .
               </span>
             </label>
             {errors.agreeTerms && (

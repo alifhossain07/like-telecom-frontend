@@ -21,7 +21,7 @@ interface ProductActionsProps {
     name: string;
     main_price: string;
     stroked_price: string;
-    discount?: string;
+    discount?: string | number;
     thumbnail_image?: string;
     photos?: Array<{ path: string }>;
     choice_options?: Array<{ name: string; title: string; options: string[] }>;
@@ -30,6 +30,7 @@ interface ProductActionsProps {
     current_stock?: number;
     model_number?: string;
     variants?: Variant[];
+    whatsappNumber?: string;
   };
 }
 
@@ -307,6 +308,34 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
 
   return (
     <>
+      {/* Dynamic Pricing Section */}
+      <div className="">
+        <div className="flex items-baseline gap-3 mb-2 flex-wrap">
+          <span className="md:text-[26px] text-[22px] font-bold text-orange-600">
+            ৳{getPrices().price.toLocaleString()}
+          </span>
+          {product.discount &&
+            product.discount !== "0%" &&
+            product.discount !== "0" &&
+            product.discount !== "" &&
+            product.discount !== 0 && (
+              <>
+                <span className="text-[16px] text-gray-400 line-through">
+                  ৳{getPrices().oldPrice.toLocaleString()}
+                </span>
+                <span className="px-3 py-1 bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
+                  {product.discount} off
+                </span>
+              </>
+            )}
+
+          {/* Stock Quantity Display */}
+          <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-2xl">
+            In Stock: {selectedVariant ? selectedVariant.qty : product.current_stock}
+          </span>
+        </div>
+      </div>
+
       {/* Product Variants - Dynamic */}
       <ProductVariants
         choiceOptions={product.choice_options || []}
@@ -362,7 +391,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
           </div>
 
           <span className="md:text-sm text-[12px] text-[#B3D9C5] font-bold">
-            Call For Online Order (09678-664664)
+            Call For Online Order ({product.whatsappNumber || "09678-664664"})
           </span>
         </div>
       </div>

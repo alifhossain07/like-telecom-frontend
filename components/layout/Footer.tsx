@@ -175,19 +175,10 @@ const Footer = () => {
             )}
 
             {/* Payment Method Image */}
-            {footerData.payment_method_images && (
-              <div className="flex flex-row items-center gap-2">
-                <p className="text-sm font-medium mb-2">Pay With</p>
-                <div className="relative h-12 w-48">
-                  <Image
-                    src={footerData.payment_method_images}
-                    alt="Payment Methods"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-            )}
+            <div className="flex flex-row items-center gap-2">
+              <p className="text-sm font-medium mb-2">Trade License No: TRAD/DNC/053383/2022 </p>
+
+            </div>
           </div>
 
           {/* RIGHT SECTION (8/12) */}

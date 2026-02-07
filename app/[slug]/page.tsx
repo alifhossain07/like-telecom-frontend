@@ -139,28 +139,12 @@ export default async function ProductPage({ params }: PageParams) {
               {/* Product Title */}
               <h1 className="md:text-[24px] text-[20px] font-bold text-gray-900 mb-2">{product.name}</h1>
               {/* Pricing Information */}
-              <div className="">
-                <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                  <span className="md:text-[26px] text-[22px] font-bold text-orange-600">{product.main_price}</span>
-                  {product.discount &&
-                    product.discount !== "0%" &&
-                    product.discount !== "0" &&
-                    product.discount !== "" &&
-                    product.discount !== 0 && (
-                      <>
-                        <span className="text-[16px] text-gray-400 line-through">{product.stroked_price}</span>
-                        <span className="px-3 py-1  bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
-                          {product.discount} off
-                        </span>
-                      </>
-                    )}
-                  {/* <span className="px-3 py-1 bg-[#FFEFCC] text-[#FFB20B] text-sm font-semibold rounded-2xl">
-                    Earn 200-Points
-                  </span> */}
-                </div>
-              </div>
+
               {/* Product Variants, Quantity Selector, and Action Buttons */}
-              <ProductActions product={product} />
+              <ProductActions product={{
+                ...product,
+                whatsappNumber
+              }} />
 
               {/* Messaging Options */}
               <div className="flex gap-3">
