@@ -196,14 +196,12 @@ export default async function ProductPage({ params }: PageParams) {
               <ProductRating product={product} />
 
               {/* Estimated Shipping Time */}
-              {product.est_shipping_time && (
-                <div className="flex font-medium items-center gap-2 text-sm bg-[#F4F4F4] p-4 text-gray-700">
-                  <FaTruck className="text-black text-xl" />
-                  <span className="font-medium">
-                    Delivery Time : {product.est_shipping_time} days
-                  </span>
-                </div>
-              )}
+              <div className="flex font-medium items-center gap-2 text-sm bg-[#F4F4F4] p-4 text-gray-700">
+                <FaTruck className="text-black text-xl" />
+                <span className="font-medium">
+                  Delivery Time : {product.est_shipping_time && product.est_shipping_time !== "0" && product.est_shipping_time !== 0 ? `${product.est_shipping_time} days` : ""}
+                </span>
+              </div>
 
               {/* Secondary Action Buttons */}
               <div className="flex gap-2 mb-3">
@@ -255,19 +253,26 @@ export default async function ProductPage({ params }: PageParams) {
       </div>
       {/* Product Summary Section ends */}
 
+
       {/* Specifications Section */}
-      <div className="w-11/12 mx-auto gap-8 flex justify-between  pb-4">
-        <div className="w-[59.375vw] max-w-[1140px] min-w-[700px] ">
+      <div className="w-11/12 mx-auto flex flex-col xl:flex-row gap-6 pb-4">
+
+        {/* Left Part: Specs & FAQ */}
+        {/* Changed: Removed fixed min-w and vw. Added xl:w-2/3 and w-full */}
+        <div className="w-full xl:w-2/3 min-w-0">
           <Specifications specifications={product.specifications || []} />
           <FAQ faqs={product.faqs || []} />
         </div>
 
-        <div className="w-[28.645vw] max-w-[550px] rounded-xl  min-w-[320px] ">
+        {/* Right Part: Related Products */}
+        {/* Changed: Ensured it takes full width on mobile and fixed width on desktop */}
+        <div className="w-full xl:w-1/3 max-w-[550px]">
           <ProductList
             relatedProducts={product.frequently_bought_products || []}
             recentlyViewed={product.recentlyViewed || []}
           />
         </div>
+
       </div>
       {/* Product Details */}
       <div className="bg-white w-11/12 mx-auto p-8">
