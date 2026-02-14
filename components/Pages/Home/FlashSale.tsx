@@ -5,7 +5,7 @@ import axios from "axios";
 import { FiChevronRight } from "react-icons/fi";
 import ProductCard from "@/components/ui/ProductCard";
 import FlashSaleShimmerSkeleton from "@/components/Skeletons/FlashSaleShimmerSkeleton";
- // Import the ShimmerSkeleton component
+// Import the ShimmerSkeleton component
 
 interface Product {
   id: number;
@@ -17,7 +17,7 @@ interface Product {
   rating: number;
   reviews: number;
   image: string;
-  
+
 }
 
 type BackendProduct = {
@@ -39,76 +39,80 @@ const FlashSale = () => {
   // const [endTime, setEndTime] = useState<number>(0); // Store the end time in Unix timestamp format
 
   useEffect(() => {
-  const fetchFlashSale = async () => {
-    let interval: NodeJS.Timeout | null = null;
-    try {
-      const res = await axios.get("/api/products/flashsale");
-      
-      // Check if flash deal data is available
-      if (!res.data.success || !res.data.data || res.data.data.length === 0) {
-        setLoading(false);
-        return;
-      }
-      
-      // Find the flash deal with homepage: 1
-      const homepageFlashDeal = res.data.data.find((deal: { homepage?: number }) => deal.homepage === 1);
-      
-      // If no homepage flash deal found, use the first one as fallback
-      const activeFlashDeal = homepageFlashDeal || res.data.data[0];
-      
-      if (!activeFlashDeal || !activeFlashDeal.banner || !activeFlashDeal.products?.data) {
-        setLoading(false);
-        return;
-      }
-      
-      setBanner(activeFlashDeal.banner);
+    const fetchFlashSale = async () => {
+      let interval: NodeJS.Timeout | null = null;
+      try {
+        const res = await axios.get("/api/products/flashsale");
 
-      const mappedProducts: Product[] = activeFlashDeal.products.data.map((product: BackendProduct) => ({
-        id: product.id,
-        name: product.name,
-        slug: product.slug,
-        price: parseFloat(product.main_price.replace("৳", "").replace(",", "")),
-        oldPrice: parseFloat(product.stroked_price.replace("৳", "").replace(",", "")),
-        discount: product.discount,
-        rating: parseFloat(product.rating),
-        reviews: 0,
-        image: product.thumbnail_image,
-      }));
-
-      setProducts(mappedProducts);
-
-      const apiEndTime = activeFlashDeal.date * 1000; // ms
-
-      interval = setInterval(() => {
-        const currentTime = Date.now();
-        const timeRemaining = apiEndTime - currentTime;
-
-        if (timeRemaining <= 0) {
-          clearInterval(interval!);
-          setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        } else {
-          const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-
-          setCountdown({ days, hours, minutes, seconds });
+        // Check if flash deal data is available
+        if (!res.data.success || !res.data.data || res.data.data.length === 0) {
+          setLoading(false);
+          return;
         }
-      }, 1000);
-    } catch (error) {
-      console.error("Error fetching Flash Sale products:", error);
-    } finally {
-      setLoading(false);
-    }
 
-    // cleanup on unmount
-    return () => {
-      if (interval) clearInterval(interval);
+        // Find the flash deal with homepage: 1
+        const homepageFlashDeal = res.data.data.find((deal: { homepage?: number }) => deal.homepage === 1);
+
+        // If no homepage flash deal found, use the first one as fallback
+        const activeFlashDeal = homepageFlashDeal || res.data.data[0];
+
+        if (!activeFlashDeal || !activeFlashDeal.banner || !activeFlashDeal.products?.data) {
+          setLoading(false);
+          return;
+        }
+
+        setBanner(activeFlashDeal.banner);
+
+        const mappedProducts: Product[] = activeFlashDeal.products.data.map((product: BackendProduct) => ({
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          price: parseFloat(product.main_price.replace("৳", "").replace(",", "")),
+          oldPrice: parseFloat(product.stroked_price.replace("৳", "").replace(",", "")),
+          discount: product.discount,
+          rating: parseFloat(product.rating),
+          reviews: 0,
+          image: product.thumbnail_image,
+        }));
+
+        setProducts(mappedProducts);
+
+        const apiEndTime = activeFlashDeal.date * 1000; // ms
+
+        interval = setInterval(() => {
+          const currentTime = Date.now();
+          const timeRemaining = apiEndTime - currentTime;
+
+          if (timeRemaining <= 0) {
+            clearInterval(interval!);
+            setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+          } else {
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            setCountdown({ days, hours, minutes, seconds });
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("Error fetching Flash Sale products:", error);
+      } finally {
+        setLoading(false);
+      }
+
+      // cleanup on unmount
+      return () => {
+        if (interval) clearInterval(interval);
+      };
     };
-  };
 
-  fetchFlashSale();
-}, []);
+    fetchFlashSale();
+  }, []);
+
+  if (!loading && products.length === 0) {
+    return null;
+  }
 
   return (
     <div className="md:w-11/12 w-11/12 mx-auto pb-[56px]">

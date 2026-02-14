@@ -1200,7 +1200,11 @@ const CheckoutPage: React.FC = () => {
                             </div>
                             <div>
                               <p className="font-medium text-gray-900">
-                                {method.payment_type_key === "sslcommerz" ? "Online Payment" : method.name}
+                                {method.payment_type_key === "sslcommerz"
+                                  ? "Online Payment"
+                                  : method.payment_type_key === "cash_on_delivery"
+                                    ? "Cash On Delivery"
+                                    : method.name}
                               </p>
                               {method.details && (
                                 <p className="text-xs text-gray-500">{method.details}</p>
