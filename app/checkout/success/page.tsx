@@ -18,6 +18,9 @@ export default function OrderComplete() {
     deliveryCharge: number;
     promoDiscount: number;
     total: number;
+    paid_amount?: number;
+    due_amount?: number;
+    payment_status?: string;
   } | null>(null);
   const [shipping, setShipping] = useState<{
     method: string;
@@ -42,13 +45,6 @@ export default function OrderComplete() {
           });
         }
         if (Array.isArray(parsed?.items)) {
-          // Debug: log items to check variant data
-          console.log("Order items loaded:", parsed.items);
-          parsed.items.forEach((item: { variant?: string; name?: string }, idx: number) => {
-            if (item.variant) {
-              console.log(`Item ${idx + 1} (${item.name}) has variant:`, item.variant);
-            }
-          });
           setItems(parsed.items);
         }
         if (parsed?.totals) {
@@ -103,7 +99,17 @@ export default function OrderComplete() {
               <div className="w-full bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden text-left mb-8">
                 {/* Header/Customer Info Section */}
                 <div className="p-5 border-b border-gray-200 bg-gray-100/50">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Order Details</h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">Order Details</h3>
+                    {totals?.payment_status && (
+                      <span className={`text-[11px] px-3 py-1 rounded-full font-bold uppercase ${totals.payment_status === "Paid" ? "bg-green-100 text-green-700" :
+                        totals.payment_status === "Partially Paid" ? "bg-blue-100 text-blue-700" :
+                          "bg-yellow-100 text-yellow-700"
+                        }`}>
+                        {totals.payment_status}
+                      </span>
+                    )}
+                  </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
                       <p className="text-[10px] uppercase text-gray-400 font-bold">Order ID</p>
@@ -132,13 +138,13 @@ export default function OrderComplete() {
 
                 {/* Products Section */}
                 <div className="p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Items Purchased</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Items Purchased</h3>
                   {items.length === 0 ? (
                     <p className="text-sm text-gray-400 italic">No item details available.</p>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {items.map((it, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                        <div key={idx} className="flex justify-between items-center text-sm border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                           <div className="flex flex-col gap-1 flex-1">
                             <div className="flex gap-2 items-center">
                               <span className="bg-orange-100 text-orange-600 font-bold px-2 py-0.5 rounded text-xs">
@@ -147,10 +153,10 @@ export default function OrderComplete() {
                               <span className="font-medium text-gray-700">{it.name}</span>
                             </div>
                             {it.variant && it.variant.trim() !== "" && (
-                              <p className="text-xs text-gray-500 ml-7">{it.variant}</p>
+                              <p className="text-xs text-gray-500 ml-8">{it.variant}</p>
                             )}
                           </div>
-                          <span className="font-semibold text-gray-900">৳{(it.price * it.qty).toLocaleString()}</span>
+                          <span className="font-semibold text-gray-900 ml-4 font-mono">৳{(it.price * it.qty).toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -159,9 +165,9 @@ export default function OrderComplete() {
 
                 {/* Billing Summary */}
                 <div className="px-5 pb-5 border-t border-gray-200">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Billing Summary</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 pt-4">Billing Summary</h3>
                   {totals ? (
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Subtotal</span>
                         <span className="font-semibold">৳{totals.subtotal.toLocaleString()}</span>
@@ -171,7 +177,7 @@ export default function OrderComplete() {
                         <span className="font-semibold">৳{totals.discount.toLocaleString()}</span>
                       </div>
                       {totals.promoDiscount > 0 && (
-                        <div className="flex justify-between text-green-700">
+                        <div className="flex justify-between text-green-700 font-medium">
                           <span>Promo Discount</span>
                           <span className="font-semibold">-৳{totals.promoDiscount.toLocaleString()}</span>
                         </div>
@@ -180,7 +186,20 @@ export default function OrderComplete() {
                         <span className="text-gray-600">{shipping?.methodLabel || "Delivery"}</span>
                         <span className="font-semibold">৳{(shipping?.charge ?? totals.deliveryCharge).toLocaleString()}</span>
                       </div>
-                      <div className="flex justify-between pt-2 mt-2 border-t font-bold text-orange-600">
+
+                      {/* Payment Progress Section */}
+                      <div className="pt-4 mt-2 border-t border-gray-100 space-y-2">
+                        <div className="flex justify-between text-green-700 font-bold">
+                          <span>Advance Paid</span>
+                          <span>৳{(totals.paid_amount ?? 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-red-600 font-bold">
+                          <span>Due Amount</span>
+                          <span>৳{(totals.due_amount ?? totals.total).toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between pt-4 mt-2 border-t font-black text-orange-600 text-lg italic">
                         <span>Grand Total</span>
                         <span>৳{totals.total.toLocaleString()}</span>
                       </div>
@@ -195,9 +214,15 @@ export default function OrderComplete() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/"
-                  className="w-full sm:w-auto bg-orange-500 text-white px-8 py-3 rounded-xl font-semibold shadow-md hover:bg-orange-600 transition-all active:scale-95"
+                  className="w-full sm:w-auto bg-orange-500 text-white px-10 py-2 rounded-xl font-bold shadow-md hover:bg-orange-600 transition-all active:scale-95"
                 >
                   Continue Shopping
+                </Link>
+                <Link
+                  href="/trackorder"
+                  className="w-full sm:w-auto bg-gray-100 text-gray-700 px-10 py-2 rounded-xl font-bold hover:bg-gray-200 transition-all"
+                >
+                  Track Order
                 </Link>
               </div>
             </>

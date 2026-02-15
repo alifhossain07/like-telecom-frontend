@@ -25,6 +25,9 @@ interface OrderDetails {
         };
         quantity: number;
     }>;
+    paid_amount?: number;
+    due_amount?: number;
+    payment_status?: string;
 }
 
 const TrackOrderPage = () => {
@@ -143,13 +146,36 @@ const TrackOrderPage = () => {
 
                             <div className="space-y-5">
                                 <div className="flex border-b border-gray-50 pb-2">
-                                    <span className="w-44 text-[#555555] font-bold          md:text-base text-sm">Order date:</span>
+                                    <span className="w-44 text-[#555555] font-bold md:text-base text-sm">Order date:</span>
                                     <span className="flex-1 text-[#666666] md:text-base text-sm font-medium">{formatDate(order.date)}</span>
                                 </div>
                                 <div className="flex border-b border-gray-50 pb-2">
                                     <span className="w-44 text-[#555555] font-bold md:text-base text-sm">Total order amount:</span>
                                     <span className="flex-1 text-[#666666] md:text-base text-sm font-bold">৳{order.grand_total.toLocaleString()}</span>
                                 </div>
+                                {order.payment_status && (
+                                    <div className="flex border-b border-gray-50 pb-2 items-center">
+                                        <span className="w-44 text-[#555555] font-bold md:text-base text-sm">Payment Status:</span>
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${order.payment_status === "Paid" ? "bg-green-100 text-green-700" :
+                                                order.payment_status === "Partially Paid" ? "bg-blue-100 text-blue-700" :
+                                                    "bg-yellow-100 text-yellow-700"
+                                            }`}>
+                                            {order.payment_status}
+                                        </span>
+                                    </div>
+                                )}
+                                {(typeof order.paid_amount !== "undefined") && (
+                                    <div className="flex border-b border-gray-50 pb-2">
+                                        <span className="w-44 text-[#555555] font-bold md:text-base text-sm text-green-600">Advance Paid:</span>
+                                        <span className="flex-1 text-green-600 md:text-base text-sm font-bold tracking-tight">৳{order.paid_amount.toLocaleString()}</span>
+                                    </div>
+                                )}
+                                {(typeof order.due_amount !== "undefined") && (
+                                    <div className="flex border-b border-gray-50 pb-2">
+                                        <span className="w-44 text-[#555555] font-bold md:text-base text-sm text-red-500">Due Amount:</span>
+                                        <span className="flex-1 text-red-500 md:text-base text-sm font-bold tracking-tight">৳{order.due_amount.toLocaleString()}</span>
+                                    </div>
+                                )}
                                 <div className="flex border-b border-gray-50 pb-2">
                                     <span className="w-44 text-[#555555] font-bold md:text-base text-sm">Shipping method:</span>
                                     <span className="flex-1 text-[#666666]      md:text-base text-sm font-medium uppercase">{order.additional_info.shipping_method_label ? order.additional_info.shipping_method_label.replace(/_/g, " ") : "Flat shipping rate"}</span>

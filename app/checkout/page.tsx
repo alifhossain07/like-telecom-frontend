@@ -163,6 +163,28 @@ const CheckoutPage: React.FC = () => {
   const [paymentTypes, setPaymentTypes] = React.useState<PaymentType[]>([]);
   const [paymentTypesLoading, setPaymentTypesLoading] = React.useState(false);
 
+  // ------------------------- Advanced Payment Settings -------------------------
+  const [advancedPaymentSettings, setAdvancedPaymentSettings] = React.useState<{
+    enabled: "on" | "off";
+    type: "fixed" | "percentage";
+    value: string;
+  } | null>(null);
+
+  React.useEffect(() => {
+    const fetchAdvancedPaymentSettings = async () => {
+      try {
+        const res = await fetch("/api/advanced-payment-settings");
+        const data = await res.json();
+        if (data) {
+          setAdvancedPaymentSettings(data);
+        }
+      } catch (error) {
+        console.error("Error fetching advanced payment settings:", error);
+      }
+    };
+    fetchAdvancedPaymentSettings();
+  }, []);
+
   React.useEffect(() => {
     const fetchPaymentTypes = async () => {
       try {
@@ -670,6 +692,16 @@ const CheckoutPage: React.FC = () => {
   const effectiveDelivery = deliveryCharge;
   const total = subtotal - discount + effectiveDelivery - promoDiscount;
 
+  // Booking Money calculation
+  const bookingMoney = React.useMemo(() => {
+    if (!advancedPaymentSettings || advancedPaymentSettings.enabled !== "on") return 0;
+    const val = parseFloat(advancedPaymentSettings.value) || 0;
+    if (advancedPaymentSettings.type === "percentage") {
+      return (total * val) / 100;
+    }
+    return val;
+  }, [advancedPaymentSettings, total]);
+
   // ------------------------- Payment Modal -------------------------
   // Payment modal removed
   // Online payment state (commented for future use)
@@ -841,6 +873,17 @@ const CheckoutPage: React.FC = () => {
                 deliveryCharge: effectiveDelivery,
                 promoDiscount,
                 total: subtotal - discount + effectiveDelivery - promoDiscount,
+                paid_amount: data.payment === "sslcommerz"
+                  ? (subtotal - discount + effectiveDelivery - promoDiscount)
+                  : (advancedPaymentSettings?.enabled === "on" ? bookingMoney : 0),
+                due_amount: data.payment === "sslcommerz"
+                  ? 0
+                  : (advancedPaymentSettings?.enabled === "on"
+                    ? (subtotal - discount + effectiveDelivery - promoDiscount - bookingMoney)
+                    : (subtotal - discount + effectiveDelivery - promoDiscount)),
+                payment_status: data.payment === "sslcommerz"
+                  ? "Paid"
+                  : (advancedPaymentSettings?.enabled === "on" ? "Partially Paid" : "Unpaid")
               },
             };
 
@@ -862,14 +905,19 @@ const CheckoutPage: React.FC = () => {
             const finalRedirectId = backendData?.combined_order_id || transactionId;
 
             // --- SSLCOMMERZ INTEGRATION START ---
-            if (data.payment === "sslcommerz") {
+            if (data.payment === "sslcommerz" || (data.payment === "cash_on_delivery" && advancedPaymentSettings?.enabled === "on")) {
               try {
                 let sslUrl = `/api/sslcommerz/begin?combined_order_id=${finalRedirectId}`;
                 if (user && user.id) {
                   sslUrl += `&user_id=${user.id}`;
                 }
 
-                toast.loading("Initiating SSLCommerz Payment...");
+                // If COD with advanced payment enabled, add the flag
+                if (data.payment === "cash_on_delivery" && advancedPaymentSettings?.enabled === "on") {
+                  sslUrl += `&advance_payment=1`;
+                }
+
+                toast.loading(data.payment === "sslcommerz" ? "Initiating SSLCommerz Payment..." : "Initiating Advance Payment...");
 
                 // Fetch redirect URL from proxy
                 const sslResponse = await fetch(sslUrl, {
@@ -1410,6 +1458,15 @@ const CheckoutPage: React.FC = () => {
           {/* Order Summary */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
             <h2 className="md:text-2xl text-xl font-semibold mb-4">In Your Order Summary</h2>
+
+            {/* Advanced Payment Message */}
+            {watch("payment") === "cash_on_delivery" && advancedPaymentSettings?.enabled === "on" && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm font-medium animate-pulse">
+                Advance Payment is required to place this order.
+                <p className="mt-2 font-semibold text-lg">Booking Money : ৳ {bookingMoney.toLocaleString()}</p>
+              </div>
+            )}
+
             <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Sub Total :</span>
               <span>৳ {subtotal.toLocaleString()}</span>
@@ -1438,7 +1495,7 @@ const CheckoutPage: React.FC = () => {
                 }`}
               disabled={!isValid || isLoading}
             >
-              {isLoading ? "Processing..." : (watch("payment") === "sslcommerz" ? "Pay Now" : "Confirm Order")}
+              {isLoading ? "Processing..." : (watch("payment") === "sslcommerz" || (watch("payment") === "cash_on_delivery" && advancedPaymentSettings?.enabled === "on") ? "Pay Now" : "Confirm Order")}
             </button>
           </div>
         </div>

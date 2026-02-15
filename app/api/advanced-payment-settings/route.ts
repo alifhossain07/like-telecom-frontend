@@ -1,4 +1,3 @@
-
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from "next/server";
@@ -7,20 +6,6 @@ import { getBearerToken } from "@/app/lib/auth-utils";
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const combined_order_id = searchParams.get("combined_order_id");
-    const user_id = searchParams.get("user_id");
-    const advance_payment = searchParams.get("advance_payment");
-
-    console.log("SSLCommerz Begin Proxy - Query Params:", { combined_order_id, user_id, advance_payment });
-
-    if (!combined_order_id) {
-        return NextResponse.json(
-            { result: false, message: "Missing combined_order_id" },
-            { status: 400 }
-        );
-    }
-
     const API_BASE = process.env.API_BASE;
     const SYSTEM_KEY = process.env.SYSTEM_KEY;
 
@@ -32,22 +17,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Build query string for backend
-    // Route: /api/v2/sslcommerz/begin?combined_order_id=81&payment_type=cart_payment
-    const backendQueryParams = new URLSearchParams();
-    backendQueryParams.append("combined_order_id", combined_order_id);
-    backendQueryParams.append("payment_type", "cart_payment");
-    if (user_id) {
-        backendQueryParams.append("user_id", user_id);
-    }
-    if (advance_payment) {
-        backendQueryParams.append("advance_payment", advance_payment);
-    }
-    
-    // Determine backend URL
-    // existing countries API uses v2: like.test/api/v2/countries
-    // so we assume sslcommerz is also v2 as per user request
-    const backendUrl = `${API_BASE}/sslcommerz/begin?${backendQueryParams.toString()}`;
+    const backendUrl = `${API_BASE}/advanced-payment-settings`;
 
     // Extract Bearer token
     const bearerToken = getBearerToken(req);
@@ -59,17 +29,17 @@ export async function GET(req: NextRequest) {
       ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
     };
 
-    console.log("Calling Backend URL:", backendUrl);
+    console.log("Calling Backend URL (Advanced Payment Settings):", backendUrl);
 
     const response = await axios.get(backendUrl, { headers });
 
-    console.log("Backend Response:", response.data);
+    console.log("Backend Response (Advanced Payment Settings):", response.data);
 
     return NextResponse.json(response.data);
 
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
-      console.error("Proxy /api/sslcommerz/begin error:", err.message);
+      console.error("Proxy /api/advanced-payment-settings error:", err.message);
       console.error("Full error:", err.response?.data);
 
       return NextResponse.json(
