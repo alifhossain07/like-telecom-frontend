@@ -8,6 +8,7 @@ import ProductOptionsModal from "./ProductOptionsModal";
 import { useAuth } from "@/app/context/AuthContext";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { formatPrice } from "@/app/lib/format-utils";
 
 type Spec = {
   icon: string;
@@ -230,11 +231,11 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {/* ---------- PRICE ---------- */}
         <div className="flex flex-col px-2 py-1 gap-1">
-          <span className="text-orange-600 font-bold text-lg sm:text-base md:text-xl lg:text-2xl">
-            ৳{product.price}
+          <span className="text-orange-600 font-semibold text-lg sm:text-base md:text-xl lg:text-2xl">
+            ৳{formatPrice(product.price)}
           </span>
           <span className="text-gray-400 line-through text-xs sm:text-sm md:text-md">
-            ৳{product.oldPrice}
+            ৳{formatPrice(product.oldPrice)}
           </span>
         </div>
 

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { FiPlus, FiMinus } from "react-icons/fi";
 import { useCart } from "@/app/context/CartContext";
+import { formatPrice } from "@/app/lib/format-utils";
 
 type Brand = {
   id: number;
@@ -441,10 +442,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
                   <div className="flex items-center gap-2">
                     <span className="text-orange-500 font-semibold text-lg">
-                      ৳{currentPrices.price.toLocaleString()}
+                      ৳{formatPrice(currentPrices.price)}
                     </span>
                     <span className="line-through text-gray-400 text-xs">
-                      ৳{currentPrices.oldPrice.toLocaleString()}
+                      ৳{formatPrice(currentPrices.oldPrice)}
                     </span>
                     <span className="px-2 py-[2px] rounded-full bg-green-100 text-green-600 text-[10px] font-semibold">
                       {product.discount} OFF

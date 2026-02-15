@@ -12,6 +12,7 @@ import React from "react";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { formatPrice } from "@/app/lib/format-utils";
 // ------------------------- Types -------------------------
 interface CartItem {
   id: string | number;
@@ -1036,8 +1037,8 @@ const CheckoutPage: React.FC = () => {
                     </p>
                   )}
                   <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
-                    ৳{item.price}
-                    <span className="line-through text-gray-400 ml-2 text-xs">৳{item.oldPrice}</span>
+                    ৳{formatPrice(item.price)}
+                    <span className="line-through text-gray-400 ml-2 text-xs">৳{formatPrice(item.oldPrice)}</span>
                   </div>
                   <div className="flex items-center gap-4 mt-1 text-sm md:text-sm">
                     <span className="font-medium">QTY :</span>
@@ -1284,12 +1285,12 @@ const CheckoutPage: React.FC = () => {
                 >
                   {isDhakaSelected ? (
                     <>
-                      <option value="inside">Inside Dhaka – Home Delivery ({currencySymbol} {insideDhaka.toLocaleString()})</option>
+                      <option value="inside">Inside Dhaka – Home Delivery ({currencySymbol} {formatPrice(insideDhaka)})</option>
                       <option value="shop_pickup">Shop Pickup (No Delivery Charge)</option>
                     </>
                   ) : (
                     <>
-                      <option value="outside">Outside Dhaka – Home Delivery ({currencySymbol} {outsideDhaka.toLocaleString()})</option>
+                      <option value="outside">Outside Dhaka – Home Delivery ({currencySymbol} {formatPrice(outsideDhaka)})</option>
                       <option value="shop_pickup">Shop Pickup (No Delivery Charge)</option>
                     </>
                   )}
@@ -1463,31 +1464,31 @@ const CheckoutPage: React.FC = () => {
             {watch("payment") === "cash_on_delivery" && advancedPaymentSettings?.enabled === "on" && (
               <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm font-medium animate-pulse">
                 Advance Payment is required to place this order.
-                <p className="mt-2 font-semibold text-lg">Booking Money : ৳ {bookingMoney.toLocaleString()}</p>
+                <p className="mt-2 font-semibold text-lg">Booking Money : ৳ {formatPrice(bookingMoney)}</p>
               </div>
             )}
 
             <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Sub Total :</span>
-              <span>৳ {subtotal.toLocaleString()}</span>
+              <span>৳ {formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Delivery Charge :</span>
-              <span>৳ {effectiveDelivery.toLocaleString()}</span>
+              <span>৳ {formatPrice(effectiveDelivery)}</span>
             </div>
             <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Discount :</span>
-              <span>৳ {discount.toLocaleString()}</span>
+              <span>৳ {formatPrice(discount)}</span>
             </div>
             {appliedPromo && promoDiscount > 0 && (
               <div className="flex justify-between md:text-lg text-base mb-2 text-green-600 font-medium">
                 <span>Promo Discount ({appliedPromo}) :</span>
-                <span>-৳ {promoDiscount.toLocaleString()}</span>
+                <span>-৳ {formatPrice(promoDiscount)}</span>
               </div>
             )}
             <div className="flex bg-[#f4f4f4] py-4 px-2 justify-between font-semibold text-orange-600 text-lg md:text-xl mt-4">
               <span>Total Amount :</span>
-              <span>৳ {total.toLocaleString()}</span>
+              <span>৳ {formatPrice(total)}</span>
             </div>
             <button
               type="submit"

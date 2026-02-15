@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { formatPrice } from "@/app/lib/format-utils";
 
 export default function OrderComplete() {
   const [loading, setLoading] = useState(true);
@@ -156,7 +157,7 @@ export default function OrderComplete() {
                               <p className="text-xs text-gray-500 ml-8">{it.variant}</p>
                             )}
                           </div>
-                          <span className="font-semibold text-gray-900 ml-4 font-mono">৳{(it.price * it.qty).toLocaleString()}</span>
+                          <span className="font-semibold text-gray-900 ml-4 font-mono">৳{formatPrice(it.price * it.qty)}</span>
                         </div>
                       ))}
                     </div>
@@ -170,38 +171,38 @@ export default function OrderComplete() {
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Subtotal</span>
-                        <span className="font-semibold">৳{totals.subtotal.toLocaleString()}</span>
+                        <span className="font-semibold">৳{formatPrice(totals.subtotal)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Discount</span>
-                        <span className="font-semibold">৳{totals.discount.toLocaleString()}</span>
+                        <span className="font-semibold">৳{formatPrice(totals.discount)}</span>
                       </div>
                       {totals.promoDiscount > 0 && (
                         <div className="flex justify-between text-green-700 font-medium">
                           <span>Promo Discount</span>
-                          <span className="font-semibold">-৳{totals.promoDiscount.toLocaleString()}</span>
+                          <span className="font-semibold">-৳{formatPrice(totals.promoDiscount)}</span>
                         </div>
                       )}
                       <div className="flex justify-between">
                         <span className="text-gray-600">{shipping?.methodLabel || "Delivery"}</span>
-                        <span className="font-semibold">৳{(shipping?.charge ?? totals.deliveryCharge).toLocaleString()}</span>
+                        <span className="font-semibold">৳{formatPrice(shipping?.charge ?? totals.deliveryCharge)}</span>
                       </div>
 
                       {/* Payment Progress Section */}
                       <div className="pt-4 mt-2 border-t border-gray-100 space-y-2">
                         <div className="flex justify-between text-green-700 font-bold">
                           <span>Advance Paid</span>
-                          <span>৳{(totals.paid_amount ?? 0).toLocaleString()}</span>
+                          <span>৳{formatPrice(totals.paid_amount ?? 0)}</span>
                         </div>
                         <div className="flex justify-between text-red-600 font-bold">
                           <span>Due Amount</span>
-                          <span>৳{(totals.due_amount ?? totals.total).toLocaleString()}</span>
+                          <span>৳{formatPrice(totals.due_amount ?? totals.total)}</span>
                         </div>
                       </div>
 
                       <div className="flex justify-between pt-4 mt-2 border-t font-black text-orange-600 text-lg italic">
                         <span>Grand Total</span>
-                        <span>৳{totals.total.toLocaleString()}</span>
+                        <span>৳{formatPrice(totals.total)}</span>
                       </div>
                     </div>
                   ) : (

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FaStar } from "react-icons/fa";
 import ProductOptionsModal from "@/components/ui/ProductOptionsModal";
+import { formatPrice } from "@/app/lib/format-utils";
 
 interface Product {
   id: number;
@@ -39,13 +40,13 @@ interface FlashDeal {
 const FlashDealDetailsPage = () => {
   const params = useParams();
   const slug = params.slug as string;
-  
+
   const [flashDeal, setFlashDeal] = useState<FlashDeal | null>(null);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
-  
+
   const productsPerPage = 10;
   const totalPages = flashDeal ? Math.ceil((flashDeal.products?.data?.length || 0) / productsPerPage) : 0;
 
@@ -76,7 +77,7 @@ const FlashDealDetailsPage = () => {
     if (!flashDeal) return;
 
     const endTime = flashDeal.date * 1000;
-    
+
     const interval = setInterval(() => {
       const currentTime = Date.now();
       const timeRemaining = endTime - currentTime;
@@ -140,7 +141,7 @@ const FlashDealDetailsPage = () => {
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
           {bannerTitle}
         </h1>
-        
+
         {bannerDescription && (
           <div className="text-sm md:text-base text-gray-700 mb-6 leading-relaxed max-w-4xl mx-auto">
             <p className="mb-2">{bannerDescription}</p>
@@ -174,10 +175,10 @@ const FlashDealDetailsPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 mb-10">
             {visibleProducts.map((product) => {
               const discountAmount = Math.round(
-                parseFloat(product.stroked_price.replace(/[^\d.]/g, "")) - 
+                parseFloat(product.stroked_price.replace(/[^\d.]/g, "")) -
                 parseFloat(product.main_price.replace(/[^\d.]/g, ""))
               );
-              
+
               return (
                 <div
                   key={product.id}
@@ -186,7 +187,7 @@ const FlashDealDetailsPage = () => {
                   {/* Save Badge - Green */}
                   {discountAmount > 0 && (
                     <div className="absolute top-2 left-2 z-10 bg-green-100 text-green-600 text-xs font-semibold px-2 py-1 rounded">
-                      Save ৳ {discountAmount.toLocaleString('en-US')}
+                      Save ৳ {formatPrice(discountAmount)}
                     </div>
                   )}
 
@@ -224,11 +225,11 @@ const FlashDealDetailsPage = () => {
                     {/* Price */}
                     <div className="mb-4 flex-1">
                       <span className="text-orange-600 font-bold text-base md:text-lg">
-                        {product.main_price}
+                        ৳{formatPrice(product.main_price)}
                       </span>
                       {product.has_discount && product.stroked_price !== product.main_price && (
                         <span className="text-gray-400 line-through text-sm ml-2">
-                          {product.stroked_price}
+                          ৳{formatPrice(product.stroked_price)}
                         </span>
                       )}
                     </div>
@@ -262,11 +263,10 @@ const FlashDealDetailsPage = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1.5 border rounded-md text-sm font-medium ${
-                    currentPage === 1
+                  className={`px-3 py-1.5 border rounded-md text-sm font-medium ${currentPage === 1
                       ? "text-gray-400 border-gray-300 cursor-not-allowed"
                       : "hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   &lt; Back
                 </button>
@@ -275,11 +275,10 @@ const FlashDealDetailsPage = () => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-3 py-1.5 border rounded-md text-sm font-medium ${
-                      currentPage === page
+                    className={`px-3 py-1.5 border rounded-md text-sm font-medium ${currentPage === page
                         ? "bg-black text-white border-black"
                         : "hover:bg-gray-100 border-gray-300"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
@@ -288,11 +287,10 @@ const FlashDealDetailsPage = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1.5 border rounded-md text-sm font-medium ${
-                    currentPage === totalPages
+                  className={`px-3 py-1.5 border rounded-md text-sm font-medium ${currentPage === totalPages
                       ? "text-gray-400 border-gray-300 cursor-not-allowed"
                       : "hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   Next &gt;
                 </button>

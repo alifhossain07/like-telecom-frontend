@@ -9,6 +9,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { FaCodeCompare } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { FaWhatsapp, FaFacebookMessenger, FaPhoneAlt, FaTimes } from "react-icons/fa";
+import { formatPrice } from "@/app/lib/format-utils";
 interface CartSidebarProps {
   externalOpen: boolean;
   setExternalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -392,10 +393,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
                 {/* Price */}
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-orange-600 font-semibold text-sm">
-                    {mounted ? `৳${item.price * item.qty}` : "৳0"}
+                    {mounted ? `৳${formatPrice(item.price * item.qty)}` : "৳0"}
                   </span>
                   <span className="text-xs text-gray-400 line-through">
-                    {mounted ? `৳${item.oldPrice * item.qty}` : "৳0"}
+                    {mounted ? `৳${formatPrice(item.oldPrice * item.qty)}` : "৳0"}
                   </span>
                 </div>
 
@@ -465,17 +466,17 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
               <div className="text-sm w-[60%] max-w-[240px]">
                 <div className="flex justify-between text-gray-600 mb-1">
                   <span>Sub-total</span>
-                  <span>৳{mounted ? subtotal.toLocaleString() : "0"}</span>
+                  <span>৳{mounted ? formatPrice(subtotal) : "0"}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 mb-2">
                   <span>Discount</span>
-                  <span>৳{mounted ? discount.toLocaleString() : "0"}</span>
+                  <span>৳{mounted ? formatPrice(discount) : "0"}</span>
                 </div>
 
                 <div className="flex justify-between items-center pt-2 border-t font-semibold text-base">
                   <span>Total</span>
                   <span className="text-orange-600">
-                    ৳{mounted ? total.toLocaleString() : "0"}
+                    ৳{mounted ? formatPrice(total) : "0"}
                   </span>
                 </div>
               </div>

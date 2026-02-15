@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
 import ProductVariants from "./ProductVariants";
 import toast from "react-hot-toast";
+import { formatPrice } from "@/app/lib/format-utils";
 
 interface Variant {
   variant: string;
@@ -312,7 +313,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
       <div className="">
         <div className="flex items-baseline gap-3 mb-2 flex-wrap">
           <span className="md:text-[26px] text-[22px] font-bold text-orange-600">
-            ৳{getPrices().price.toLocaleString()}
+            ৳{formatPrice(getPrices().price)}
           </span>
           {product.discount &&
             product.discount !== "0%" &&
@@ -321,7 +322,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
             product.discount !== 0 && (
               <>
                 <span className="text-[16px] text-gray-400 line-through">
-                  ৳{getPrices().oldPrice.toLocaleString()}
+                  ৳{formatPrice(getPrices().oldPrice)}
                 </span>
                 <span className="px-3 py-1 bg-[#E7F3EC] text-[#0A8544] text-sm font-medium rounded-2xl">
                   {product.discount} off
