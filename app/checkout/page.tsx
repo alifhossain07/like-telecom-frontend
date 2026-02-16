@@ -918,7 +918,7 @@ const CheckoutPage: React.FC = () => {
                   sslUrl += `&advance_payment=1`;
                 }
 
-                toast.loading(data.payment === "sslcommerz" ? "Initiating SSLCommerz Payment..." : "Initiating Advance Payment...");
+                toast.loading(data.payment === "sslcommerz" ? "Initiating online payment..." : "Initiating Advance Payment...");
 
                 // Fetch redirect URL from proxy
                 const sslResponse = await fetch(sslUrl, {
@@ -1199,13 +1199,13 @@ const CheckoutPage: React.FC = () => {
               </div>
 
               <label>Address*</label>
-              <input
-                type="text"
+              <textarea
                 placeholder="Delivery address"
-                className="border p-2 mb-1 rounded"
+                className="border p-2 mb-1 rounded w-full h-24 resize-none"
                 {...register("address")}
               />
               {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
+
             </div>
           </div>
 
@@ -1348,69 +1348,7 @@ const CheckoutPage: React.FC = () => {
                 )}
               </div>
             </div>
-            <label className="flex items-start gap-2 text-xs sm:text-sm cursor-pointer">
-              <input
-                type="checkbox"
-                {...register("agreeTerms")}
-                className="peer sr-only"
-              />
 
-              {/* Custom checkbox */}
-              <span className="
-    w-5 h-5
-    border-2 border-orange-500
-    rounded
-    flex items-center justify-center
-    peer-checked:bg-orange-500
-    peer-checked:[&_svg]:block
-    transition
-  ">
-                <svg
-                  className="w-3 h-3 text-white hidden"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </span>
-
-              <span className="flex-1">
-                I have read & agree to the{" "}
-                <Link
-                  href="/footer/terms"
-                  target="_blank"
-                  className="text-orange-500 hover:underline"
-                >
-                  Terms & Conditions
-                </Link>
-                ,{" "}
-                <Link
-                  href="/footer/privacy-policy"
-                  target="_blank"
-                  className="text-orange-500 hover:underline"
-                >
-                  Privacy Policy
-                </Link>{" "}
-                and{" "}
-                <Link
-                  href="/footer/return-policy"
-                  target="_blank"
-                  className="text-orange-500 hover:underline"
-                >
-                  Return Policy
-                </Link>
-                .
-              </span>
-            </label>
-            {errors.agreeTerms && (
-              <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
-            )}
           </div>
 
           {/* Shipping Method */}
@@ -1490,6 +1428,69 @@ const CheckoutPage: React.FC = () => {
               <span>Total Amount :</span>
               <span>৳ {formatPrice(total)}</span>
             </div>
+            <label className="flex items-start gap-2 mt-5 text-xs sm:text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                {...register("agreeTerms")}
+                className="peer sr-only"
+              />
+
+              {/* Custom checkbox */}
+              <span className="
+    w-5 h-5
+    border-2 border-orange-500
+    rounded
+    flex items-center justify-center
+    peer-checked:bg-orange-500
+    peer-checked:[&_svg]:block
+    transition
+  ">
+                <svg
+                  className="w-3 h-3 text-white hidden"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </span>
+
+              <span className="flex-1">
+                I have read & agree to the{" "}
+                <Link
+                  href="/footer/terms"
+                  target="_blank"
+                  className="text-orange-500 hover:underline"
+                >
+                  Terms & Conditions
+                </Link>
+                ,{" "}
+                <Link
+                  href="/footer/privacy-policy"
+                  target="_blank"
+                  className="text-orange-500 hover:underline"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                and{" "}
+                <Link
+                  href="/footer/return-policy"
+                  target="_blank"
+                  className="text-orange-500 hover:underline"
+                >
+                  Return Policy
+                </Link>
+                .
+              </span>
+            </label>
+            {errors.agreeTerms && (
+              <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
+            )}
             <button
               type="submit"
               className={`w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center mt-4 ${!isValid ? "opacity-60 cursor-not-allowed" : ""

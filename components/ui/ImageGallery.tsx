@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface Photo {
@@ -11,6 +11,24 @@ interface Photo {
 export default function ImageGallery({ photos }: { photos: Photo[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Listen for variant changes from ProductVariants
+  useEffect(() => {
+    const handleVariantChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const variant = customEvent.detail;
+      if (variant && variant.variant) {
+        // Find index of the photo that matches this variant name
+        const variantIndex = photos.findIndex(p => p.variant === variant.variant);
+        if (variantIndex !== -1) {
+          setCurrentIndex(variantIndex);
+        }
+      }
+    };
+
+    window.addEventListener("variant-changed", handleVariantChange);
+    return () => window.removeEventListener("variant-changed", handleVariantChange);
+  }, [photos]);
+
   // Safety check if photos array is empty
   if (!photos || photos.length === 0) {
     return <div className="text-gray-400">No images available</div>;
@@ -20,14 +38,14 @@ export default function ImageGallery({ photos }: { photos: Photo[] }) {
 
   // Function to handle Next button
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === photos.length - 1 ? 0 : prevIndex + 1
     );
   };
 
   // Function to handle Previous button
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? photos.length - 1 : prevIndex - 1
     );
   };
@@ -35,7 +53,7 @@ export default function ImageGallery({ photos }: { photos: Photo[] }) {
   return (
     <div className="w-full max-w-[550px] mx-auto">
       <div className="w-full max-h-[460px] xl:max-h-[673px] h-full bg-white rounded-lg border border-gray-200 shadow-sm p-4 flex flex-col">
-        
+
         {/* Main Product Image */}
         <div className="relative mb-4 bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center aspect-[3/4]">
           {/* Warranty Badge (Optional) */}
@@ -60,7 +78,7 @@ export default function ImageGallery({ photos }: { photos: Photo[] }) {
         {/* Thumbnail Carousel with Working Arrows */}
         <div className="relative">
           {/* Previous Button */}
-          <button 
+          <button
             onClick={handlePrev}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
           >
@@ -75,9 +93,8 @@ export default function ImageGallery({ photos }: { photos: Photo[] }) {
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`relative flex-shrink-0 w-20 h-20 rounded-lg border-2 overflow-hidden transition-all ${
-                  currentIndex === index ? "border-orange-500" : "border-gray-100"
-                }`}
+                className={`relative flex-shrink-0 w-20 h-20 rounded-lg border-2 overflow-hidden transition-all ${currentIndex === index ? "border-orange-500" : "border-gray-100"
+                  }`}
               >
                 <Image
                   src={photo.path}
@@ -90,7 +107,7 @@ export default function ImageGallery({ photos }: { photos: Photo[] }) {
           </div>
 
           {/* Next Button */}
-          <button 
+          <button
             onClick={handleNext}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
           >

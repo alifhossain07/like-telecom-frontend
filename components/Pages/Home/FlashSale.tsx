@@ -115,7 +115,7 @@ const FlashSale = () => {
   }
 
   return (
-    <div className="md:w-11/12 w-11/12 mx-auto pb-[56px]">
+    <div className="md:w-11/12 w-11/12 mx-auto pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
         <div className="w-full sm:w-7/12">

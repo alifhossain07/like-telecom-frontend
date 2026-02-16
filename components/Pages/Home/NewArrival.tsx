@@ -54,7 +54,7 @@ const NewArrival = () => {
   );
 
   return (
-    <div className="w-11/12 mx-auto mb-[56px] pb-4 pt-4 p-2 sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
+    <div className="w-11/12 mx-auto  pb-12  sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-7">
         {/* Mobile Header */}
@@ -76,14 +76,14 @@ const NewArrival = () => {
       <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         {loading
           ? Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => (
-              <div
-                key={i}
-                className="w-full h-60 bg-gray-200 animate-pulse rounded-xl"
-              />
-            ))
+            <div
+              key={i}
+              className="w-full h-60 bg-gray-200 animate-pulse rounded-xl"
+            />
+          ))
           : paginatedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            <ProductCard key={product.id} product={product} />
+          ))}
       </div>
 
       {/* Pagination - desktop only */}
@@ -93,9 +93,8 @@ const NewArrival = () => {
             <button
               key={i}
               onClick={() => setPage(i + 1)}
-              className={`px-3 py-1 rounded-md ${
-                page === i + 1 ? "bg-[#EB6420] text-white" : "bg-gray-200"
-              }`}
+              className={`px-3 py-1 rounded-md ${page === i + 1 ? "bg-[#EB6420] text-white" : "bg-gray-200"
+                }`}
             >
               {i + 1}
             </button>

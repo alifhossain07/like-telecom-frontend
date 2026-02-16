@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 // import { FcGoogle } from "react-icons/fc";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext"; // note the relative path
@@ -12,6 +13,8 @@ import { useRouter } from "next/navigation";
 const Page = () => {
   const { signup, loading } = useAuth();
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email_or_phone: "",
@@ -113,14 +116,21 @@ const Page = () => {
                     Password
                   </label>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     name="password"
                     value={form.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
-                    className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
+                    className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none pr-10"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#FF6B01]"
+                  >
+                    {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                  </button>
                 </div>
 
                 {/* Password Confirmation */}
@@ -132,14 +142,21 @@ const Page = () => {
                     Confirm Password
                   </label>
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     id="password_confirmation"
                     name="password_confirmation"
                     value={form.password_confirmation}
                     onChange={handleChange}
                     placeholder="Re-enter your password"
-                    className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
+                    className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none pr-10"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#FF6B01]"
+                  >
+                    {showConfirmPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                  </button>
                 </div>
 
                 <button

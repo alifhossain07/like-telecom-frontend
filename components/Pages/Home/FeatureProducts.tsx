@@ -79,7 +79,7 @@ const FeatureProducts: React.FC = () => {
   );
 
   return (
-    <div className="w-11/12 mx-auto mb-[56px] pt-4 pb-4 p-2 sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
+    <div className="w-11/12 mx-auto  pb-12  sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         {/* Mobile Header */}
@@ -103,8 +103,8 @@ const FeatureProducts: React.FC = () => {
       <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-5 justify-items-center">
         {loading
           ? Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))
+            <SkeletonCard key={i} />
+          ))
           : paginatedProducts.map((p) => <ProductCard key={p.id} product={p} />)}
       </div>
 

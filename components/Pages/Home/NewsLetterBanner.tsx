@@ -54,7 +54,7 @@ const NewsletterBanner: React.FC = () => {
   if (!data) return null;
 
   return (
-    <div className="w-11/12 pb-10 mx-auto mt-12">
+    <div className="w-11/12 pb-12 mx-auto ">
       <div className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-orange-400 to-orange-600 lg:aspect-[1746/292]">
         <Image
           src={data.image}

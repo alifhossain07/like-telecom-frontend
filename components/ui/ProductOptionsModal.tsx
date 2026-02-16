@@ -146,21 +146,31 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
   // Helper function to get color name from hex code
   const getColorName = (hex: string): string => {
+    if (!product) return hex;
+
+    // 1. Get unique color names from variants in the order they appear
+    const uniqueColorNames: string[] = [];
+    if (product.variants) {
+      product.variants.forEach((v) => {
+        const name = v.variant.split("-")[0];
+        if (name && !uniqueColorNames.includes(name)) {
+          uniqueColorNames.push(name);
+        }
+      });
+    }
+
+    // 2. Find the index of the hex code in the product's colors array
+    const colorIndex = product.colors?.indexOf(hex) ?? -1;
+
+    // 3. Match the name by index if possible
+    if (colorIndex !== -1 && uniqueColorNames[colorIndex]) {
+      return uniqueColorNames[colorIndex];
+    }
+
+    // Fallback to basic mapping if dynamic inference fails
     const colorMap: Record<string, string> = {
-      "#9966CC": "Amethyst",
-      "#7FFFD4": "Aquamarine",
-      "#000000": "Midnight",
+      "#000000": "Black",
       "#FFFFFF": "White",
-      "#FF0000": "Red",
-      "#0000FF": "Blue",
-      "#FFC0CB": "Pink",
-      "#FFA500": "Orange",
-      "#800080": "Purple",
-      "#008000": "Green",
-      "#FFFF00": "Yellow",
-      "#808080": "Gray",
-      "#C0C0C0": "Silver",
-      "#FFD700": "Gold",
     };
 
     const normalizedHex = hex.startsWith("#")
@@ -437,7 +447,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                         In Stock
                       </span>
                     )}
-                    <span className="text-gray-400">• ID: {product.id}</span>
+                    {/* <span className="text-gray-400">• ID: {product.id}</span> */}
                   </div>
 
                   <div className="flex items-center gap-2">

@@ -10,6 +10,6 @@ export const formatPrice = (price: number | string): string => {
   
   if (isNaN(num)) return price.toString();
 
-  // Use 'en-IN' for South Asian numbering format (Lakh, Crore)
-  return new Intl.NumberFormat('en-IN').format(num);
+  // Use 'en-IN' for South Asian numbering format (Lakh, Crore) and hide decimals
+  return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(Math.round(num));
 };

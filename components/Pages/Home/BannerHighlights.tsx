@@ -67,7 +67,7 @@ const BannerHighlights = () => {
   );
 
   return (
-    <div className="w-11/12 mx-auto py-12">
+    <div className="w-11/12 mx-auto pb-12">
       <div className="flex flex-col md:flex-row gap-4 items-stretch">
         {/* Left Banner (556x756) */}
         <div className="flex-1 relative aspect-[556/756] rounded-2xl overflow-hidden shadow-md bg-gray-100">
@@ -98,33 +98,33 @@ const BannerHighlights = () => {
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 h-full">
               {loading
                 ? Array.from({ length: 4 }).map((_, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-between p-3 sm:p-4"
-                    >
-                      <Skeleton className="w-full aspect-[1/1] mb-3" />
-                      <Skeleton className="w-3/4 h-3 sm:h-4 md:h-5" />
-                    </div>
-                  ))
+                  <div
+                    key={idx}
+                    className="bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-between p-3 sm:p-4"
+                  >
+                    <Skeleton className="w-full aspect-[1/1] mb-3" />
+                    <Skeleton className="w-3/4 h-3 sm:h-4 md:h-5" />
+                  </div>
+                ))
                 : categories.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-between p-3 sm:p-4 hover:shadow-lg transition"
-                    >
-                      <div className="flex-1 w-full flex justify-center items-center">
-                        <Image
-                          src={item.icon}
-                          alt={item.name}
-                          width={450}
-                          height={450}
-                          className="w-full h-full bg-gray-100 object-contain"
-                        />
-                      </div>
-                      <h1 className="font-bold text-xs sm:text-sm md:text-xl text-gray-800 mt-3 text-center">
-                        {item.name}
-                      </h1>
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-between p-3 sm:p-4 hover:shadow-lg transition"
+                  >
+                    <div className="flex-1 w-full flex justify-center items-center">
+                      <Image
+                        src={item.icon}
+                        alt={item.name}
+                        width={450}
+                        height={450}
+                        className="w-full h-full bg-gray-100 object-contain"
+                      />
                     </div>
-                  ))}
+                    <h1 className="font-bold text-xs sm:text-sm md:text-xl text-gray-800 mt-3 text-center">
+                      {item.name}
+                    </h1>
+                  </div>
+                ))}
             </div>
           </div>
         </div>

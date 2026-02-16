@@ -905,11 +905,11 @@ const Navbar = () => {
           Home
         </Link>
 
-        {/* <Link href="/offers" className="flex flex-col items-center text-sm"> */}
-        <div className="flex flex-col items-center text-sm"> <FiGift className="text-xl" />
-          Offers</div>
+        <Link href="/flash-deals" className="flex flex-col items-center text-sm animate-pulseGlow">
+          <div className="flex flex-col items-center text-sm"> <FiGift className="text-xl" />
+            Offers</div>
 
-        {/* </Link> */}
+        </Link>
 
         <button
           onClick={() => setCartOpen(true)}
@@ -962,9 +962,7 @@ const Navbar = () => {
               </div>
 
               <ul ref={submenuRef} className="p-4 space-y-3 text-gray-800">
-                <button className="mt-1 w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm">
-                  Buy Dealer Products
-                </button>
+
 
                 {/* MOBILE DROPDOWNS */}
                 {categories.map((cat, index) => (
@@ -1061,6 +1059,22 @@ const Navbar = () => {
                 >
                   <MdPhoneIphone className="text-lg" />
                   Used Device
+                </Link>
+
+                <hr className="my-2" />
+                <Link
+                  href="/exclusivedeals"
+                  onClick={handleCloseMenu}
+                  className="block py-2.5 px-4 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-[#FFD522] to-[#FF6B01] animate-glow text-center transition-all"
+                >
+                  Exclusive Sales
+                </Link>
+                <Link
+                  href="/corporate"
+                  onClick={handleCloseMenu}
+                  className="block py-2.5 px-4 text-sm font-semibold text-gray-800 rounded-lg bg-gray-100 hover:bg-gray-200 text-center transition-all"
+                >
+                  Corporate
                 </Link>
               </ul>
             </div>

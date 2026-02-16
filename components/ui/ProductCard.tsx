@@ -144,7 +144,7 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* ---------- IMAGE ---------- */}
         <Link
           href={`/${product.slug}`}
-          className="relative flex justify-center items-center bg-gray-50  overflow-hidden mx-2 mt-2"
+          className="relative flex justify-center items-center bg-gray-50  overflow-hidden "
         >
           <div
             className="

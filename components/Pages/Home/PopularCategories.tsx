@@ -34,21 +34,21 @@ const PopularCategories = () => {
   }, []);
 
   return (
-    <div className="pb-16">
+    <div className="pb-12">
       <div className="w-11/12 mx-auto">
 
         {/* GRID */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 md:gap-6">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 md:gap-4">
 
           {/* LOADING */}
           {loading &&
             Array.from({ length: 7 }).map((_, i) => (
               <div
                 key={i}
-                className="w-full border border-gray-200 bg-white rounded-xl p-3 animate-pulse"
+                className="w-full border border-gray-200 bg-white rounded-xl p-2 animate-pulse"
               >
-                <div className="w-full h-32 bg-gray-200 rounded-lg" />
-                <div className="mt-3 h-5 bg-gray-200 rounded-md" />
+                <div className="w-full h-20 xl:h-32 bg-gray-200 rounded-lg" />
+                <div className="mt-2 h-4 bg-gray-200 rounded-md" />
               </div>
             ))}
 
@@ -61,18 +61,18 @@ const PopularCategories = () => {
                 className="w-full border border-gray-200 bg-white rounded-xl p-2 flex flex-col items-center transition hover:shadow-md"
               >
                 {/* IMAGE (SAFE) */}
-                <div className="w-full h-24 xl:h-40 flex items-center justify-center bg-gray-100 rounded-lg">
+                <div className="w-full h-20 xl:h-32 flex items-center justify-center bg-gray-100 rounded-lg">
                   <Image
                     src={cat.icon || "/images/placeholder.png"}
                     alt={cat.name}
-                    width={120}
-                    height={120}
+                    width={100}
+                    height={100}
                     className="object-contain"
                   />
                 </div>
 
                 {/* TITLE */}
-                <p className="mt-3 w-full text-center bg-gray-100 rounded-lg px-2 py-2 xl:text-sm text-[9px] font-semibold text-gray-800">
+                <p className="mt-2 w-full text-center bg-gray-100 rounded-lg px-2 py-1.5 xl:text-sm text-[9px] font-semibold text-gray-800">
                   {cat.name}
                 </p>
               </Link>

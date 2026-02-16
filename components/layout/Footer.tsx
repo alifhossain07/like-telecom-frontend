@@ -178,9 +178,12 @@ const Footer = () => {
             )}
 
             {/* Trade License */}
-            <div className="flex justify-center md:justify-start">
+            <div className="flex flex-col justify-center md:justify-start">
               <p className="text-sm font-medium">
-                Trade License No: TRAD/DNC/053383/2022
+                Trade License No : TRAD/DNC/053383/2022
+              </p>
+              <p className="text-sm font-medium">
+                Trade License Address: ৩ নং পশ্চিম তেজতুরী বাজার, বেইজমেন্ট-২, দোকানঃ-৮২ বসুন্ধারা সিটি ঢাকা
               </p>
             </div>
           </div>
@@ -189,11 +192,11 @@ const Footer = () => {
           <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* About Us - Static */}
             <div className="text-center md:text-left">
-              <h3 className="text-md font-semibold mb-3">About Us</h3>
+              <h3 className="text-md font-semibold mb-3">Important Links</h3>
               <ul className="space-y-2 text-gray-900 text-sm mx-auto md:mx-0 w-fit">
                 <li>
-                  <Link href="/about-us" className="hover:text-white transition">
-                    Regarding Us
+                  <Link href="/footer/about-us" className="hover:text-white transition">
+                    About Us
                   </Link>
                 </li>
                 <li>

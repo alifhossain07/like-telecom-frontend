@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface ChoiceOption {
   name: string;
@@ -84,6 +84,39 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
     }
   }, [choiceOptions, selectedOptions, onOptionChange]);
 
+  // Helper function to get color name from hex code
+  const getColorName = useCallback((hex: string): string => {
+    // 1. Get unique color names from variants in the order they appear
+    const uniqueColorNames: string[] = [];
+    variants.forEach((v) => {
+      const name = v.variant.split("-")[0];
+      if (name && !uniqueColorNames.includes(name)) {
+        uniqueColorNames.push(name);
+      }
+    });
+
+    // 2. Find the index of the hex code in the colors array
+    const colorIndex = colors.indexOf(hex);
+
+    // 3. Match the name by index if possible
+    if (colorIndex !== -1 && uniqueColorNames[colorIndex]) {
+      return uniqueColorNames[colorIndex];
+    }
+
+    // Fallback to basic mapping if dynamic inference fails
+    const colorMap: Record<string, string> = {
+      "#000000": "Black",
+      "#FFFFFF": "White",
+    };
+
+    // Normalize hex code (uppercase, add # if missing)
+    const normalizedHex = hex.startsWith("#")
+      ? hex.toUpperCase()
+      : `#${hex.toUpperCase()}`;
+
+    return colorMap[normalizedHex] || normalizedHex;
+  }, [variants, colors]);
+
   // Find matching variant based on selected options
   useEffect(() => {
     // Filter out invalid variants (empty objects or missing variant property)
@@ -136,6 +169,11 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       setDisplayStock(matchedVariant.qty);
       setDisplaySku(matchedVariant.sku);
       onVariantChange?.(matchedVariant);
+
+      // Dispatch event for ImageGallery to listen for
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("variant-changed", { detail: matchedVariant }));
+      }
     } else {
       setCurrentVariant(null);
       setDisplayStock(currentStock);
@@ -150,35 +188,9 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
     sku,
     onVariantChange,
     choiceOptions,
-    colors.length
+    colors.length,
+    getColorName
   ]);
-
-  // Helper function to get color name from hex code
-  const getColorName = (hex: string): string => {
-    const colorMap: Record<string, string> = {
-      "#9966CC": "Amethyst",
-      "#7FFFD4": "Aquamarine",
-      "#000000": "Midnight",
-      "#FFFFFF": "White",
-      "#FF0000": "Red",
-      "#0000FF": "Blue",
-      "#FFC0CB": "Pink",
-      "#FFA500": "Orange",
-      "#800080": "Purple",
-      "#008000": "Green",
-      "#FFFF00": "Yellow",
-      "#808080": "Gray",
-      "#C0C0C0": "Silver",
-      "#FFD700": "Gold",
-    };
-
-    // Normalize hex code (uppercase, add # if missing)
-    const normalizedHex = hex.startsWith("#")
-      ? hex.toUpperCase()
-      : `#${hex.toUpperCase()}`;
-
-    return colorMap[normalizedHex] || normalizedHex;
-  };
 
   // Get selected color name
   const selectedColorName = selectedColor ? getColorName(selectedColor) : "";
@@ -267,8 +279,8 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                   key={optionIndex}
                   onClick={() => handleOptionClick(choice.title, option)}
                   className={`px-4 py-1 rounded text-[12px] font-base transition ${isSelected
-                      ? "bg-gray-800 text-white"
-                      : "bg-[#E5E5E5] text-black hover:bg-gray-800 hover:text-white"
+                    ? "bg-gray-800 text-white"
+                    : "bg-[#E5E5E5] text-black hover:bg-gray-800 hover:text-white"
                     }`}
                 >
                   {option}
@@ -297,8 +309,8 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                     }}
                     style={{ backgroundColor: color }}
                     className={`w-[24px] h-[24px] rounded-md border-2 transition ${isSelected
-                        ? "border-gray-800 scale-110"
-                        : "border-gray-300 hover:border-gray-400"
+                      ? "border-gray-800 scale-110"
+                      : "border-gray-300 hover:border-gray-400"
                       }`}
                   />
                   {/* Tooltip */}
