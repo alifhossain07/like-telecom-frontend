@@ -114,6 +114,7 @@ const Navbar = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
   const [responsivePlaceholder, setResponsivePlaceholder] = useState("Search your Favourite Accessories.");
+  const [helplineNumber, setHelplineNumber] = useState<string>("+--854789956");
 
   useEffect(() => {
     const handleResize = () => {
@@ -216,6 +217,25 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
+    async function fetchHelpline() {
+      try {
+        const res = await fetch("/api/business-settings", { cache: "no-store" });
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          const setting = json.data.find((s: any) => s.type === "phone_number");
+          if (setting?.value) {
+            setHelplineNumber(setting.value);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch helpline number:", err);
+      }
+    }
+
+    fetchHelpline();
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       //   setOpen(false);
@@ -291,7 +311,7 @@ const Navbar = () => {
 
             {/* Right - Contact */}
             <div className="font-semibold text-green-800 text-center md:text-right text-sm">
-              Contact Us 24/7: +--854789956
+              Contact Us 24/7: {helplineNumber}
             </div>
           </div>
         </div>

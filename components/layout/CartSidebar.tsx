@@ -42,16 +42,26 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
     setMounted(true);
     updateCompareCount();
 
-    // Fetch social numbers
+    // Fetch business settings for social links
     const fetchSocialLinks = async () => {
       try {
-        const response = await fetch("/api/social-numbers", { cache: 'no-store' });
+        const response = await fetch("/api/business-settings", { cache: 'no-store' });
         if (response.ok) {
-          const data = await response.json();
-          setSocialLinks(data);
+          const json = await response.json();
+          if (json.success && Array.isArray(json.data)) {
+            // Filter only the needed social keys
+            const targetKeys = ['phone_number', 'messenger_link', 'whatsapp_number'];
+            const filteredData = json.data
+              .filter((item: { type: string; value: any }) => targetKeys.includes(item.type))
+              .map((item: { type: string; value: any }) => ({
+                type: item.type,
+                value: typeof item.value === 'string' ? item.value : JSON.stringify(item.value)
+              }));
+            setSocialLinks(filteredData);
+          }
         }
       } catch (error) {
-        console.error("Failed to fetch social links:", error);
+        console.error("Failed to fetch business settings:", error);
       }
     };
     fetchSocialLinks();
