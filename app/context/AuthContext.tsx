@@ -14,6 +14,7 @@ interface AuthContextValue {
     email_or_phone: string;
     password: string;
     password_confirmation: string;
+    referral_code?: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -147,6 +148,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     email_or_phone: string;
     password: string;
     password_confirmation: string;
+    referral_code?: string;
   }) => {
     setLoading(true);
     try {

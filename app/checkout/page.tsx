@@ -40,6 +40,7 @@ interface CheckoutFormData {
   stateName?: string;
   deliveryMethod: "inside" | "outside" | "shop_pickup";
   pickupStore?: string;
+  clubPointsToUse?: number;
 }
 
 interface PaymentType {
@@ -102,6 +103,7 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
     .oneOf([true], "You must accept terms")
     .required("You must accept terms"),
   promoCode: yup.string().optional(),
+  clubPointsToUse: yup.number().optional(),
 });
 // ------------------------- Checkout Page -------------------------
 const CheckoutPage: React.FC = () => {
@@ -153,6 +155,7 @@ const CheckoutPage: React.FC = () => {
       stateId: null,
       stateName: "",
       pickupStore: "",
+      clubPointsToUse: 0,
     },
   });
 
@@ -203,6 +206,63 @@ const CheckoutPage: React.FC = () => {
     };
     fetchPaymentTypes();
   }, []);
+
+  // ------------------------- Club Points -------------------------
+  const [availablePoints, setAvailablePoints] = React.useState<number>(0);
+  const [pointsDiscount, setPointsDiscount] = React.useState<number>(0);
+  const [isApplyingPoints, setIsApplyingPoints] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!accessToken) return;
+    const fetchPoints = async () => {
+      try {
+        const res = await fetch("/api/clubpoint/get-list", {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        const data = await res.json();
+        if (data.summary) {
+          setAvailablePoints(data.summary.available_points || 0);
+        }
+      } catch (error) {
+        console.error("Error fetching club points:", error);
+      }
+    };
+    fetchPoints();
+  }, [accessToken]);
+
+  const handleApplyPoints = async () => {
+    const pointsToUse = Number(watch("clubPointsToUse"));
+    if (!pointsToUse || pointsToUse <= 0) {
+      toast.error("Please enter a valid number of points");
+      return;
+    }
+    if (pointsToUse > availablePoints) {
+      toast.error(`You only have ${availablePoints} points available`);
+      return;
+    }
+
+    try {
+      setIsApplyingPoints(true);
+      const res = await axios.post("/api/clubpoint/apply-discount", {
+        points: pointsToUse,
+        amount: subtotal - discount - promoDiscount
+      }, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      if (res.data.result) {
+        setPointsDiscount(res.data.data.discount || 0);
+        toast.success(`Discount of ৳${formatPrice(res.data.data.discount)} applied!`);
+      } else {
+        toast.error(res.data.message || "Failed to apply points");
+      }
+    } catch (error) {
+      console.error("Error applying points:", error);
+      toast.error("Failed to apply points");
+    } finally {
+      setIsApplyingPoints(false);
+    }
+  };
 
   // Districts state
   const [districts, setDistricts] = React.useState<DistrictOption[]>([]);
@@ -691,7 +751,7 @@ const CheckoutPage: React.FC = () => {
   }, [couponData, subtotal, discount]);
 
   const effectiveDelivery = deliveryCharge;
-  const total = subtotal - discount + effectiveDelivery - promoDiscount;
+  const total = subtotal - discount + effectiveDelivery - promoDiscount - pointsDiscount;
 
   // Booking Money calculation
   const bookingMoney = React.useMemo(() => {
@@ -767,6 +827,7 @@ const CheckoutPage: React.FC = () => {
       note: "",
       pickup_point_id: data.deliveryMethod === "shop_pickup" ? (data.pickupStore ? Number(data.pickupStore) : null) : null,
       carrier_id: null,
+      club_points_to_use: data.clubPointsToUse || 0,
     };
 
     console.log("----- CHECKOUT: submitOrder -----");
@@ -1394,6 +1455,39 @@ const CheckoutPage: React.FC = () => {
             )}
           </div>
 
+          {/* Club Points */}
+          {accessToken && availablePoints > 0 && (
+            <div className="border rounded-xl p-4 bg-white shadow-sm">
+              <h1 className="text-2xl mb-4 font-semibold">Club Points</h1>
+              <p className="text-sm text-gray-500 mb-4">
+                You have <span className="font-bold text-orange-600">{availablePoints}</span> available points.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  className="border p-2 rounded w-full flex-1"
+                  {...register("clubPointsToUse")}
+                  placeholder="Enter points to use"
+                  max={availablePoints}
+                  min={0}
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyPoints}
+                  disabled={isApplyingPoints}
+                  className="bg-orange-500 text-white px-6 py-2 rounded-md hover:bg-orange-600 duration-300 disabled:opacity-50 whitespace-nowrap"
+                >
+                  {isApplyingPoints ? "Applying..." : "Use Points"}
+                </button>
+              </div>
+              {pointsDiscount > 0 && (
+                <div className="mt-2 p-2 bg-green-50 rounded text-green-700 text-sm">
+                  ✅ Applied {watch("clubPointsToUse")} points for ৳{formatPrice(pointsDiscount)} discount
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Order Summary */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
             <h2 className="md:text-2xl text-xl font-semibold mb-4">In Your Order Summary</h2>
@@ -1422,6 +1516,12 @@ const CheckoutPage: React.FC = () => {
               <div className="flex justify-between md:text-lg text-base mb-2 text-green-600 font-medium">
                 <span>Promo Discount ({appliedPromo}) :</span>
                 <span>-৳ {formatPrice(promoDiscount)}</span>
+              </div>
+            )}
+            {pointsDiscount > 0 && (
+              <div className="flex justify-between md:text-lg text-base mb-2 text-green-600 font-medium">
+                <span>Points Discount :</span>
+                <span>-৳ {formatPrice(pointsDiscount)}</span>
               </div>
             )}
             <div className="flex bg-[#f4f4f4] py-4 px-2 justify-between font-semibold text-orange-600 text-lg md:text-xl mt-4">

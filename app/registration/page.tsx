@@ -8,11 +8,13 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext"; // note the relative path
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Page = () => {
   const { signup, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("referral_code");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [form, setForm] = useState({
@@ -20,6 +22,7 @@ const Page = () => {
     email_or_phone: "",
     password: "",
     password_confirmation: "",
+    referral_code: referralCode || "",
   });
 
   const handleChange = (
@@ -41,6 +44,7 @@ const Page = () => {
         email_or_phone: form.email_or_phone,
         password: form.password,
         password_confirmation: form.password_confirmation,
+        referral_code: form.referral_code || undefined,
       });
       toast.success("Account created & logged in");
       router.push("/");
@@ -157,6 +161,25 @@ const Page = () => {
                   >
                     {showConfirmPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
                   </button>
+                </div>
+
+                {/* Referral Code */}
+                <div className="relative">
+                  <label
+                    htmlFor="referral_code"
+                    className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
+                  >
+                    Referral Code (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    id="referral_code"
+                    name="referral_code"
+                    value={form.referral_code}
+                    onChange={handleChange}
+                    placeholder="Enter referral code"
+                    className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
+                  />
                 </div>
 
                 <button

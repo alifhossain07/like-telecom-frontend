@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
       note: data.note ?? "",
       pickup_point_id: data.pickup_point_id ?? null,
       carrier_id: data.carrier_id ?? null,
+      club_points_to_use: data.club_points_to_use ?? 0,
     };
 
     console.log("Mapped payload to backend API:", payload);

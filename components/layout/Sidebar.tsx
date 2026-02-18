@@ -17,6 +17,8 @@ const menuItems = [
   { name: "Address", href: "/address", icon: <HiOutlineLocationMarker size={22} /> },
   { name: "Password", href: "/password", icon: <HiOutlineLockClosed size={22} /> },
   { name: "Wishlist", href: "/wishlist", icon: <HiOutlineHeart size={22} /> },
+  { name: "Referral", href: "/referral", icon: <HiOutlineTicket size={22} /> },
+  { name: "Points", href: "/points", icon: <HiOutlineTicket size={22} /> },
   { name: "Coupon", href: "/coupon", icon: <HiOutlineTicket size={22} /> },
   { name: "Review", href: "/review", icon: <HiOutlineChatAlt2 size={22} /> },
 ];

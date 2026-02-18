@@ -230,20 +230,25 @@ export default function ProductCard({ product }: { product: Product }) {
         </Link>
 
         {/* ---------- PRICE ---------- */}
-        <div className="flex flex-col px-2 py-1 gap-1">
+        <div className="flex flex-row items-center px-2 py-1 gap-2">
           <span className="text-orange-600 font-semibold text-lg sm:text-base md:text-xl lg:text-2xl">
             ৳{formatPrice(product.price)}
           </span>
-          <span className="text-gray-400 line-through text-xs sm:text-sm md:text-md">
+          <span className="text-gray-400 line-through text-xs sm:text-sm md:text-lg">
             ৳{formatPrice(product.oldPrice)}
           </span>
         </div>
 
         {/* ---------- FOOTER ---------- */}
         <div className="flex items-center justify-between mx-2 mb-2">
-          <div className="flex items-center text-xs sm:text-sm text-gray-500">
-            <FaStar className="text-yellow-400 mr-1" />
-            ({product.rating})
+          <div className="flex items-center text-[10px] sm:text-xs text-gray-400">
+            {[...Array(5)].map((_, i) => (
+              <FaStar
+                key={i}
+                className={i < Math.floor(Number(product.rating)) ? "text-yellow-400" : "text-gray-200"}
+              />
+            ))}
+            <span className="ml-1 text-gray-500">({product.rating})</span>
           </div>
 
           <button

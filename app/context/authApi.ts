@@ -87,6 +87,7 @@ export async function signup(payload: {
   email_or_phone: string;
   password: string;
   password_confirmation: string;
+  referral_code?: string;
 }): Promise<AuthResponse> {
   const res = await fetch("/api/auth/signup", {
     method: "POST",
@@ -97,6 +98,7 @@ export async function signup(payload: {
       email_or_phone: payload.email_or_phone,
       password: payload.password,
       password_confirmation: payload.password_confirmation,
+      referral_code: payload.referral_code,
     }),
   });
   if (!res.ok) throw new Error("Signup failed");
