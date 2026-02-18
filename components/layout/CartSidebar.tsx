@@ -52,8 +52,8 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
             // Filter only the needed social keys
             const targetKeys = ['phone_number', 'messenger_link', 'whatsapp_number'];
             const filteredData = json.data
-              .filter((item: { type: string; value: any }) => targetKeys.includes(item.type))
-              .map((item: { type: string; value: any }) => ({
+              .filter((item: { type: string; value: string | string[] | null }) => targetKeys.includes(item.type))
+              .map((item: { type: string; value: string | string[] | null }) => ({
                 type: item.type,
                 value: typeof item.value === 'string' ? item.value : JSON.stringify(item.value)
               }));

@@ -222,7 +222,7 @@ const Navbar = () => {
         const res = await fetch("/api/business-settings", { cache: "no-store" });
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
-          const setting = json.data.find((s: any) => s.type === "phone_number");
+          const setting = json.data.find((s: { type: string; value: string | null }) => s.type === "phone_number");
           if (setting?.value) {
             setHelplineNumber(setting.value);
           }
