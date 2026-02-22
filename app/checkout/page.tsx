@@ -797,7 +797,35 @@ const CheckoutPage: React.FC = () => {
     let shipping_zone = null;
     if (data.deliveryMethod === "inside") shipping_zone = "insideDhaka";
     else if (data.deliveryMethod === "outside") shipping_zone = "outsideDhaka";
-    const payload = {
+    const payload: {
+      customer: {
+        name: string;
+        mobile: string;
+        email: string | null;
+        address: string;
+        country_id: number | null;
+        state_id: number | null;
+        city_id: null;
+        area_id: null;
+        postal_code: null;
+      };
+      items: {
+        id: number;
+        qty: number;
+        variant: string | null;
+        referral_code: null;
+      }[];
+      shipping_method: string;
+      shipping_zone: string | null;
+      payment_method: string;
+      payment_type: string;
+      payment_number: null;
+      promo_code: string | null;
+      note: string;
+      pickup_point_id: number | null;
+      carrier_id: null;
+      club_points_to_use?: number;
+    } = {
       customer: {
         name: data.name,
         mobile: data.mobile,
@@ -827,8 +855,11 @@ const CheckoutPage: React.FC = () => {
       note: "",
       pickup_point_id: data.deliveryMethod === "shop_pickup" ? (data.pickupStore ? Number(data.pickupStore) : null) : null,
       carrier_id: null,
-      club_points_to_use: data.clubPointsToUse || 0,
     };
+
+    if (data.clubPointsToUse && data.clubPointsToUse > 0) {
+      payload.club_points_to_use = data.clubPointsToUse;
+    }
 
     console.log("----- CHECKOUT: submitOrder -----");
     console.log("Payload:", JSON.stringify(payload, null, 2));

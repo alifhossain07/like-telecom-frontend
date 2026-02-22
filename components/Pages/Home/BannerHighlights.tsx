@@ -67,7 +67,7 @@ const BannerHighlights = () => {
   );
 
   return (
-    <div className="w-11/12 mx-auto pb-12">
+    <div className="w-11/12 mx-auto mt-6 md:mt-0 pb-6 md:pb-12">
       <div className="flex flex-col md:flex-row gap-4 items-stretch">
         {/* Left Banner (556x756) */}
         <div className="flex-1 relative aspect-[556/756] rounded-2xl overflow-hidden shadow-md bg-gray-100">

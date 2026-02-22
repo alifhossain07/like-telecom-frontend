@@ -54,13 +54,13 @@ const NewArrival = () => {
   );
 
   return (
-    <div className="w-11/12 mx-auto  pb-12  sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
+    <div className="w-11/12 mx-auto  pb-12 p-3  sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-7">
         {/* Mobile Header */}
         <div className="flex items-center sm:hidden w-full justify-between">
           <h1 className="text-2xl font-medium">New Arrival</h1>
-          <button className="bg-[#EB6420] text-white px-4 text-[12px] py-2 rounded-xl">
+          <button className="bg-[#EB6420] text-white px-4 text-[12px] py-1 md:py-2 rounded-xl">
             See More
           </button>
         </div>

@@ -42,7 +42,7 @@ const SmartPhoneBrands = () => {
   }
 
   return (
-    <div className="w-11/12 py-3 xl:p-10 flex flex-col md:flex-row mx-auto xl:items-center bg-gray-200 rounded-2xl">
+    <div className="w-11/12 py-3 xl:p-10 mb-6 md:mb-8  flex flex-col md:flex-row mx-auto xl:items-center bg-gray-200 rounded-2xl">
       <div className="py-5 md:w-1/2 px-4">
         <h1 className="text-xl md:text-3xl md:text-left md:w-8/12 font-bold text-gray-800 mb-4">
           {title}

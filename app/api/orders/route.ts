@@ -11,6 +11,30 @@ interface OrderItem {
   referral_code?: string | null;
 }
 
+interface OrderPayload {
+  customer: {
+    name: string;
+    mobile: string;
+    email: string | null;
+    address: string;
+    country_id: number | null;
+    state_id: number | null;
+    city_id: number | null;
+    area_id: number | null;
+    postal_code: string | null;
+  };
+  items: { id: number; qty: number; variant: string | null; referral_code: string | null; }[] | null;
+  shipping_method: string;
+  shipping_zone: string | null;
+  payment_method: string | null;
+  payment_number: string | null;
+  promo_code: string | null;
+  note: string;
+  pickup_point_id: number | null;
+  carrier_id: number | null;
+  club_points_to_use?: number;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
@@ -27,7 +51,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const payload = {
+    const payload: OrderPayload = {
       customer: {
         name: data.customer?.name ?? "",
         mobile: data.customer?.mobile ?? "",
@@ -58,8 +82,11 @@ export async function POST(req: NextRequest) {
       note: data.note ?? "",
       pickup_point_id: data.pickup_point_id ?? null,
       carrier_id: data.carrier_id ?? null,
-      club_points_to_use: data.club_points_to_use ?? 0,
     };
+
+    if (data.club_points_to_use && data.club_points_to_use > 0) {
+      payload.club_points_to_use = data.club_points_to_use;
+    }
 
     console.log("Mapped payload to backend API:", payload);
 

@@ -84,11 +84,11 @@ const DynamicPopup = () => {
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="relative w-80 h-80 mb-32">
+      <div className="relative w-72 h-72 md:mt-24">
         <Image
           src={popupData.banner}
           alt={popupData.title || "Popup"}
-          width={800}
+          width={600}
           height={600}
           className="object-contain rounded-lg shadow-2xl"
           priority

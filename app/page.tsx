@@ -19,6 +19,7 @@ import BannerHighlights from "@/components/Pages/Home/BannerHighlights";
 import NewsletterBanner from "@/components/Pages/Home/NewsLetterBanner";
 import SmartPhoneBrands from "@/components/Pages/Home/SmartPhoneBrands";
 import AuthenticProductsLayout from "@/components/Pages/Home/AuthenticProductsLayout";
+import MobileViewButtons from "@/components/Pages/Home/MobileViewButtons";
 
 
 
@@ -37,11 +38,13 @@ export default function Home() {
         `}
       </Script>
       <HeroSlider /> 
-      <FeatureSupport />
+        <MobileViewButtons/>
       <PopularCategories />
+     
+      <NewArrival/>
        <FlashSale/>
        <BannerHighlights/>
-      <NewArrival/>
+    
       {/* <EarbudsProducts/> */}
      
       {/* <FastChargerProduct/>
@@ -56,6 +59,7 @@ export default function Home() {
       <NewsLetter/> */}
       <SmartPhoneBrands/>
       <AuthenticProductsLayout/>
+     <FeatureSupport />
       <NewsletterBanner/>
 
   

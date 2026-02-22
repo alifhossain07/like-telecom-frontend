@@ -5,7 +5,7 @@ import axios from "axios";
 import { FiChevronRight } from "react-icons/fi";
 import ProductCard from "@/components/ui/ProductCard";
 import FlashSaleShimmerSkeleton from "@/components/Skeletons/FlashSaleShimmerSkeleton";
-// Import the ShimmerSkeleton component
+
 
 interface Product {
   id: number;

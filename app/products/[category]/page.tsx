@@ -35,6 +35,11 @@ type FilteringAttribute = {
   values: FilteringAttributeValue[];
 };
 
+type Brand = {
+  name: string;
+  icon: string;
+};
+
 const CategoryPage = () => {
   const router = useRouter();
   const params = useParams();
@@ -67,6 +72,11 @@ const CategoryPage = () => {
 
   const [filteringAttributes, setFilteringAttributes] = useState<FilteringAttribute[]>([]);
   const [selectedAttributeValues, setSelectedAttributeValues] = useState<Set<number>>(getInitialSelectedValues);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(() => {
+    const brands = searchParams.get("brands");
+    return brands ? brands.split(",") : [];
+  });
 
   const MIN = 0;
   const MAX = 500000; // Updated to 500k to cover iPhones
@@ -204,6 +214,21 @@ const CategoryPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, isSearchMode, searchQuery, minPrice, maxPrice, sortOption, currentPage]);
 
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const res = await axios.get('/api/brands');
+        if (res.data.success) {
+          setBrands(res.data.brands || []);
+        }
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    };
+
+    fetchBrands();
+  }, []);
+
   // Client-side filtering for availability and device (since API doesn't support these)
   const filteredProducts = products.filter((p) => {
     // 1. Availability Filter
@@ -263,6 +288,13 @@ const CategoryPage = () => {
     // 3. Price Filter (Client-side)
     if (p.price < minPrice || p.price > maxPrice) {
       return false;
+    }
+
+    // 5. Brand Filter
+    if (selectedBrands.length > 0) {
+      const productName = p.name.toLowerCase();
+      const matches = selectedBrands.some(brand => productName.includes(brand.toLowerCase()));
+      if (!matches) return false;
     }
 
     // 4. Device compatibility filter (Removed UI, but keeping logic commented out or just return true)
@@ -335,6 +367,7 @@ const CategoryPage = () => {
     setSortOption("default");
     setCurrentPage(1);
     setSelectedAttributeValues(new Set()); // Clear dynamic attributes
+    setSelectedBrands([]);
 
     const params = new URLSearchParams();
 
@@ -363,6 +396,19 @@ const CategoryPage = () => {
     const valuesArray = Array.from(newSelected);
     updateURL({
       attribute_values: valuesArray.length > 0 ? valuesArray.join(",") : null,
+      page: null
+    });
+  };
+
+  const toggleBrand = (brandName: string) => {
+    const newSelectedBrands = selectedBrands.includes(brandName)
+      ? selectedBrands.filter(b => b !== brandName)
+      : [...selectedBrands, brandName];
+
+    setSelectedBrands(newSelectedBrands);
+    setCurrentPage(1);
+    updateURL({
+      brands: newSelectedBrands.length > 0 ? newSelectedBrands.join(",") : null,
       page: null
     });
   };
@@ -424,6 +470,28 @@ const CategoryPage = () => {
           </label>
         </div>
       </div>
+
+      {/* Brand Filter */}
+      {brands.length > 0 && (
+        <div className="border-t py-3">
+          <h3 className="font-medium text-base md:text-[18px] mb-2">
+            Brands
+          </h3>
+          <div className="space-y-1 text-[#626262] text-sm md:text-[16px]">
+            {brands.map((brand) => (
+              <label key={brand.name} className="flex gap-2 items-center cursor-pointer">
+                <input
+                  className="accent-orange-500 cursor-pointer"
+                  type="checkbox"
+                  checked={selectedBrands.includes(brand.name)}
+                  onChange={() => toggleBrand(brand.name)}
+                />{" "}
+                {brand.name}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Dynamic Attributes */}
       {filteringAttributes.map((attr) => (

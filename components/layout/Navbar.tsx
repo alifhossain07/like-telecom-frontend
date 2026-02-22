@@ -699,24 +699,27 @@ const Navbar = () => {
                         {category.subcategories.map((sub) => (
                           <li
                             key={sub.id}
-                            className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center"
+                            className="relative text-sm"
                             onMouseEnter={() => setHoveredSubcategory(sub.name)}
                             onMouseLeave={() => setHoveredSubcategory(null)}
                           >
-                            {sub.name}
-
-                            {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
+                            <Link href={`/products/${sub.slug}`} className="px-4 py-2 hover:bg-gray-100 flex justify-between items-center">
+                              {sub.name}
+                              {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
+                            </Link>
 
                             {/* SECOND LEVEL DROPDOWN */}
                             {sub.children?.length > 0 && (
                               <div
-                                className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"
+                                className={`absolute left-full -top-2 ml-1 bg-white rounded-md shadow-lg transition-all ${hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"
                                   }`}
                               >
                                 <ul className="min-w-[160px] py-2">
                                   {sub.children?.map((child) => (
-                                    <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm">
-                                      {child.name}
+                                    <li key={child.id}>
+                                      <Link href={`/products/${child.slug}`} className="block px-4 py-2 hover:bg-gray-100 text-sm">
+                                        {child.name}
+                                      </Link>
                                     </li>
                                   ))}
                                 </ul>
@@ -874,12 +877,16 @@ const Navbar = () => {
                       type="button"
                       onClick={() => {
                         if (slug) {
+                          // Clear state and navigate
+                          setShowSuggestions(false);
+                          setSuggestions([]);
+                          setMobileSearchTerm("");
+                          setShowMobileSearch(false);
                           router.push(`/${slug}`);
                         } else if (label) {
+                          // Fallback to search page
                           handleSearchSubmit(label);
                         }
-                        setShowSuggestions(false);
-                        setShowMobileSearch(false);
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${idx < suggestions.length - 1 ? 'border-b border-gray-50' : ''}`}
                     >
@@ -1013,29 +1020,27 @@ const Navbar = () => {
 
                     {/* FIRST LEVEL */}
                     <div
-                      className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedCategory === cat.name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+                      className={`ml-4 border-l border-gray-200 pl-3 overflow-y-auto transition-all ${expandedCategory === cat.name ? "max-h-[40vh] opacity-100" : "max-h-0 opacity-0"
                         }`}
                     >
                       <ul className="space-y-1">
                         {cat.subcategories.map((sub, subIndex) => (
                           <li key={subIndex}>
-                            <button
-                              className="flex justify-between w-full py-1 text-sm text-gray-600"
-                              onClick={() =>
-                                setExpandedSubcategory(
-                                  expandedSubcategory === sub.name ? null : sub.name
-                                )
-                              }
-                            >
+                            <Link href={`/products/${sub.slug}`} onClick={handleCloseMenu} className="w-full flex justify-between items-center py-2 text-gray-700">
                               {sub.name}
-
-                              {sub.children?.length > 0 && (
-                                <FiChevronDown
-                                  className={`transition-transform ${expandedSubcategory === sub.name ? "rotate-180" : ""
-                                    }`}
-                                />
+                              {sub.children.length > 0 && (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setExpandedSubcategory(expandedSubcategory === sub.name ? null : sub.name);
+                                  }}
+                                >
+                                  <FiChevronRight
+                                    className={`transition-transform ${expandedSubcategory === sub.name ? "rotate-90" : ""}`}
+                                  />
+                                </button>
                               )}
-                            </button>
+                            </Link>
 
                             {/* SECOND LEVEL */}
                             <div
@@ -1044,10 +1049,12 @@ const Navbar = () => {
                                 : "max-h-0 opacity-0"
                                 }`}
                             >
-                              <ul className="space-y-1">
-                                {sub.children?.map((child, cidx) => (
-                                  <li key={cidx} className="py-1 text-sm text-gray-600">
-                                    {child.name}
+                              <ul className="pl-4 border-l border-gray-200">
+                                {sub.children.map((child) => (
+                                  <li key={child.id}>
+                                    <Link href={`/products/${child.slug}`} onClick={handleCloseMenu} className="block py-1 text-gray-600">
+                                      {child.name}
+                                    </Link>
                                   </li>
                                 ))}
                               </ul>

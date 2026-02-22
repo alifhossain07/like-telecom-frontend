@@ -79,13 +79,13 @@ const FeatureProducts: React.FC = () => {
   );
 
   return (
-    <div className="w-11/12 mx-auto  pb-12  sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
+    <div className="w-11/12 mx-auto p-3 mb-6 md:mb-0   pb-12  sm:bg-transparent bg-orange-100 rounded-xl sm:rounded-none">
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         {/* Mobile Header */}
         <div className="flex items-center sm:hidden w-full justify-between">
           <h1 className="text-2xl w-1/2 font-medium">Recommended For You</h1>
-          <button className="bg-[#EB6420] text-white px-4 text-[12px] py-2 rounded-xl">
+          <button className="bg-[#EB6420] text-white px-4 text-[12px] py-1 md:py-2 rounded-xl">
             See More
           </button>
         </div>

@@ -13,7 +13,7 @@ export async function GET() {
     );
   }
 
-  // Fetch dynamic popups from like.test/api/v2/dynamic-popups/
+
   const url = `${API_BASE}/dynamic-popups/`;
 
   try {

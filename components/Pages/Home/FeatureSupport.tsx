@@ -41,8 +41,8 @@ const FeatureSupport = () => {
   const skeletons = Array.from({ length: 6 }, (_, i) => <SkeletonItem key={i} />);
 
   return (
-    <div className="w-11/12 mx-auto">
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4 pb-4 text-center justify-items-center md:justify-items-stretch">
+    <div className="w-11/12 mx-auto pb-7 pt-7 md:pt-0">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4 pb-4 text-center justify-items-stretch">
         {loading && skeletons}
         {error && (
           <div className="col-span-6 text-center text-red-500 py-4">{error}</div>
@@ -50,7 +50,7 @@ const FeatureSupport = () => {
         {!loading && !error && signals.map((item, idx) => (
           <div
             key={idx}
-            className="bg-orange-100 w-[80px] aspect-square md:w-full md:aspect-[1.5/1] rounded-lg flex flex-col items-center justify-center"
+            className="bg-orange-100 w-full aspect-square md:aspect-[1.5/1] rounded-lg flex flex-col items-center justify-center p-1"
           >
             <Image
               src={item.icon}
