@@ -39,8 +39,7 @@ export async function GET(
     return NextResponse.json(response.data);
   } catch {
     // If the backend returns an error (404, 500, etc.), it usually means the product is NOT in the wishlist.
-    // We intercept this and return is_in_wishlist: false to the frontend to prevent error logs.
-    console.log(`Wishlist check: Product likely not in wishlist or backend error for slug: ${params.slug}`);
+    // console.log(`Wishlist check: Product likely not in wishlist or backend error for slug: ${params.slug}`);
     
     return NextResponse.json({
       success: true,

@@ -15,8 +15,8 @@ export async function GET(
     const bearerToken = getBearerToken(req);
     
     // Debug logging
-    console.log("Product API Route - Bearer Token:", bearerToken ? "Present" : "Not present");
-    console.log("Product API Route - Request Headers:", Object.fromEntries(req.headers.entries()));
+    // console.log("Product API Route - Bearer Token:", bearerToken ? "Present" : "Not present");
+    // console.log("Product API Route - Request Headers:", Object.fromEntries(req.headers.entries()));
 
     // Build headers:
     // - System-Key: Always required for API access
@@ -29,10 +29,10 @@ export async function GET(
       ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
     };
     
-    console.log("Product API Route - Headers being sent to backend:", {
-      "System-Key": SYSTEM_KEY ? "Present" : "Missing",
-      "Authorization": bearerToken ? "Present" : "Not present"
-    });
+    // console.log("Product API Route - Headers being sent to backend:", {
+    //   "System-Key": SYSTEM_KEY ? "Present" : "Missing",
+    //   "Authorization": bearerToken ? "Present" : "Not present"
+    // });
 
     const res = await fetch(`${API_BASE}/products/${slug}`, {
       headers,

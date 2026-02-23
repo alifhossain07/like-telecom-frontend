@@ -68,11 +68,11 @@ export default function ProductCard({ product }: { product: Product }) {
   }, [product.slug]);
 
   // Log product details as requested
-  useEffect(() => {
-    if (productDetails) {
-      console.log("Fetched Product Details:", productDetails);
-    }
-  }, [productDetails]);
+  // useEffect(() => {
+  //   if (productDetails) {
+  //     console.log("Fetched Product Details:", productDetails);
+  //   }
+  // }, [productDetails]);
 
   // Check if product is in wishlist on mount/user change
   useEffect(() => {
